@@ -1,0 +1,236 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model acta {
+  id                  Int              @id @default(autoincrement())
+  infraccion_id       Int?
+  cuadro_tarifario_id Int?
+  fecha_emision       DateTime?        @db.Date
+  cuadrotarifario     cuadrotarifario? @relation(fields: [cuadro_tarifario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  infraccion          infraccion?      @relation(fields: [infraccion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  pago                pago[]
+}
+
+model adicionalespersona {
+  id         Int      @id @default(autoincrement())
+  persona_id Int?     @unique
+  nroitem    String?  @db.VarChar(50)
+  persona    persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model bcrapersona {
+  id                         Int                          @id @default(autoincrement())
+  persona_id                 Int?                         @unique
+  score                      Int?
+  situacion1_desde           DateTime?                    @db.Date
+  cantidad_entidades         Int?
+  deuda_tomada               Decimal?                     @db.Decimal
+  deuda_mora                 Decimal?                     @db.Decimal
+  deuda_ultimos_24meses      Decimal?                     @db.Decimal
+  persona                    persona?                     @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  bcrariesgo                 bcrariesgo[]
+  distribucioncomportamiento distribucioncomportamiento[]
+  entidadopera               entidadopera[]
+}
+
+model bcrariesgo {
+  id                 Int          @id @default(autoincrement())
+  bcra_persona_id    Int?
+  tipo_riesgo        String?      @db.VarChar(20)
+  cantidad_entidades Int?
+  deuda_tomada       Decimal?     @db.Decimal
+  bcrapersona        bcrapersona? @relation(fields: [bcra_persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model chequesrechazados {
+  id                  Int      @id @default(autoincrement())
+  persona_id          Int?
+  periodo             String?  @db.VarChar(10)
+  cantidad_rechazados Int?
+  monto_rechazado     Decimal? @db.Decimal
+  cheques_levantados  Int?
+  monto_levantados    Decimal? @db.Decimal
+  persona             persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model cuadrotarifario {
+  id                    Int       @id @default(autoincrement())
+  velocidad_desde       Int
+  velocidad_hasta       Int
+  gasto_administrativo  Decimal?  @db.Decimal(10, 2)
+  primer_vencimiento    DateTime? @db.Date
+  valor_1er_vencimiento Decimal?  @db.Decimal(10, 2)
+  segundo_vencimiento   DateTime? @db.Date
+  valor_2do_vencimiento Decimal?  @db.Decimal(10, 2)
+  acta                  acta[]
+}
+
+model distribucioncomportamiento {
+  id              Int          @id @default(autoincrement())
+  bcra_persona_id Int?
+  situacion1      Int?
+  situacion2      Int?
+  situacion3      Int?
+  situacion4      Int?
+  situacion5      Int?
+  bcrapersona     bcrapersona? @relation(fields: [bcra_persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model domicilio {
+  id                      Int       @id @default(autoincrement())
+  persona_id              Int?
+  tipo                    String?   @db.VarChar(20)
+  direccion               String?
+  codigo_postal           String?   @db.VarChar(10)
+  codigo_postal_argentino String?   @db.VarChar(10)
+  localidad               String?   @db.VarChar(100)
+  partido                 String?   @db.VarChar(100)
+  provincia               String?   @db.VarChar(100)
+  fecha_desde             DateTime? @db.Date
+  fecha_hasta             DateTime? @db.Date
+  persona                 persona?  @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model entidadopera {
+  id              Int          @id @default(autoincrement())
+  bcra_persona_id Int?
+  cod_entidad     String?      @db.VarChar(20)
+  descripcion     String?
+  deuda_tomada    Decimal?     @db.Decimal
+  bcrapersona     bcrapersona? @relation(fields: [bcra_persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model infraccion {
+  id          Int      @id @default(autoincrement())
+  fecha       DateTime @db.Timestamp(6)
+  velocidad   Int?
+  radar_id    Int
+  lote_id     Int
+  vehiculo_id Int
+  acta        acta[]
+  lote        lote     @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar       radar    @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vehiculo    vehiculo @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model intimacion {
+  id          Int       @id @default(autoincrement())
+  persona_id  Int?
+  fecha       DateTime? @db.Date
+  descripcion String?
+  persona     persona?  @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model lote {
+  id           Int          @id @default(autoincrement())
+  municipio_id Int
+  descripcion  String?
+  infraccion   infraccion[]
+  municipio    municipio    @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model municipio {
+  id             Int              @id @default(autoincrement())
+  nombre         String           @db.VarChar(100)
+  provincia      String?          @db.VarChar(100)
+  ciudad         String?          @db.VarChar(100)
+  direccion      String?
+  lote           lote[]
+  radarmunicipio radarmunicipio[]
+}
+
+model pago {
+  id         Int       @id @default(autoincrement())
+  acta_id    Int?
+  fecha_pago DateTime? @db.Date
+  monto      Decimal?  @db.Decimal(10, 2)
+  acta       acta?     @relation(fields: [acta_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model persona {
+  id                  Int                 @id @default(autoincrement())
+  nombre              String?             @db.VarChar(100)
+  apellido            String?             @db.VarChar(100)
+  nombre_completo     String?             @db.VarChar(100)
+  dni                 String?             @db.VarChar(20)
+  tipo_dni            String?             @db.VarChar(20)
+  genero              String?             @db.VarChar(20)
+  nacionalidad        String?             @db.VarChar(50)
+  fecha_nacimiento    DateTime?           @db.Date
+  fecha_fallecimiento DateTime?           @db.Date
+  cuil_cuit           BigInt?
+  email               String?             @db.VarChar(100)
+  email1              String?             @db.VarChar(100)
+  email2              String?             @db.VarChar(100)
+  adicionalespersona  adicionalespersona?
+  bcrapersona         bcrapersona?
+  chequesrechazados   chequesrechazados[]
+  domicilio           domicilio[]
+  intimacion          intimacion[]
+  telefonopersona     telefonopersona[]
+  ultimovehiculo      ultimovehiculo?
+  vehiculo            vehiculo[]
+}
+
+model radar {
+  id             Int              @id @default(autoincrement())
+  marca          String?          @db.VarChar(100)
+  modelo         String?          @db.VarChar(100)
+  nro_serie      String?          @db.VarChar(100)
+  infraccion     infraccion[]
+  radarmunicipio radarmunicipio[]
+}
+
+model radarmunicipio {
+  id               Int        @id @default(autoincrement())
+  radar_id         Int?
+  municipio_id     Int?
+  fecha_asignacion DateTime?  @db.Date
+  fecha_fin        DateTime?  @db.Date
+  municipio        municipio? @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar            radar?     @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model telefonopersona {
+  id          Int      @id @default(autoincrement())
+  persona_id  Int?
+  numero      String?  @db.VarChar(20)
+  es_whatsapp Boolean?
+  orden       Int?     @db.SmallInt
+  persona     persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ultimovehiculo {
+  id                     Int       @id @default(autoincrement())
+  persona_id             Int?      @unique
+  vehiculo_id            Int?
+  dominio                String?   @db.VarChar(20)
+  porcentaje_titularidad Decimal?  @db.Decimal
+  procedencia            String?   @db.VarChar(50)
+  fecha_tramite          DateTime? @db.Date
+  fecha_compra           DateTime? @db.Date
+  marca                  String?   @db.VarChar(50)
+  modelo                 String?   @db.VarChar(50)
+  tipo                   String?   @db.VarChar(50)
+  persona                persona?  @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vehiculo               vehiculo? @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model vehiculo {
+  id             Int              @id @default(autoincrement())
+  dominio        String           @unique @db.VarChar(20)
+  marca          String?          @db.VarChar(50)
+  modelo         String?          @db.VarChar(50)
+  anio           Int?
+  persona_id     Int?
+  infraccion     infraccion[]
+  ultimovehiculo ultimovehiculo[]
+  persona        persona?         @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
