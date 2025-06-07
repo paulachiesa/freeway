@@ -1,46 +1,40 @@
-import Image from "next/image";
-import { UpdateMunicipio, DeleteMunicipio } from "@/app/ui/gestion/buttons";
-import InvoiceStatus from "@/app/ui/gestion/status";
-import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
-import { fetchFilteredMunicipios } from "@/app/lib/data";
+import { UpdateRadar, DeleteRadar } from "@/app/ui/gestion/radares/buttons";
+import { fetchFilteredRadares } from "@/app/lib/data/radar.data";
 
-export default async function MunicipiosTable({
+export default async function RadaresTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const municipios = await fetchFilteredMunicipios(query, currentPage);
+  const radares = await fetchFilteredRadares(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {municipios?.map((municipio) => (
+            {radares?.map((radar) => (
               <div
-                key={municipio.id}
+                key={radar.id}
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p>{municipio.nombre}</p>
+                      <p>{radar.marca}</p>
                     </div>
-                    <p className="text-sm text-gray-500">
-                      {municipio.direccion}
-                    </p>
+                    <p className="text-sm text-gray-500">{radar.modelo}</p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p className="text-xl font-medium">{municipio.ciudad}</p>
-                    <p>{municipio.provincia}</p>
+                    <p className="text-xl font-medium">{radar.nro_serie}</p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    <UpdateMunicipio id={municipio.id} />
-                    <DeleteMunicipio id={municipio.id} />
+                    <UpdateRadar id={radar.id} />
+                    <DeleteRadar id={radar.id} />
                   </div>
                 </div>
               </div>
@@ -50,16 +44,13 @@ export default async function MunicipiosTable({
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Nombre
+                  Marca
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Dirección
+                  Modelo
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Ciudad
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Provincia
+                  Número de Serie
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
@@ -67,29 +58,26 @@ export default async function MunicipiosTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {municipios?.map((municipio) => (
+              {radares?.map((radar) => (
                 <tr
-                  key={municipio.id}
+                  key={radar.id}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      <p>{municipio.nombre}</p>
+                      <p>{radar.marca}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {municipio.direccion}
+                    {radar.modelo}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {municipio.ciudad}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {municipio.provincia}
+                    {radar.nro_serie}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <UpdateMunicipio id={municipio.id} />
-                      <DeleteMunicipio id={municipio.id} />
+                      <UpdateRadar id={radar.id} />
+                      <DeleteRadar id={radar.id} />
                     </div>
                   </td>
                 </tr>

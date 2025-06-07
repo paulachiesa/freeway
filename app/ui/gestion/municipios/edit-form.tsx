@@ -12,11 +12,7 @@ import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import { updateMunicipio } from "@/app/lib/actions";
 
-export default function EditInvoiceForm({
-  municipio,
-}: {
-  municipio: municipio;
-}) {
+export default function EditRadarForm({ municipio }: { municipio: municipio }) {
   const updateMunicipioWithId = updateMunicipio.bind(null, municipio.id);
 
   return (

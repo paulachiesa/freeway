@@ -40,7 +40,7 @@ const links = [
       },
       {
         name: "Cuadro Tarifario",
-        href: "/dashboard/gestion/cuadro-tarifario",
+        href: "/dashboard/gestion/cuadroTarifario",
         icon: DocumentDuplicateIcon,
       },
     ],

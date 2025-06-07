@@ -1,4 +1,4 @@
-import Form from "@/app/ui/gestion/municipios/create-form";
+import Form from "@/app/ui/gestion/radares/create-form";
 import Breadcrumbs from "@/app/ui/gestion/breadcrumbs";
 
 export default async function Page() {
@@ -6,10 +6,10 @@ export default async function Page() {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Municipios", href: "/dashboard/gestion/municipios" },
+          { label: "Radares", href: "/dashboard/gestion/radares" },
           {
-            label: "Crear Municipio",
-            href: "/dashboard/gestion/municipios/crear",
+            label: "Crear Radar",
+            href: "/dashboard/gestion/radares/crear",
             active: true,
           },
         ]}

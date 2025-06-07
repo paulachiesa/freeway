@@ -1,6 +1,6 @@
-import Form from "@/app/ui/gestion/edit-form";
+import Form from "@/app/ui/gestion/municipios/edit-form";
 import Breadcrumbs from "@/app/ui/gestion/breadcrumbs";
-import { fetchMunicipiosById } from "@/app/lib/data";
+import { fetchMunicipiosById } from "@/app/lib/data/municipio.data";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -17,7 +17,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         breadcrumbs={[
           { label: "Municipios", href: "/dashboard/gestion/municipios" },
           {
-            label: "Crear Municipio",
+            label: "Editar Municipio",
             href: `/dashboard/gestion/municipios/${id}/edit`,
             active: true,
           },

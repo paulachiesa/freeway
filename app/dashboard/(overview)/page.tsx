@@ -1,4 +1,4 @@
-import { getMunicipios } from "../../lib/data";
+import { getMunicipios } from "@/app/lib/data/municipio.data";
 
 export default async function Page() {
   const municipios = await getMunicipios();

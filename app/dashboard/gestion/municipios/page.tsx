@@ -1,11 +1,11 @@
-import Pagination from "@/app/ui/gestion/pagination";
-import Search from "@/app/ui/search";
-import Table from "@/app/ui/gestion/table";
-import { CreateMunicipio } from "@/app/ui/gestion/buttons";
+import Pagination from "@/app/ui/components/Pagination/pagination";
+import Search from "@/app/ui/components/Search/search";
+import Table from "@/app/ui/gestion/municipios/table";
+import { CreateMunicipio } from "@/app/ui/gestion/municipios/buttons";
 import { lusitana } from "@/app/ui/fonts";
 import { MunicipiosTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
-import { fetchMunicipiosPages } from "@/app/lib/data";
+import { fetchMunicipiosPages } from "@/app/lib/data/municipio.data";
 
 export default async function Page(props: {
   searchParams?: Promise<{

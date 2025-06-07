@@ -17,7 +17,7 @@ export function CreateMunicipio() {
 export function UpdateMunicipio({ id }: { id: number }) {
   return (
     <Link
-      href={`/dashboard/gestion/municipios/${id}/edit`}
+      href={`/dashboard/gestion/municipios/${id}/editar`}
       className="rounded-md border p-2 hover:bg-gray-100"
     >
       <PencilIcon className="w-5" />
