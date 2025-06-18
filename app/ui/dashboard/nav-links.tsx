@@ -20,9 +20,37 @@ import { useState } from "react";
 const links = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
   {
-    name: "Invoices",
-    href: "/dashboard/invoices",
-    icon: DocumentDuplicateIcon,
+    name: "Infracciones",
+    icon: HomeIcon,
+    children: [
+      {
+        name: "Nueva Carga",
+        href: "/dashboard/infracciones/crear",
+        icon: BuildingOffice2Icon,
+      },
+      {
+        name: "Ver Todas",
+        href: "/dashboard/infracciones",
+        icon: BuildingOffice2Icon,
+      },
+    ],
+  },
+  {
+    name: "Actas",
+    href: "/dashboard",
+    icon: HomeIcon,
+    // children: [
+    //   {
+    //     name: "Nueva Carga",
+    //     href: "/dashboard/infracciones/crear",
+    //     icon: BuildingOffice2Icon,
+    //   },
+    //   {
+    //     name: "Ver Todas",
+    //     href: "/dashboard/infracciones",
+    //     icon: BuildingOffice2Icon,
+    //   },
+    // ],
   },
   {
     name: "Administración",
@@ -45,7 +73,7 @@ const links = [
       },
     ],
   },
-  { name: "Customers", href: "/dashboard/customers", icon: UserGroupIcon },
+  { name: "Usuarios", href: "/dashboard", icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
