@@ -108,16 +108,19 @@ model entidadopera {
 }
 
 model infraccion {
-  id          Int      @id @default(autoincrement())
-  fecha       DateTime @db.Timestamp(6)
-  velocidad   Int?
-  radar_id    Int
-  lote_id     Int
-  vehiculo_id Int
-  acta        acta[]
-  lote        lote     @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  radar       radar    @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vehiculo    vehiculo @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id               Int      @id @default(autoincrement())
+  fecha            DateTime @db.Timestamp(6)
+  radar_id         Int
+  lote_id          Int
+  vehiculo_id      Int
+  nombre_archivo   String?  @db.VarChar(255)
+  velocidad_maxima Int?
+  velocidad_medida Int?
+  imagen_url       String?
+  acta             acta[]
+  lote             lote     @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar            radar    @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vehiculo         vehiculo @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model intimacion {
@@ -132,8 +135,15 @@ model lote {
   id           Int          @id @default(autoincrement())
   municipio_id Int
   descripcion  String?
+  numero       Int?
+  fecha_desde  DateTime?    @db.Date
+  fecha_hasta  DateTime?    @db.Date
+  estado       String?      @db.VarChar(20)
+  radar_id     Int?
+  directorio   String?
   infraccion   infraccion[]
   municipio    municipio    @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar        radar?       @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model municipio {
@@ -185,6 +195,7 @@ model radar {
   modelo         String?          @db.VarChar(100)
   nro_serie      String?          @db.VarChar(100)
   infraccion     infraccion[]
+  lote           lote[]
   radarmunicipio radarmunicipio[]
 }
 
