@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import * as XLSX from "xlsx";
 
 type Infraccion = {
   nombre_archivo: string;
@@ -26,6 +27,7 @@ export default function InfraccionesTable({
   selectedRow?: string | null;
 }) {
   const [infracciones, setInfracciones] = useState<Infraccion[]>(datos);
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setInfracciones(datos);
@@ -44,20 +46,29 @@ export default function InfraccionesTable({
   const buscarVehiculo = async (index: number, dominio: string) => {
     if (!dominio.trim()) return;
 
+    setLoadingIndex(index); // 🔄 Inicia loading
+
     try {
       const res = await fetch(
         `/api/vehiculo?dominio=${encodeURIComponent(dominio.toUpperCase())}`
       );
-      if (!res.ok) throw new Error("Dominio no encontrado.");
-
-      const vehiculo = await res.json();
 
       const updated = [...infracciones];
-      updated[index].marca = vehiculo.marca || "";
-      updated[index].modelo = vehiculo.modelo || "";
+
+      if (!res.ok) {
+        updated[index].marca = "-";
+        updated[index].modelo = "-";
+      } else {
+        const vehiculo = await res.json();
+        updated[index].marca = vehiculo.marca || "-";
+        updated[index].modelo = vehiculo.modelo || "-";
+      }
+
       setInfracciones(updated);
     } catch (error) {
       console.error("Error al consultar dominio:", error);
+    } finally {
+      setLoadingIndex(null); // 🔁 Finaliza loading
     }
   };
 
@@ -82,6 +93,27 @@ export default function InfraccionesTable({
     } else {
       buscarVehiculo(index, valor);
     }
+  };
+
+  const exportarDominiosNoEncontrados = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.preventDefault();
+
+    const noEncontrados = infracciones
+      .filter((inf) => inf.marca === "-" && inf.modelo === "-")
+      .map((inf) => ({ Dominio: inf.dominio }));
+
+    if (noEncontrados.length === 0) {
+      alert("Todos los dominios tienen datos.");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(noEncontrados);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "No encontrados");
+
+    XLSX.writeFile(workbook, "dominios_no_encontrados.xlsx");
   };
 
   return (
@@ -171,9 +203,13 @@ export default function InfraccionesTable({
                         className="w-full bg-transparent px-1 py-0.5 text-sm focus:outline-none focus:ring-0"
                       />
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3">{inf.marca}</td>
                     <td className="whitespace-nowrap px-3 py-3">
-                      {inf.modelo}
+                      {loadingIndex === index
+                        ? "Buscando..."
+                        : inf.marca || "-"}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-3">
+                      {loadingIndex === index ? "" : inf.modelo || "-"}
                     </td>
                     <td className="whitespace-nowrap px-3 py-3">
                       <button
@@ -197,6 +233,14 @@ export default function InfraccionesTable({
           </div>
         </div>
       </div>
+      {infracciones.length > 0 && (
+        <button
+          onClick={exportarDominiosNoEncontrados}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Descargar dominios
+        </button>
+      )}
     </div>
   );
 }
