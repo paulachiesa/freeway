@@ -13,9 +13,18 @@ type Infraccion = {
   dominio: string;
   marca: string;
   modelo: string;
+  imagen_url: string;
 };
 
-export default function InfraccionesTable({ datos }: { datos: Infraccion[] }) {
+export default function InfraccionesTable({
+  datos,
+  onSelectImage,
+  selectedRow,
+}: {
+  datos: Infraccion[];
+  onSelectImage?: (url: string, nombreArchivo: string) => void;
+  selectedRow?: string | null;
+}) {
   const [infracciones, setInfracciones] = useState<Infraccion[]>(datos);
 
   useEffect(() => {
@@ -27,6 +36,13 @@ export default function InfraccionesTable({ datos }: { datos: Infraccion[] }) {
     field: keyof Pick<Infraccion, "dominio" | "marca" | "modelo">,
     value: string
   ) => {
+    if (field === "dominio" && (value === "x" || value === "X")) {
+      const updated = [...infracciones];
+      updated.splice(index, 1);
+      setInfracciones(updated);
+      return;
+    }
+
     const updated = [...infracciones];
     updated[index][field] = value;
     setInfracciones(updated);
@@ -102,7 +118,20 @@ export default function InfraccionesTable({ datos }: { datos: Infraccion[] }) {
                 {infracciones.map((inf, index) => (
                   <tr
                     key={index}
-                    className="border-b py-3 text-sm last-of-type:border-none"
+                    onClick={(e) => {
+                      const tag = (e.target as HTMLElement).tagName;
+                      if (
+                        tag !== "INPUT" &&
+                        tag !== "BUTTON" &&
+                        tag !== "SVG" &&
+                        tag !== "PATH"
+                      ) {
+                        onSelectImage?.(inf.imagen_url, inf.nombre_archivo);
+                      }
+                    }}
+                    className={`border-b py-3 text-sm last-of-type:border-none cursor-pointer ${
+                      selectedRow === inf.nombre_archivo ? "bg-yellow-100" : ""
+                    }`}
                   >
                     <td className="max-w-[30px] overflow-x-scroll whitespace-nowrap py-3">
                       {inf.nombre_archivo}
@@ -138,7 +167,8 @@ export default function InfraccionesTable({ datos }: { datos: Infraccion[] }) {
                     <td className="whitespace-nowrap px-3 py-3">
                       <button
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation(); // evita que se active onClick del tr
                           const updated = [...infracciones];
                           updated.splice(index, 1);
                           setInfracciones(updated);
