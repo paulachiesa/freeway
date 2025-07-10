@@ -36,13 +36,6 @@ export default function InfraccionesTable({
     field: keyof Pick<Infraccion, "dominio" | "marca" | "modelo">,
     value: string
   ) => {
-    if (field === "dominio" && (value === "x" || value === "X")) {
-      const updated = [...infracciones];
-      updated.splice(index, 1);
-      setInfracciones(updated);
-      return;
-    }
-
     const updated = [...infracciones];
     updated[index][field] = value;
     setInfracciones(updated);
@@ -65,6 +58,29 @@ export default function InfraccionesTable({
       setInfracciones(updated);
     } catch (error) {
       console.error("Error al consultar dominio:", error);
+    }
+  };
+
+  const handleKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    const valor = infracciones[index].dominio.trim().toLowerCase();
+
+    if (valor === "x") {
+      const nombreArchivo = infracciones[index].nombre_archivo;
+      const updated = [...infracciones];
+      updated.splice(index, 1);
+      setInfracciones(updated);
+
+      if (selectedRow === nombreArchivo) {
+        onSelectImage?.("", "");
+      }
+    } else {
+      buscarVehiculo(index, valor);
     }
   };
 
@@ -151,12 +167,7 @@ export default function InfraccionesTable({
                         onChange={(e) =>
                           handleChange(index, "dominio", e.target.value)
                         }
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            buscarVehiculo(index, inf.dominio);
-                          }
-                        }}
+                        onKeyDown={(e) => handleKeyDown(e, index)}
                         className="w-full bg-transparent px-1 py-0.5 text-sm focus:outline-none focus:ring-0"
                       />
                     </td>
@@ -179,9 +190,6 @@ export default function InfraccionesTable({
                         <TrashIcon className="h-5 w-5" />
                       </button>
                     </td>
-                    {/* <td className="whitespace-nowrap px-3 py-3">{inf.dominio}</td>
-                  <td className="whitespace-nowrap px-3 py-3">{inf.marca}</td>
-                  <td className="whitespace-nowrap px-3 py-3">{inf.modelo}</td> */}
                   </tr>
                 ))}
               </tbody>
