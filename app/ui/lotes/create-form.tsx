@@ -1,10 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import React, { useActionState, useState } from "react";
+import React, { useActionState, useState, useEffect } from "react";
 import Image from "next/image";
 import { lusitana } from "@/app/ui/fonts";
-import { createLote, LoteFormState } from "@/app/lib/actions/lote.actions";
+import {
+  // createLote,
+  // LoteFormState,
+  guardarLoteCompleto,
+} from "@/app/lib/actions/lote.actions";
 import InfraccionesTable from "../infracciones/table-infracciones";
 import defaultImg from "@/public/default.png";
 
@@ -21,13 +24,24 @@ type InfraccionData = {
 };
 
 export default function Form() {
-  const initialState: LoteFormState = { message: null, errors: {} };
+  // const initialState: LoteFormState = { message: null, errors: {} };
   //   const [state, formAction] = useActionState(createLote, initialState);
-  const [infracciones, setInfracciones] = useState<any[]>([]);
+  // const [infracciones, setInfracciones] = useState<any[]>([]);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const imageToShow = selectedImageUrl?.trim() ? selectedImageUrl : defaultImg;
+
+  const [radares, setRadares] = useState<{ id: number; nombre: string }[]>([]);
+  // const [radarSeleccionado, setRadarSeleccionado] = useState<string>("");
+  const [loteData, setLoteData] = useState({
+    fecha_desde: "",
+    fecha_hasta: "",
+    estado: "",
+    radar_id: "",
+    directorio: "",
+    infracciones: [] as InfraccionData[],
+  });
 
   const handleFilesUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -78,28 +92,56 @@ export default function Form() {
       })
     );
 
-    setInfracciones(infracciones);
+    setLoteData((prev) => ({ ...prev, infracciones }));
   };
+
+  useEffect(() => {
+    const fetchRadares = async () => {
+      try {
+        const res = await fetch("/api/radares");
+        const data = await res.json();
+        setRadares(data);
+      } catch (error) {
+        console.error("Error al cargar radares:", error);
+      }
+    };
+
+    fetchRadares();
+  }, []);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setLoteData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  async function handleGuardarClick() {
+    debugger;
+    const municipio = localStorage.getItem("municipio");
+    if (municipio) {
+      const formData = {
+        municipio_id: JSON.parse(municipio).id,
+        ...loteData,
+        radar_id: parseInt(loteData.radar_id),
+      };
+
+      const result = await guardarLoteCompleto(formData);
+
+      if (result.success) {
+        alert("Lote guardado correctamente");
+      } else {
+        alert("Error al guardar el lote: " + result.message);
+      }
+    } else {
+      alert("Debe tener seleccionado un municipio para guardar.");
+    }
+  }
 
   return (
     <form>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div>
-            <label
-              htmlFor="nro_lote"
-              className="mb-2 block text-sm font-medium"
-            >
-              Número Lote
-            </label>
-            <input
-              id="nro_lote"
-              name="nro_lote"
-              type="number"
-              // placeholder=""
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-            />
-          </div>
           <div>
             <label
               htmlFor="fecha_desde"
@@ -111,6 +153,8 @@ export default function Form() {
               id="fecha_desde"
               name="fecha_desde"
               type="date"
+              value={loteData.fecha_desde}
+              onChange={handleInputChange}
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
             />
           </div>
@@ -125,11 +169,11 @@ export default function Form() {
               id="fecha_hasta"
               name="fecha_hasta"
               type="date"
+              value={loteData.fecha_hasta}
+              onChange={handleInputChange}
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
             />
           </div>
-        </div>
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-[35%_65%] gap-4 mb-8">
           <div>
             <label htmlFor="estado" className="mb-2 block text-sm font-medium">
               Estado
@@ -138,10 +182,37 @@ export default function Form() {
               id="estado"
               name="estado"
               type="text"
-              // placeholder=""
-              className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              value={loteData.estado}
+              onChange={handleInputChange}
+              className="peer block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
             />
           </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div>
+            <label
+              htmlFor="radar_id"
+              className="mb-2 block text-sm font-medium"
+            >
+              Radar
+            </label>
+            <select
+              id="radar_id"
+              name="radar_id"
+              value={loteData.radar_id}
+              onChange={handleInputChange}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+            >
+              <option value="">Seleccionar radar</option>
+              {radares.map((radar) => (
+                <option key={radar.id} value={radar.id}>
+                  {radar.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label
               htmlFor="directorio"
@@ -154,7 +225,6 @@ export default function Form() {
               name="directorio"
               type="file"
               multiple
-              // accept=".txt,.jpg,.jpeg,.JPG,.JPEG"
               accept=".txt,image/*"
               onChange={handleFilesUpload}
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
@@ -162,13 +232,11 @@ export default function Form() {
           </div>
         </div>
 
-        <div>
-          <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
-        </div>
+        <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
         <div className="flex flex-col md:flex-row gap-4 mt-6">
           <div className="w-full md:w-[65%]">
             <InfraccionesTable
-              datos={infracciones}
+              datos={loteData.infracciones}
               onSelectImage={(url, nombreArchivo) => {
                 setSelectedImageUrl(url);
                 setSelectedRow(nombreArchivo);
@@ -176,7 +244,6 @@ export default function Form() {
               selectedRow={selectedRow}
             />
           </div>
-
           <div className="w-full md:w-[35%] bg-gray-100 rounded-md p-4">
             <h2 className="text-sm font-medium text-gray-700 mb-2">
               Visualizador
@@ -209,6 +276,16 @@ export default function Form() {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={handleGuardarClick}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Guardar Lote
+          </button>
         </div>
       </div>
     </form>

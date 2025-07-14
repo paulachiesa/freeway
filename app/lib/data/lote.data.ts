@@ -78,3 +78,60 @@ export async function fetchLotesPages(query: string) {
     throw new Error("Error al obtener número total de lotes.");
   }
 }
+
+export async function crearLoteConInfracciones(data: any) {
+  const {
+    municipio_id,
+    fecha_desde,
+    fecha_hasta,
+    estado,
+    radar_id,
+    directorio,
+    infracciones,
+  } = data;
+
+  return await prisma.$transaction(async (tx) => {
+    const ultimoLote = await tx.lote.findFirst({
+      orderBy: { id: "desc" },
+    });
+
+    const numero = (ultimoLote?.id ?? 0) + 1;
+
+    const lote = await tx.lote.create({
+      data: {
+        municipio_id: parseInt(municipio_id),
+        numero,
+        descripcion: `Lote ${numero}`,
+        fecha_desde: new Date(fecha_desde),
+        fecha_hasta: new Date(fecha_hasta),
+        estado,
+        radar_id,
+        directorio,
+      },
+    });
+
+    for (const inf of infracciones) {
+      const vehiculo = await tx.vehiculo.findUnique({
+        where: { dominio: inf.dominio.toUpperCase() },
+      });
+
+      const [day, month, year] = inf.fecha.split("/");
+      const parsedFecha = new Date(`${year}-${month}-${day}`);
+
+      await tx.infraccion.create({
+        data: {
+          fecha: parsedFecha,
+          lote_id: lote.id,
+          nombre_archivo: inf.nombre_archivo,
+          velocidad_maxima: inf.velocidad_maxima,
+          velocidad_medida: inf.velocidad_medida,
+          imagen_url: inf.imagen_url,
+          radar_id,
+          vehiculo_id: vehiculo?.id ?? null,
+        },
+      });
+    }
+
+    return lote;
+  });
+}

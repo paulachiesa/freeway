@@ -6,6 +6,22 @@ export async function getRadares() {
   return await prisma.radar.findMany();
 }
 
+export async function getRadaresCombo() {
+  try {
+    const radares = await prisma.radar.findMany({
+      orderBy: { id: "asc" },
+    });
+
+    return radares.map((r) => ({
+      id: r.id,
+      nombre: `${r.marca} ${r.modelo} (${r.nro_serie})`,
+    }));
+  } catch (error) {
+    console.error("Error al obtener radares:", error);
+    throw new Error("Error al obtener radares");
+  }
+}
+
 export async function fetchRadarById(id: number) {
   try {
     const radar = await prisma.radar.findUnique({
