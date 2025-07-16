@@ -2,15 +2,19 @@
 import { fetchFilteredLotes } from "@/app/lib/data/lote.data";
 import { formatDateToLocal } from "@/app/lib/utils";
 // import { ViewLoteButton } from "@/app/ui/gestion/lotes/buttons"; // componente que vos definas
+import { PencilIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 export default async function LoteTable({
   query,
   currentPage,
+  municipioId,
 }: {
   query: string;
   currentPage: number;
+  municipioId: number;
 }) {
-  const lotes = await fetchFilteredLotes(query, currentPage);
+  const lotes = await fetchFilteredLotes(query, currentPage, municipioId);
 
   return (
     <div className="mt-6 flow-root">
@@ -29,8 +33,9 @@ export default async function LoteTable({
                     <p className="text-base font-medium">{lote.numero}</p>
                   </div>
                   <div className="flex gap-2">
-                    {/* <ViewLoteButton id={lote.id} /> */}
-                    <span className="text-gray-400 italic">-</span>
+                    <Link href={`/dashboard/infracciones/${lote.id}/editar`}>
+                      <PencilIcon className="h-5 w-5 text-blue-500 hover:text-blue-700" />
+                    </Link>
                   </div>
                 </div>
                 <div className="mt-2 text-sm text-gray-700">
@@ -78,8 +83,9 @@ export default async function LoteTable({
                   <td className="whitespace-nowrap px-3 py-3">{lote.estado}</td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {/* <ViewLoteButton id={lote.id} /> */}
-                      <span className="text-gray-400 italic">-</span>
+                      <Link href={`/dashboard/infracciones/${lote.id}/editar`}>
+                        <PencilIcon className="h-5 w-5 text-blue-500 hover:text-blue-700" />
+                      </Link>
                     </div>
                   </td>
                 </tr>

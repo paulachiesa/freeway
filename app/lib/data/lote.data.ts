@@ -31,12 +31,17 @@ export async function fetchLoteById(id: number) {
 }
 
 const ITEMS_PER_PAGE = 10;
-export async function fetchFilteredLotes(query: string, currentPage: number) {
+export async function fetchFilteredLotes(
+  query: string,
+  currentPage: number,
+  municipioId: number
+) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
     const lotes = await prisma.lote.findMany({
       where: {
+        municipio_id: municipioId,
         OR: [
           { estado: { contains: query, mode: "insensitive" } },
           { descripcion: { contains: query, mode: "insensitive" } },
@@ -60,10 +65,12 @@ export async function fetchFilteredLotes(query: string, currentPage: number) {
   }
 }
 
-export async function fetchLotesPages(query: string) {
+export async function fetchLotesPages(query: string, municipioId: number) {
+  console.log("MUNICIPIO EN CONSULTA: ", municipioId);
   try {
     const totalCount = await prisma.lote.count({
       where: {
+        municipio_id: municipioId,
         OR: [
           { estado: { contains: query, mode: "insensitive" } },
           { descripcion: { contains: query, mode: "insensitive" } },

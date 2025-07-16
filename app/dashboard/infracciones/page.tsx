@@ -1,5 +1,3 @@
-//aca va la tabla de infracciones: nro lote, desde, hasta, cant. registros, estado, acciones (ver lote -> id/editar/page.tsx). buscador por lote
-//antes que nada, pedir seleccionar municipio, para buscar lotes de ese municipio nomas y cargar tabla.
 import Pagination from "@/app/ui/components/Pagination/pagination";
 import Search from "@/app/ui/components/Search/search";
 import Table from "@/app/ui/lotes/table-lote";
@@ -8,6 +6,8 @@ import { lusitana } from "@/app/ui/fonts";
 import { MunicipiosTableSkeleton } from "@/app/ui/skeletons";
 import { Suspense } from "react";
 import { fetchLotesPages } from "@/app/lib/data/lote.data";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -15,10 +15,18 @@ export default async function Page(props: {
     page?: string;
   }>;
 }) {
+  const cookieStore = await cookies();
+  const municipioId = cookieStore.get("municipio_id")?.value;
+
+  if (!municipioId) {
+    // alert("Debe tener seleccionado un municipio primero.");
+    redirect("/dashboard");
+  }
+
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchLotesPages(query);
+  const totalPages = await fetchLotesPages(query, Number(municipioId));
 
   return (
     <div className="w-full">
@@ -35,7 +43,11 @@ export default async function Page(props: {
         key={query + currentPage}
         fallback={<MunicipiosTableSkeleton />}
       >
-        <Table query={query} currentPage={currentPage} />
+        <Table
+          query={query}
+          currentPage={currentPage}
+          municipioId={Number(municipioId)}
+        />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />

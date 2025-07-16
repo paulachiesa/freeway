@@ -3,11 +3,12 @@
 
 import { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
+import { formatDateToLocal } from "@/app/lib/utils";
 import * as XLSX from "xlsx";
 
 type Infraccion = {
   nombre_archivo: string;
-  fecha: string;
+  fecha: string | Date;
   hora: string;
   velocidad_maxima: number;
   velocidad_medida: number;
@@ -134,7 +135,7 @@ export default function InfraccionesTable({
                   <span className="text-gray-400 italic">-</span>
                 </div>
                 <div className="mt-2 text-sm text-gray-700">
-                  <p>Fecha: {inf.fecha}</p>
+                  <p>Fecha: {formatDateToLocal(inf.fecha, "es-AR")}</p>
                   <p>Hora: {inf.hora}</p>
                   <p>Vel. máx: {inf.velocidad_maxima}</p>
                   <p>Vel. medida: {inf.velocidad_medida}</p>
@@ -184,7 +185,9 @@ export default function InfraccionesTable({
                     <td className="max-w-[30px] overflow-x-scroll whitespace-nowrap py-3">
                       {inf.nombre_archivo}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3">{inf.fecha}</td>
+                    <td className="whitespace-nowrap px-3 py-3">
+                      {formatDateToLocal(inf.fecha, "es-AR")}
+                    </td>
                     <td className="whitespace-nowrap px-3 py-3">{inf.hora}</td>
                     <td className="whitespace-nowrap px-3 py-3">
                       {inf.velocidad_maxima}

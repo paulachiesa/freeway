@@ -27,6 +27,13 @@ export const formatDateToLocal = (
   return formatter.format(date);
 };
 
+export const formatDateInput = (date: string | Date) => {
+  const d = new Date(date);
+  return d.toISOString().split("T")[0]; // → "YYYY-MM-DD"
+};
+
+// -----------
+
 export const generateYAxis = (revenue: Revenue[]) => {
   // Calculate what labels we need to display on the y-axis
   // based on highest record and in 1000s

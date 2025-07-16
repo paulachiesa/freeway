@@ -1,11 +1,11 @@
 import Form from "@/app/ui/gestion/municipios/edit-form";
 import Breadcrumbs from "@/app/ui/gestion/breadcrumbs";
-import { fetchMunicipiosById } from "@/app/lib/data/municipio.data";
+import { getMunicipioById } from "@/app/lib/data/municipio.data";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
-  const municipio = await fetchMunicipiosById(Number(id));
+  const municipio = await getMunicipioById(Number(id));
 
   if (!municipio) {
     return <div className="p-4 text-red-500">Municipio no encontrado</div>;

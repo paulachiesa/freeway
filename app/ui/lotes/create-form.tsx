@@ -2,18 +2,15 @@
 
 import React, { useActionState, useState, useEffect } from "react";
 import Image from "next/image";
+import { formatDateInput } from "@/app/lib/utils";
 import { lusitana } from "@/app/ui/fonts";
-import {
-  // createLote,
-  // LoteFormState,
-  guardarLoteCompleto,
-} from "@/app/lib/actions/lote.actions";
+import { guardarLoteCompleto } from "@/app/lib/actions/lote.actions";
 import InfraccionesTable from "../infracciones/table-infracciones";
 import defaultImg from "@/public/default.png";
 
 type InfraccionData = {
   nombre_archivo: string;
-  fecha: string;
+  fecha: string | Date;
   hora: string;
   velocidad_maxima: number;
   velocidad_medida: number;
@@ -23,17 +20,14 @@ type InfraccionData = {
   imagen_url: string;
 };
 
-export default function Form() {
-  // const initialState: LoteFormState = { message: null, errors: {} };
-  //   const [state, formAction] = useActionState(createLote, initialState);
-  // const [infracciones, setInfracciones] = useState<any[]>([]);
+export default function Form({ initialLote }: { initialLote?: any }) {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const imageToShow = selectedImageUrl?.trim() ? selectedImageUrl : defaultImg;
 
   const [radares, setRadares] = useState<{ id: number; nombre: string }[]>([]);
-  // const [radarSeleccionado, setRadarSeleccionado] = useState<string>("");
+
   const [loteData, setLoteData] = useState({
     fecha_desde: "",
     fecha_hasta: "",
@@ -42,6 +36,37 @@ export default function Form() {
     directorio: "",
     infracciones: [] as InfraccionData[],
   });
+
+  useEffect(() => {
+    const fetchRadares = async () => {
+      try {
+        const res = await fetch("/api/radares");
+        const data = await res.json();
+        setRadares(data);
+      } catch (error) {
+        console.error("Error al cargar radares:", error);
+      }
+    };
+
+    fetchRadares();
+  }, []);
+
+  useEffect(() => {
+    if (initialLote) {
+      setLoteData({
+        fecha_desde: formatDateInput(initialLote.fecha_desde),
+        fecha_hasta: formatDateInput(initialLote.fecha_hasta),
+        estado: initialLote.estado,
+        radar_id: String(initialLote.radar_id ?? ""),
+        directorio: "",
+        // infracciones: initialLote.infraccion ?? [],
+        infracciones: initialLote.infraccion.map((i: InfraccionData) => ({
+          ...i,
+          fecha: typeof i.fecha === "string" ? i.fecha : i.fecha.toISOString(),
+        })),
+      });
+    }
+  }, [initialLote]);
 
   const handleFilesUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -95,20 +120,6 @@ export default function Form() {
     setLoteData((prev) => ({ ...prev, infracciones }));
   };
 
-  useEffect(() => {
-    const fetchRadares = async () => {
-      try {
-        const res = await fetch("/api/radares");
-        const data = await res.json();
-        setRadares(data);
-      } catch (error) {
-        console.error("Error al cargar radares:", error);
-      }
-    };
-
-    fetchRadares();
-  }, []);
-
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -117,8 +128,7 @@ export default function Form() {
   };
 
   async function handleGuardarClick() {
-    debugger;
-    const municipio = localStorage.getItem("municipio");
+    const municipio = sessionStorage.getItem("municipio");
     if (municipio) {
       const formData = {
         municipio_id: JSON.parse(municipio).id,
