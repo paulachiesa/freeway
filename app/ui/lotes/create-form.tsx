@@ -7,6 +7,7 @@ import { lusitana } from "@/app/ui/fonts";
 import { guardarLoteCompleto } from "@/app/lib/actions/lote.actions";
 import InfraccionesTable from "../infracciones/table-infracciones";
 import defaultImg from "@/public/default.png";
+import Toast from "../components/Toast/toast";
 
 type InfraccionData = {
   nombre_archivo: string;
@@ -25,6 +26,10 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const imageToShow = selectedImageUrl?.trim() ? selectedImageUrl : defaultImg;
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<
+    "success" | "error" | "info" | "warning"
+  >("info");
 
   const [radares, setRadares] = useState<{ id: number; nombre: string }[]>([]);
 
@@ -139,165 +144,181 @@ export default function Form({ initialLote }: { initialLote?: any }) {
       const result = await guardarLoteCompleto(formData);
 
       if (result.success) {
-        alert("Lote guardado correctamente");
+        setToastType("success");
+        setToastMsg("Lote guardado correctamente");
       } else {
-        alert("Error al guardar el lote: " + result.message);
+        setToastType("error");
+        setToastMsg("Error al guardar el lote: " + result.message);
       }
     } else {
-      alert("Debe tener seleccionado un municipio para guardar.");
+      setToastType("warning");
+      setToastMsg("Debe tener seleccionado un municipio para guardar.");
     }
   }
 
   return (
-    <form>
-      <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div>
-            <label
-              htmlFor="fecha_desde"
-              className="mb-2 block text-sm font-medium"
-            >
-              Fecha Desde
-            </label>
-            <input
-              id="fecha_desde"
-              name="fecha_desde"
-              type="date"
-              value={loteData.fecha_desde}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="fecha_hasta"
-              className="mb-2 block text-sm font-medium"
-            >
-              Fecha Hasta
-            </label>
-            <input
-              id="fecha_hasta"
-              name="fecha_hasta"
-              type="date"
-              value={loteData.fecha_hasta}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-          <div>
-            <label htmlFor="estado" className="mb-2 block text-sm font-medium">
-              Estado
-            </label>
-            <input
-              id="estado"
-              name="estado"
-              type="text"
-              value={loteData.estado}
-              onChange={handleInputChange}
-              className="peer block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div>
-            <label
-              htmlFor="radar_id"
-              className="mb-2 block text-sm font-medium"
-            >
-              Radar
-            </label>
-            <select
-              id="radar_id"
-              name="radar_id"
-              value={loteData.radar_id}
-              onChange={handleInputChange}
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            >
-              <option value="">Seleccionar radar</option>
-              {radares.map((radar) => (
-                <option key={radar.id} value={radar.id}>
-                  {radar.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="directorio"
-              className="mb-2 block text-sm font-medium"
-            >
-              Archivos .txt
-            </label>
-            <input
-              id="directorio"
-              name="directorio"
-              type="file"
-              multiple
-              accept=".txt,image/*"
-              onChange={handleFilesUpload}
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-        </div>
-
-        <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
-        <div className="flex flex-col md:flex-row gap-4 mt-6">
-          <div className="w-full md:w-[65%]">
-            <InfraccionesTable
-              datos={loteData.infracciones}
-              onSelectImage={(url, nombreArchivo) => {
-                setSelectedImageUrl(url);
-                setSelectedRow(nombreArchivo);
-              }}
-              selectedRow={selectedRow}
-            />
-          </div>
-          <div className="w-full md:w-[35%] bg-gray-100 rounded-md p-4">
-            <h2 className="text-sm font-medium text-gray-700 mb-2">
-              Visualizador
-            </h2>
-            <div className="aspect-video w-full bg-white border border-gray-300 rounded-md flex items-center justify-center">
-              <Image
-                src={imageToShow}
-                alt="Infracción seleccionada"
-                width={400}
-                height={225}
-                className="object-contain cursor-pointer"
-                onClick={() => selectedImageUrl && setShowModal(true)}
+    <>
+      <form>
+        <div className="rounded-md bg-gray-50 p-4 md:p-6">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div>
+              <label
+                htmlFor="fecha_desde"
+                className="mb-2 block text-sm font-medium"
+              >
+                Fecha Desde
+              </label>
+              <input
+                id="fecha_desde"
+                name="fecha_desde"
+                type="date"
+                value={loteData.fecha_desde}
+                onChange={handleInputChange}
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="fecha_hasta"
+                className="mb-2 block text-sm font-medium"
+              >
+                Fecha Hasta
+              </label>
+              <input
+                id="fecha_hasta"
+                name="fecha_hasta"
+                type="date"
+                value={loteData.fecha_hasta}
+                onChange={handleInputChange}
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="estado"
+                className="mb-2 block text-sm font-medium"
+              >
+                Estado
+              </label>
+              <input
+                id="estado"
+                name="estado"
+                type="text"
+                value={loteData.estado}
+                onChange={handleInputChange}
+                className="peer block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
               />
             </div>
           </div>
-          {showModal && selectedImageUrl && (
-            <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-              <div className="bg-white p-4 rounded-md max-w-4xl max-h-[90vh] overflow-auto relative">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="absolute top-2 right-2 text-gray-600 hover:text-black text-xl font-bold"
-                >
-                  &times;
-                </button>
-                <img
-                  src={selectedImageUrl}
-                  alt="Imagen ampliada"
-                  className="max-w-full max-h-[80vh] object-contain"
+
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div>
+              <label
+                htmlFor="radar_id"
+                className="mb-2 block text-sm font-medium"
+              >
+                Radar
+              </label>
+              <select
+                id="radar_id"
+                name="radar_id"
+                value={loteData.radar_id}
+                onChange={handleInputChange}
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              >
+                <option value="">Seleccionar radar</option>
+                {radares.map((radar) => (
+                  <option key={radar.id} value={radar.id}>
+                    {radar.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                htmlFor="directorio"
+                className="mb-2 block text-sm font-medium"
+              >
+                Archivos .txt
+              </label>
+              <input
+                id="directorio"
+                name="directorio"
+                type="file"
+                multiple
+                accept=".txt,image/*"
+                onChange={handleFilesUpload}
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              />
+            </div>
+          </div>
+
+          <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
+          <div className="flex flex-col md:flex-row gap-4 mt-6">
+            <div className="w-full md:w-[65%]">
+              <InfraccionesTable
+                datos={loteData.infracciones}
+                onSelectImage={(url, nombreArchivo) => {
+                  setSelectedImageUrl(url);
+                  setSelectedRow(nombreArchivo);
+                }}
+                selectedRow={selectedRow}
+              />
+            </div>
+            <div className="w-full md:w-[35%] bg-gray-100 rounded-md p-4">
+              <h2 className="text-sm font-medium text-gray-700 mb-2">
+                Visualizador
+              </h2>
+              <div className="aspect-video w-full bg-white border border-gray-300 rounded-md flex items-center justify-center">
+                <Image
+                  src={imageToShow}
+                  alt="Infracción seleccionada"
+                  width={400}
+                  height={225}
+                  className="object-contain cursor-pointer"
+                  onClick={() => selectedImageUrl && setShowModal(true)}
                 />
               </div>
             </div>
-          )}
-        </div>
+            {showModal && selectedImageUrl && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-white p-4 rounded-md max-w-4xl max-h-[90vh] overflow-auto relative">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="absolute top-2 right-2 text-gray-600 hover:text-black text-xl font-bold"
+                  >
+                    &times;
+                  </button>
+                  <img
+                    src={selectedImageUrl}
+                    alt="Imagen ampliada"
+                    className="max-w-full max-h-[80vh] object-contain"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            type="button"
-            onClick={handleGuardarClick}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Guardar Lote
-          </button>
+          <div className="mt-6 flex justify-end">
+            <button
+              type="button"
+              onClick={handleGuardarClick}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Guardar Lote
+            </button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+      {toastMsg && (
+        <Toast
+          message={toastMsg}
+          type={toastType}
+          position="top-right"
+          onClose={() => setToastMsg(null)}
+        />
+      )}
+    </>
   );
 }

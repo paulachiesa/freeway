@@ -32,10 +32,8 @@ export default function CardWrapper() {
     if (!queryParamId && saved) {
       setSelectedId(saved.id);
     }
-    setSelectedReady(true); // Marcamos que ya está listo
+    setSelectedReady(true);
   }, []);
-
-  console.log(selectedId);
 
   useEffect(() => {
     if (queryParamId) {

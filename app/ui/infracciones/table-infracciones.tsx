@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { formatDateToLocal } from "@/app/lib/utils";
+import Toast from "../components/Toast/toast";
 import * as XLSX from "xlsx";
 
 type Infraccion = {
@@ -16,6 +17,7 @@ type Infraccion = {
   marca: string;
   modelo: string;
   imagen_url: string;
+  vehiculo_id?: number | null;
 };
 
 export default function InfraccionesTable({
@@ -29,6 +31,7 @@ export default function InfraccionesTable({
 }) {
   const [infracciones, setInfracciones] = useState<Infraccion[]>(datos);
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   useEffect(() => {
     setInfracciones(datos);
@@ -47,7 +50,7 @@ export default function InfraccionesTable({
   const buscarVehiculo = async (index: number, dominio: string) => {
     if (!dominio.trim()) return;
 
-    setLoadingIndex(index); // 🔄 Inicia loading
+    setLoadingIndex(index);
 
     try {
       const res = await fetch(
@@ -63,13 +66,14 @@ export default function InfraccionesTable({
         const vehiculo = await res.json();
         updated[index].marca = vehiculo.marca || "-";
         updated[index].modelo = vehiculo.modelo || "-";
+        updated[index].vehiculo_id = vehiculo.id || "-";
       }
 
       setInfracciones(updated);
     } catch (error) {
       console.error("Error al consultar dominio:", error);
     } finally {
-      setLoadingIndex(null); // 🔁 Finaliza loading
+      setLoadingIndex(null);
     }
   };
 
@@ -101,12 +105,19 @@ export default function InfraccionesTable({
   ) => {
     e.preventDefault();
 
+    const tieneDominioVacio = infracciones.some((inf) => !inf.dominio.trim());
+
+    if (tieneDominioVacio) {
+      setToastMsg("Complete todos los campos de dominio antes de descargar.");
+      return;
+    }
+
     const noEncontrados = infracciones
       .filter((inf) => inf.marca === "-" && inf.modelo === "-")
       .map((inf) => ({ Dominio: inf.dominio }));
 
     if (noEncontrados.length === 0) {
-      alert("Todos los dominios tienen datos.");
+      setToastMsg("Todos los dominios tienen datos.");
       return;
     }
 
@@ -118,132 +129,150 @@ export default function InfraccionesTable({
   };
 
   return (
-    <div className="flow-root">
-      <div className="inline-block min-w-full align-middle">
-        <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          {/* Vista Mobile */}
-          <div className="md:hidden">
-            {datos.map((inf, index) => (
-              <div key={index} className="mb-2 w-full rounded-md bg-white p-4">
-                <div className="flex justify-between border-b pb-2">
-                  <div>
-                    <p className="text-sm text-gray-600">Archivo</p>
-                    <p className="text-base font-medium">
-                      {inf.nombre_archivo}
-                    </p>
+    <>
+      <div className="flow-root">
+        <div className="inline-block min-w-full align-middle">
+          <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+            {/* Vista Mobile */}
+            <div className="md:hidden">
+              {datos.map((inf, index) => (
+                <div
+                  key={index}
+                  className="mb-2 w-full rounded-md bg-white p-4"
+                >
+                  <div className="flex justify-between border-b pb-2">
+                    <div>
+                      <p className="text-sm text-gray-600">Archivo</p>
+                      <p className="text-base font-medium">
+                        {inf.nombre_archivo}
+                      </p>
+                    </div>
+                    <span className="text-gray-400 italic">-</span>
                   </div>
-                  <span className="text-gray-400 italic">-</span>
+                  <div className="mt-2 text-sm text-gray-700">
+                    <p>Fecha: {formatDateToLocal(inf.fecha, "es-AR")}</p>
+                    <p>Hora: {inf.hora}</p>
+                    <p>Vel. máx: {inf.velocidad_maxima}</p>
+                    <p>Vel. medida: {inf.velocidad_medida}</p>
+                    <p>Dominio: {inf.dominio}</p>
+                    <p>Marca: {inf.marca}</p>
+                    <p>Modelo: {inf.modelo}</p>
+                  </div>
                 </div>
-                <div className="mt-2 text-sm text-gray-700">
-                  <p>Fecha: {formatDateToLocal(inf.fecha, "es-AR")}</p>
-                  <p>Hora: {inf.hora}</p>
-                  <p>Vel. máx: {inf.velocidad_maxima}</p>
-                  <p>Vel. medida: {inf.velocidad_medida}</p>
-                  <p>Dominio: {inf.dominio}</p>
-                  <p>Marca: {inf.marca}</p>
-                  <p>Modelo: {inf.modelo}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          {/* Vista Desktop */}
-          <div className="overflow-x-auto">
-            <table className="hidden min-w-full text-gray-900 md:table">
-              <thead className="rounded-lg text-left text-sm font-normal">
-                <tr>
-                  <th className="px-4 py-5 font-medium">Archivo</th>
-                  <th className="px-3 py-5 font-medium">Fecha</th>
-                  <th className="px-3 py-5 font-medium">Hora</th>
-                  <th className="px-3 py-5 font-medium">Vel. máx</th>
-                  <th className="px-3 py-5 font-medium">Vel. medida</th>
-                  <th className="px-3 py-5 font-medium">Dominio</th>
-                  <th className="px-3 py-5 font-medium">Marca</th>
-                  <th className="px-3 py-5 font-medium">Modelo</th>
-                  <th className="px-3 py-5 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody className="bg-white">
-                {infracciones.map((inf, index) => (
-                  <tr
-                    key={index}
-                    onClick={(e) => {
-                      const tag = (e.target as HTMLElement).tagName;
-                      if (
-                        tag !== "INPUT" &&
-                        tag !== "BUTTON" &&
-                        tag !== "SVG" &&
-                        tag !== "PATH"
-                      ) {
-                        onSelectImage?.(inf.imagen_url, inf.nombre_archivo);
-                      }
-                    }}
-                    className={`border-b py-3 text-sm last-of-type:border-none cursor-pointer ${
-                      selectedRow === inf.nombre_archivo ? "bg-yellow-100" : ""
-                    }`}
-                  >
-                    <td className="max-w-[30px] overflow-x-scroll whitespace-nowrap py-3">
-                      {inf.nombre_archivo}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {formatDateToLocal(inf.fecha, "es-AR")}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">{inf.hora}</td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {inf.velocidad_maxima}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {inf.velocidad_medida}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      <input
-                        type="text"
-                        value={inf.dominio}
-                        onChange={(e) =>
-                          handleChange(index, "dominio", e.target.value)
-                        }
-                        onKeyDown={(e) => handleKeyDown(e, index)}
-                        className="w-full bg-transparent px-1 py-0.5 text-sm focus:outline-none focus:ring-0"
-                      />
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {loadingIndex === index
-                        ? "Buscando..."
-                        : inf.marca || "-"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      {loadingIndex === index ? "" : inf.modelo || "-"}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-3">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation(); // evita que se active onClick del tr
-                          const updated = [...infracciones];
-                          updated.splice(index, 1);
-                          setInfracciones(updated);
-                        }}
-                        className="text-red-600 hover:text-red-800"
-                        title="Eliminar"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
-                    </td>
+            {/* Vista Desktop */}
+            <div className="overflow-x-auto">
+              <table className="hidden min-w-full text-gray-900 md:table">
+                <thead className="rounded-lg text-left text-sm font-normal">
+                  <tr>
+                    <th className="px-4 py-5 font-medium">Archivo</th>
+                    <th className="px-3 py-5 font-medium">Fecha</th>
+                    <th className="px-3 py-5 font-medium">Hora</th>
+                    <th className="px-3 py-5 font-medium">Vel. máx</th>
+                    <th className="px-3 py-5 font-medium">Vel. medida</th>
+                    <th className="px-3 py-5 font-medium">Dominio</th>
+                    <th className="px-3 py-5 font-medium">Marca</th>
+                    <th className="px-3 py-5 font-medium">Modelo</th>
+                    <th className="px-3 py-5 font-medium"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="bg-white">
+                  {infracciones.map((inf, index) => (
+                    <tr
+                      key={index}
+                      onClick={(e) => {
+                        const tag = (e.target as HTMLElement).tagName;
+                        if (
+                          tag !== "INPUT" &&
+                          tag !== "BUTTON" &&
+                          tag !== "SVG" &&
+                          tag !== "PATH"
+                        ) {
+                          onSelectImage?.(inf.imagen_url, inf.nombre_archivo);
+                        }
+                      }}
+                      className={`border-b py-3 text-sm last-of-type:border-none cursor-pointer ${
+                        selectedRow === inf.nombre_archivo ? "bg-sky-100" : ""
+                      }`}
+                    >
+                      <td className="max-w-[30px] overflow-x-scroll whitespace-nowrap py-3">
+                        {inf.nombre_archivo}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {formatDateToLocal(inf.fecha, "es-AR")}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {inf.hora}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {inf.velocidad_maxima}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {inf.velocidad_medida}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        <input
+                          type="text"
+                          value={inf.dominio}
+                          onChange={(e) =>
+                            handleChange(index, "dominio", e.target.value)
+                          }
+                          onKeyDown={(e) => handleKeyDown(e, index)}
+                          onFocus={() =>
+                            onSelectImage?.(inf.imagen_url, inf.nombre_archivo)
+                          }
+                          className="w-full bg-transparent px-1 py-0.5 text-sm focus:outline-none focus:ring-0"
+                        />
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {loadingIndex === index
+                          ? "Buscando..."
+                          : inf.marca || "-"}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {loadingIndex === index ? "" : inf.modelo || "-"}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const updated = [...infracciones];
+                            updated.splice(index, 1);
+                            setInfracciones(updated);
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                          title="Eliminar"
+                        >
+                          <TrashIcon className="h-5 w-5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+        {infracciones.length > 0 && (
+          <button
+            onClick={exportarDominiosNoEncontrados}
+            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Descargar dominios
+          </button>
+        )}
       </div>
-      {infracciones.length > 0 && (
-        <button
-          onClick={exportarDominiosNoEncontrados}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Descargar dominios
-        </button>
+      {toastMsg && (
+        <Toast
+          message={toastMsg}
+          type="info"
+          position="top-right"
+          onClose={() => setToastMsg(null)}
+        />
       )}
-    </div>
+    </>
   );
 }

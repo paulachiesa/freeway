@@ -1,11 +1,20 @@
-//esta tabla va dentro de infracciones/page.tsx
-import { fetchFilteredLotes } from "@/app/lib/data/lote.data";
+"use client";
+
+import { useEffect, useState } from "react";
 import { formatDateToLocal } from "@/app/lib/utils";
-// import { ViewLoteButton } from "@/app/ui/gestion/lotes/buttons"; // componente que vos definas
 import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-export default async function LoteTable({
+interface Lote {
+  id: number;
+  numero: number;
+  fecha_desde: string;
+  fecha_hasta: string;
+  estado: string;
+  infraccion: any[];
+}
+
+export default function LoteTable({
   query,
   currentPage,
   municipioId,
@@ -14,7 +23,41 @@ export default async function LoteTable({
   currentPage: number;
   municipioId: number;
 }) {
-  const lotes = await fetchFilteredLotes(query, currentPage, municipioId);
+  const [lotes, setLotes] = useState<Lote[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLotes = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          `/api/lotes/listado?query=${query}&page=${currentPage}&municipioId=${municipioId}`
+        );
+        const data = await res.json();
+        if (data.success) {
+          setLotes(data.lotes);
+        } else {
+          console.error("Error:", data.message);
+        }
+      } catch (err) {
+        console.error("Error al obtener lotes:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (municipioId) {
+      fetchLotes();
+    }
+  }, [query, currentPage, municipioId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6 flow-root">

@@ -7,7 +7,6 @@ export default function Header() {
 
   return (
     <header className="w-full bg-white border-b p-4 flex items-center justify-start">
-      {/* <h1 className="text-lg font-semibold">Freeway</h1> */}
       <div>
         {selected ? (
           <span className="text-gray-700">Municipio: {selected.nombre}</span>
