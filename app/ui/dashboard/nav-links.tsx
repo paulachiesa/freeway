@@ -3,54 +3,45 @@
 import {
   UserGroupIcon,
   HomeIcon,
-  DocumentDuplicateIcon,
-  WrenchScrewdriverIcon,
-  BuildingOffice2Icon,
+  DocumentArrowUpIcon,
+  DocumentCheckIcon,
   Cog6ToothIcon,
   ChevronDownIcon,
   ChevronUpIcon,
+  PlusIcon,
+  DocumentCurrencyDollarIcon,
+  MapPinIcon,
+  QueueListIcon,
+  RssIcon,
 } from "@heroicons/react/24/outline";
+import Toast from "@/app/ui/components/Toast/toast";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useState } from "react";
 
-// Map of links to display in the side navigation.
-// Depending on the size of the application, this would be stored in a database.
 const links = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
   {
     name: "Infracciones",
-    icon: HomeIcon,
+    icon: DocumentArrowUpIcon,
     children: [
       {
         name: "Nueva Carga",
         href: "/dashboard/infracciones/crear",
-        icon: BuildingOffice2Icon,
+        icon: PlusIcon,
       },
       {
         name: "Ver Todas",
         href: "/dashboard/infracciones",
-        icon: BuildingOffice2Icon,
+        icon: QueueListIcon,
       },
     ],
   },
   {
     name: "Actas",
-    href: "/dashboard",
-    icon: HomeIcon,
-    // children: [
-    //   {
-    //     name: "Nueva Carga",
-    //     href: "/dashboard/infracciones/crear",
-    //     icon: BuildingOffice2Icon,
-    //   },
-    //   {
-    //     name: "Ver Todas",
-    //     href: "/dashboard/infracciones",
-    //     icon: BuildingOffice2Icon,
-    //   },
-    // ],
+    href: "/dashboard/actas",
+    icon: DocumentCheckIcon,
   },
   {
     name: "Administración",
@@ -59,26 +50,27 @@ const links = [
       {
         name: "Municipios",
         href: "/dashboard/gestion/municipios",
-        icon: BuildingOffice2Icon,
+        icon: MapPinIcon,
       },
       {
         name: "Radares",
         href: "/dashboard/gestion/radares",
-        icon: WrenchScrewdriverIcon,
+        icon: RssIcon,
       },
       {
         name: "Cuadro Tarifario",
         href: "/dashboard/gestion/cuadroTarifario",
-        icon: DocumentDuplicateIcon,
+        icon: DocumentCurrencyDollarIcon,
       },
     ],
   },
-  { name: "Usuarios", href: "/dashboard", icon: UserGroupIcon },
+  { name: "Usuarios", href: "/dashboard/usuarios", icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [toastMsg, setToastMsg] = useState<string | null>(null);
 
   const toggleMenu = (name: string) => {
     setOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -119,20 +111,43 @@ export default function NavLinks() {
 
               {isOpen && (
                 <div className="ml-6 mt-1 flex flex-col gap-1">
-                  {link.children.map((child) => (
-                    <Link
-                      key={child.name}
-                      href={child.href}
-                      className={clsx(
-                        "rounded-md px-3 py-1 text-sm hover:bg-sky-100 hover:text-blue-600",
-                        {
-                          "bg-sky-100 text-blue-600": pathname === child.href,
+                  {link.children.map((child) => {
+                    const ChildIcon = child.icon;
+
+                    const rutasProtegidas = [
+                      "/dashboard/infracciones",
+                      "/dashboard/actas",
+                    ];
+                    const requiresMunicipio = (href: string) =>
+                      rutasProtegidas.some((ruta) => href.startsWith(ruta));
+
+                    const handleClick = (e: React.MouseEvent, href: string) => {
+                      if (requiresMunicipio(href)) {
+                        const stored = sessionStorage.getItem("municipio");
+                        if (!stored) {
+                          e.preventDefault();
+                          setToastMsg("Debe seleccionar un municipio primero.");
                         }
-                      )}
-                    >
-                      {child.name}
-                    </Link>
-                  ))}
+                      }
+                    };
+
+                    return (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        onClick={(e) => handleClick(e, child.href)}
+                        className={clsx(
+                          "flex items-center gap-2 rounded-md px-3 py-1 text-sm hover:bg-sky-100 hover:text-blue-600",
+                          {
+                            "bg-sky-100 text-blue-600": pathname === child.href,
+                          }
+                        )}
+                      >
+                        {ChildIcon && <ChildIcon className="w-4" />}
+                        {child.name}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -155,6 +170,15 @@ export default function NavLinks() {
           </Link>
         );
       })}
+
+      {toastMsg && (
+        <Toast
+          message={toastMsg}
+          type="error"
+          position="top-right"
+          onClose={() => setToastMsg(null)}
+        />
+      )}
     </>
   );
 }

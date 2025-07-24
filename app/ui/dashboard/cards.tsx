@@ -8,14 +8,49 @@ import { Municipio } from "@/app/lib/data/types";
 
 export default function CardWrapper() {
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedReady, setSelectedReady] = useState(false);
+
   const searchParams = useSearchParams();
-  const selectedId = searchParams.get("municipio");
+  const queryParamId = searchParams.get("municipio");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/municipios")
       .then((res) => res.json())
-      .then((data: Municipio[]) => setMunicipios(data));
+      .then((data: Municipio[]) => setMunicipios(data))
+      .catch((err) => {
+        console.error("Error al cargar municipios:", err);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("municipio");
+    const saved = stored ? JSON.parse(stored) : null;
+
+    if (!queryParamId && saved) {
+      setSelectedId(saved.id);
+    }
+    setSelectedReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (queryParamId) {
+      setSelectedId(queryParamId);
+      sessionStorage.setItem("municipio", JSON.stringify({ id: queryParamId }));
+
+      document.cookie = `municipio_id=${queryParamId}; path=/`;
+    }
+  }, [queryParamId]);
+
+  if (isLoading || !selectedReady) {
+    return (
+      <div className="flex justify-center items-center h-40">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   if (!municipios || municipios.length === 0)
     return <p>No hay municipios cargados.</p>;
@@ -33,7 +68,6 @@ export default function CardWrapper() {
               : "hover:shadow-lg")
           }
         >
-          {/* <Card title={mun.nombre} value={mun.id} /> */}
           <Card key={mun.id || index} title={mun.ciudad} value={mun.nombre} />
         </Link>
       ))}

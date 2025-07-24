@@ -112,7 +112,8 @@ model infraccion {
   fecha            DateTime @db.Timestamp(6)
   radar_id         Int
   lote_id          Int
-  vehiculo_id      Int
+  vehiculo_id      Int?
+  dominio          String? @db.VarChar(50)
   nombre_archivo   String?  @db.VarChar(255)
   velocidad_maxima Int?
   velocidad_medida Int?
@@ -120,7 +121,7 @@ model infraccion {
   acta             acta[]
   lote             lote     @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   radar            radar    @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vehiculo         vehiculo @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vehiculo         vehiculo? @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model intimacion {
@@ -138,7 +139,7 @@ model lote {
   numero       Int?
   fecha_desde  DateTime?    @db.Date
   fecha_hasta  DateTime?    @db.Date
-  estado       String?      @db.VarChar(20)
+  estado       String?      @db.VarChar(100)
   radar_id     Int?
   directorio   String?
   infraccion   infraccion[]
