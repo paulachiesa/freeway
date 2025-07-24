@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useActionState, useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { formatDateInput } from "@/app/lib/utils";
+import { useRouter } from "next/navigation";
 import { lusitana } from "@/app/ui/fonts";
 import { guardarLoteCompleto } from "@/app/lib/actions/lote.actions";
 import InfraccionesTable from "../infracciones/table-infracciones";
@@ -19,30 +20,43 @@ type InfraccionData = {
   marca: string;
   modelo: string;
   imagen_url: string;
+  vehiculo_id?: number | null;
 };
 
 export default function Form({ initialLote }: { initialLote?: any }) {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [proximoLote, setProximoLote] = useState<number | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
-  const imageToShow = selectedImageUrl?.trim() ? selectedImageUrl : defaultImg;
+  const inputFileRef = useRef<HTMLInputElement | null>(null);
+  const imageToShow = selectedImageUrl?.startsWith("blob:")
+    ? selectedImageUrl
+    : selectedImageUrl
+    ? `/uploads/${selectedImageUrl}`
+    : defaultImg;
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastType, setToastType] = useState<
     "success" | "error" | "info" | "warning"
   >("info");
 
+  const router = useRouter();
   const [radares, setRadares] = useState<{ id: number; nombre: string }[]>([]);
 
   const [loteData, setLoteData] = useState({
     fecha_desde: "",
     fecha_hasta: "",
-    estado: "",
     radar_id: "",
     directorio: "",
     infracciones: [] as InfraccionData[],
   });
 
   useEffect(() => {
+    const fetchProximoLote = async () => {
+      const res = await fetch("/api/lotes/ultimo");
+      const data = await res.json();
+      setProximoLote(data.proximoNumero);
+    };
+
     const fetchRadares = async () => {
       try {
         const res = await fetch("/api/radares");
@@ -53,6 +67,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
       }
     };
 
+    fetchProximoLote();
     fetchRadares();
   }, []);
 
@@ -61,17 +76,41 @@ export default function Form({ initialLote }: { initialLote?: any }) {
       setLoteData({
         fecha_desde: formatDateInput(initialLote.fecha_desde),
         fecha_hasta: formatDateInput(initialLote.fecha_hasta),
-        estado: initialLote.estado,
         radar_id: String(initialLote.radar_id ?? ""),
         directorio: "",
-        // infracciones: initialLote.infraccion ?? [],
-        infracciones: initialLote.infraccion.map((i: InfraccionData) => ({
-          ...i,
+        infracciones: initialLote.infraccion.map((i: any) => ({
+          nombre_archivo: i.nombre_archivo,
           fecha: typeof i.fecha === "string" ? i.fecha : i.fecha.toISOString(),
+          hora: i.hora,
+          velocidad_maxima: i.velocidad_maxima,
+          velocidad_medida: i.velocidad_medida,
+          dominio: i.vehiculo?.dominio || "",
+          marca: i.vehiculo?.marca || "-",
+          modelo: i.vehiculo?.modelo || "-",
+          imagen_url: i.imagen_url || "",
+          vehiculo_id: i.vehiculo?.id ?? null,
         })),
       });
     }
   }, [initialLote]);
+
+  const uploadImage = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      console.warn(`Error al subir imagen ${file.name}`);
+      return "";
+    }
+
+    const data = await res.json();
+    return data.filename;
+  };
 
   const handleFilesUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -104,6 +143,8 @@ export default function Form({ initialLote }: { initialLote?: any }) {
           return imgBase === nombreBase;
         });
 
+        const imagen_url = imagen ? await uploadImage(imagen) : "";
+
         if (!imagen) {
           console.warn(`⚠️ No se encontró imagen para: ${file.name}`);
         }
@@ -117,7 +158,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
           dominio: "",
           marca: "",
           modelo: "",
-          imagen_url: imagen ? URL.createObjectURL(imagen) : "",
+          imagen_url,
         };
       })
     );
@@ -135,17 +176,27 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   async function handleGuardarClick() {
     const municipio = sessionStorage.getItem("municipio");
     if (municipio) {
+      const infraccionesCompletas = loteData.infracciones.every(
+        (i) => i.vehiculo_id !== null && i.vehiculo_id !== undefined
+      );
+
+      const estadoCalculado = infraccionesCompletas
+        ? "Proceso de carga completo."
+        : "Proceso de carga incompleto";
+
       const formData = {
         municipio_id: JSON.parse(municipio).id,
         ...loteData,
+        estado: estadoCalculado,
         radar_id: parseInt(loteData.radar_id),
       };
-
+      debugger;
       const result = await guardarLoteCompleto(formData);
 
       if (result.success) {
         setToastType("success");
         setToastMsg("Lote guardado correctamente");
+        router.push("/dashboard/infracciones");
       } else {
         setToastType("error");
         setToastMsg("Error al guardar el lote: " + result.message);
@@ -156,11 +207,45 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     }
   }
 
+  const handleCancelarClick = () => {
+    setLoteData({
+      fecha_desde: "",
+      fecha_hasta: "",
+      radar_id: "",
+      directorio: "",
+      infracciones: [],
+    });
+
+    if (inputFileRef.current) {
+      inputFileRef.current.value = "";
+    }
+
+    setSelectedImageUrl(null);
+  };
+
   return (
     <>
       <form>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {!initialLote && (
+              <div>
+                <label
+                  htmlFor="nroLote"
+                  className="mb-2 block text-sm font-medium"
+                >
+                  N° Lote
+                </label>
+                <input
+                  id="nroLote"
+                  name="nroLote"
+                  type="text"
+                  value={proximoLote ?? ""}
+                  disabled
+                  className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm bg-gray-100 text-gray-700"
+                />
+              </div>
+            )}
             <div>
               <label
                 htmlFor="fecha_desde"
@@ -193,22 +278,6 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
               />
             </div>
-            <div>
-              <label
-                htmlFor="estado"
-                className="mb-2 block text-sm font-medium"
-              >
-                Estado
-              </label>
-              <input
-                id="estado"
-                name="estado"
-                type="text"
-                value={loteData.estado}
-                onChange={handleInputChange}
-                className="peer block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-              />
-            </div>
           </div>
 
           <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -234,7 +303,6 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                 ))}
               </select>
             </div>
-
             <div>
               <label
                 htmlFor="directorio"
@@ -247,9 +315,32 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                 name="directorio"
                 type="file"
                 multiple
+                ref={inputFileRef}
                 accept=".txt,image/*"
                 onChange={handleFilesUpload}
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="estado"
+                className="mb-2 block text-sm font-medium"
+              >
+                Estado
+              </label>
+              <input
+                id="estado"
+                name="estado"
+                type="text"
+                value={
+                  loteData.infracciones.length === 0
+                    ? "-"
+                    : loteData.infracciones.every((i) => i.vehiculo_id)
+                    ? "Proceso de carga completo"
+                    : "En proceso de carga incompleto"
+                }
+                disabled
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm bg-gray-100 text-gray-700"
               />
             </div>
           </div>
@@ -299,15 +390,25 @@ export default function Form({ initialLote }: { initialLote?: any }) {
               </div>
             )}
           </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              type="button"
-              onClick={handleGuardarClick}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Guardar Lote
-            </button>
+          <div className="mt-4 flex justify-end gap-2">
+            <div>
+              <button
+                type="button"
+                onClick={handleGuardarClick}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Guardar Lote
+              </button>
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={handleCancelarClick}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       </form>

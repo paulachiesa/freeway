@@ -10,8 +10,6 @@ import { lusitana } from "@/app/ui/fonts";
 import { useMunicipio } from "@/app/providers/MunicipioProvider";
 import Toast from "@/app/ui/components/Toast/toast";
 import Spinner from "@/app/ui/components/Spinner/spinner";
-// import { cookies } from "next/headers";
-// import { redirect } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();

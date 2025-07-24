@@ -18,9 +18,13 @@ export async function fetchLoteById(id: number) {
     const lote = await prisma.lote.findUnique({
       where: { id },
       include: {
-        infraccion: true,
         municipio: true,
         radar: true,
+        infraccion: {
+          include: {
+            vehiculo: true,
+          },
+        },
       },
     });
     return lote;
@@ -134,6 +138,7 @@ export async function crearLoteConInfracciones(data: any) {
           velocidad_medida: inf.velocidad_medida,
           imagen_url: inf.imagen_url,
           radar_id,
+          dominio: inf.dominio.toUpperCase(),
           vehiculo_id: vehiculo?.id ?? null,
         },
       });

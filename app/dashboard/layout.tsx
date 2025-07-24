@@ -13,7 +13,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col flex-grow">
           <Header />
 
-          <main className="flex-grow p-6 md:overflow-y-auto md:py-12 md:px-4">
+          <main className="flex-grow p-6 md:overflow-y-auto md:pt-3 md:pb-12 md:px-4">
             {children}
           </main>
         </div>
