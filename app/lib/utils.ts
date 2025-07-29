@@ -1,51 +1,42 @@
-import { Revenue } from "./definitions";
+// export const formatDateToLocal = (
+//   input: string | Date | null,
+//   locale: string = "en-US"
+// ) => {
+//   if (!input) return "-";
 
-export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
-};
+//   const date = typeof input === "string" ? new Date(input) : input;
 
-export const formatDateToLocal = (
-  input: string | Date | null,
-  locale: string = "en-US"
-) => {
-  if (!input) return "-";
+//   if (isNaN(date.getTime())) return "-"; // evita fechas inválidas
 
-  const date = typeof input === "string" ? new Date(input) : input;
+//   const options: Intl.DateTimeFormatOptions = {
+//     day: "numeric",
+//     month: "short",
+//     year: "numeric",
+//   };
 
-  if (isNaN(date.getTime())) return "-"; // evita fechas inválidas
+//   const formatter = new Intl.DateTimeFormat(locale, options);
+//   return formatter.format(date);
+// };
 
-  const options: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  };
+export function formatDateToLocal(date: string | Date): string {
+  // Si es "dd/mm/yyyy", devolverlo como está
+  if (typeof date === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
+    return date;
+  }
 
-  const formatter = new Intl.DateTimeFormat(locale, options);
-  return formatter.format(date);
-};
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "-";
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
 
 export const formatDateInput = (date: string | Date) => {
   const d = new Date(date);
   return d.toISOString().split("T")[0]; // → "YYYY-MM-DD"
-};
-
-// -----------
-
-export const generateYAxis = (revenue: Revenue[]) => {
-  // Calculate what labels we need to display on the y-axis
-  // based on highest record and in 1000s
-  const yAxisLabels = [];
-  const highestRecord = Math.max(...revenue.map((month) => month.revenue));
-  const topLabel = Math.ceil(highestRecord / 1000) * 1000;
-
-  for (let i = topLabel; i >= 0; i -= 1000) {
-    yAxisLabels.push(`$${i / 1000}K`);
-  }
-
-  return { yAxisLabels, topLabel };
 };
 
 export const generatePagination = (currentPage: number, totalPages: number) => {
