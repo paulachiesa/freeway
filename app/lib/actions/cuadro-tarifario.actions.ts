@@ -25,7 +25,6 @@ const CuadroTarifarioFormSchema = z.object({
 const CreateCuadroTarifario = CuadroTarifarioFormSchema.omit({ id: true });
 
 export async function createCuadroTarifario(formData: FormData) {
-  debugger;
   const {
     velocidad_desde,
     velocidad_hasta,

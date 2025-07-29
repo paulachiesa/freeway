@@ -1,19 +1,25 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { lusitana } from "@/app/ui/fonts";
 import { Municipio } from "@/app/lib/data/types";
+import { useMunicipio } from "@/app/providers/MunicipioProvider";
 
 export default function CardWrapper() {
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedReady, setSelectedReady] = useState(false);
 
-  const searchParams = useSearchParams();
-  const queryParamId = searchParams.get("municipio");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // const [selectedId, setSelectedId] = useState<string | null>(() => {
+  //   if (typeof window !== "undefined") {
+  //     const stored = sessionStorage.getItem("municipio");
+  //     if (stored) {
+  //       const saved: Municipio = JSON.parse(stored);
+  //       return String(saved.id);
+  //     }
+  //   }
+  //   return null;
+  // });
+  const { selected, saveMunicipio } = useMunicipio();
 
   useEffect(() => {
     fetch("/api/municipios")
@@ -25,26 +31,14 @@ export default function CardWrapper() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  useEffect(() => {
-    const stored = sessionStorage.getItem("municipio");
-    const saved = stored ? JSON.parse(stored) : null;
+  const handleSelect = (mun: Municipio) => {
+    // debugger;
+    // setSelectedId(String(mun.id));
+    // sessionStorage.setItem("municipio", JSON.stringify(mun));
+    saveMunicipio(mun);
+  };
 
-    if (!queryParamId && saved) {
-      setSelectedId(saved.id);
-    }
-    setSelectedReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (queryParamId) {
-      setSelectedId(queryParamId);
-      sessionStorage.setItem("municipio", JSON.stringify({ id: queryParamId }));
-
-      document.cookie = `municipio_id=${queryParamId}; path=/`;
-    }
-  }, [queryParamId]);
-
-  if (isLoading || !selectedReady) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-40">
         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
@@ -57,19 +51,16 @@ export default function CardWrapper() {
 
   return (
     <>
-      {municipios.map((mun, index) => (
-        <Link
+      {municipios.map((mun) => (
+        <div
           key={mun.id}
-          href={`?municipio=${mun.id}`}
-          className={
-            "block cursor-pointer rounded-lg transition-shadow " +
-            (selectedId === String(mun.id)
-              ? "ring-4 ring-blue-400"
-              : "hover:shadow-lg")
-          }
+          onClick={() => handleSelect(mun)}
+          className={`block cursor-pointer rounded-lg transition-shadow ${
+            selected?.id === mun.id ? "ring-4 ring-blue-400" : "hover:shadow-lg"
+          }`}
         >
-          <Card key={mun.id || index} title={mun.ciudad} value={mun.nombre} />
-        </Link>
+          <Card title={mun.ciudad} value={mun.nombre} />
+        </div>
       ))}
     </>
   );

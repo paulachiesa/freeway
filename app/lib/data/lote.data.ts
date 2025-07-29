@@ -70,7 +70,6 @@ export async function fetchFilteredLotes(
 }
 
 export async function fetchLotesPages(query: string, municipioId: number) {
-  console.log("MUNICIPIO EN CONSULTA: ", municipioId);
   try {
     const totalCount = await prisma.lote.count({
       where: {
@@ -132,6 +131,7 @@ export async function crearLoteConInfracciones(data: any) {
       await tx.infraccion.create({
         data: {
           fecha: parsedFecha,
+          hora: inf.hora,
           lote_id: lote.id,
           nombre_archivo: inf.nombre_archivo,
           velocidad_maxima: inf.velocidad_maxima,

@@ -150,7 +150,7 @@ export default function InfraccionesTable({
                     <span className="text-gray-400 italic">-</span>
                   </div>
                   <div className="mt-2 text-sm text-gray-700">
-                    <p>Fecha: {formatDateToLocal(inf.fecha, "es-AR")}</p>
+                    <p>Fecha: {formatDateToLocal(inf.fecha)}</p>
                     <p>Hora: {inf.hora}</p>
                     <p>Vel. máx: {inf.velocidad_maxima}</p>
                     <p>Vel. medida: {inf.velocidad_medida}</p>
@@ -201,7 +201,7 @@ export default function InfraccionesTable({
                         {inf.nombre_archivo}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
-                        {formatDateToLocal(inf.fecha, "es-AR")}
+                        {inf.fecha ? formatDateToLocal(inf.fecha) : "-"}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
                         {inf.hora}

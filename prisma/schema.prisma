@@ -109,7 +109,8 @@ model entidadopera {
 
 model infraccion {
   id               Int      @id @default(autoincrement())
-  fecha            DateTime @db.Timestamp(6)
+  fecha            DateTime? @db.Date
+  hora             String? @db.VarChar(8)
   radar_id         Int
   lote_id          Int
   vehiculo_id      Int?

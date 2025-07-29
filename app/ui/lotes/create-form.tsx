@@ -52,9 +52,16 @@ export default function Form({ initialLote }: { initialLote?: any }) {
 
   useEffect(() => {
     const fetchProximoLote = async () => {
-      const res = await fetch("/api/lotes/ultimo");
+      const municipio = sessionStorage.getItem("municipio");
+      if (!municipio) return;
+
+      const id = JSON.parse(municipio).id;
+      const res = await fetch(`/api/lotes/ultimo?municipioId=${id}`);
       const data = await res.json();
-      setProximoLote(data.proximoNumero);
+
+      if (data.success) {
+        setProximoLote(data.proximoNumero);
+      }
     };
 
     const fetchRadares = async () => {
@@ -80,7 +87,8 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         directorio: "",
         infracciones: initialLote.infraccion.map((i: any) => ({
           nombre_archivo: i.nombre_archivo,
-          fecha: typeof i.fecha === "string" ? i.fecha : i.fecha.toISOString(),
+          // fecha: typeof i.fecha === "string" ? i.fecha : i.fecha.toISOString(),
+          fecha: formatDateInput(i.fecha),
           hora: i.hora,
           velocidad_maxima: i.velocidad_maxima,
           velocidad_medida: i.velocidad_medida,
@@ -190,7 +198,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         estado: estadoCalculado,
         radar_id: parseInt(loteData.radar_id),
       };
-      debugger;
+
       const result = await guardarLoteCompleto(formData);
 
       if (result.success) {
