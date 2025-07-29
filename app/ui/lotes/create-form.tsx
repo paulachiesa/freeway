@@ -29,11 +29,12 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   const [proximoLote, setProximoLote] = useState<number | null>(null);
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const inputFileRef = useRef<HTMLInputElement | null>(null);
-  const imageToShow = selectedImageUrl?.startsWith("blob:")
-    ? selectedImageUrl
-    : selectedImageUrl
-    ? `/uploads/${selectedImageUrl}`
-    : defaultImg;
+  // const imageToShow = selectedImageUrl?.startsWith("blob:")
+  //   ? selectedImageUrl
+  //   : selectedImageUrl
+  //   ? `/uploads/${selectedImageUrl}`
+  //   : defaultImg;
+  const imageToShow = selectedImageUrl || defaultImg;
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastType, setToastType] = useState<
     "success" | "error" | "info" | "warning"
@@ -103,8 +104,22 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   }, [initialLote]);
 
   const uploadImage = async (file: File): Promise<string> => {
+    // Obtener municipio del sessionStorage
+    const municipioData = sessionStorage.getItem("municipio");
+    if (!municipioData) {
+      console.warn("⚠️ No hay municipio seleccionado en sessionStorage");
+      return "";
+    }
+
+    const municipio = JSON.parse(municipioData).nombre;
+
+    // Obtener el número de lote (si existe, si no usar uno temporal)
+    const nroLote = proximoLote ?? initialLote?.numero ?? "temp";
+
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("municipio", municipio);
+    formData.append("nroLote", nroLote.toString());
 
     const res = await fetch("/api/upload", {
       method: "POST",
@@ -117,7 +132,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     }
 
     const data = await res.json();
-    return data.filename;
+    return data.url;
   };
 
   const handleFilesUpload = async (
