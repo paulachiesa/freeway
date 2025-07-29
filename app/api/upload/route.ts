@@ -7,21 +7,32 @@ import fs from "fs";
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const file = formData.get("file") as File;
+  const municipio = formData.get("municipio") as string;
+  const nroLote = formData.get("nroLote") as string;
 
-  if (!file) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
+  if (!file || !municipio || !nroLote) {
+    return NextResponse.json({ error: "Faltan datos" }, { status: 400 });
   }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
+  const municipioFolder = municipio.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  const uploadDir = path.join(
+    process.cwd(),
+    "public/uploads",
+    municipioFolder,
+    nroLote
+  );
 
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  const filePath = path.join(uploadsDir, file.name);
-  await writeFile(filePath, buffer);
+  // Guardar archivo
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const filePath = path.join(uploadDir, file.name);
+  fs.writeFileSync(filePath, buffer);
 
-  return NextResponse.json({ filename: file.name });
+  return NextResponse.json({
+    filename: file.name,
+    url: `/uploads/${municipioFolder}/${nroLote}/${file.name}`,
+  });
 }

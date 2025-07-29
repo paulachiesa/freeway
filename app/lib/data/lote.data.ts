@@ -102,7 +102,8 @@ export async function crearLoteConInfracciones(data: any) {
 
   return await prisma.$transaction(async (tx) => {
     const ultimoLote = await tx.lote.findFirst({
-      orderBy: { id: "desc" },
+      where: { municipio_id: parseInt(municipio_id) },
+      orderBy: { numero: "desc" },
     });
 
     const numero = (ultimoLote?.id ?? 0) + 1;

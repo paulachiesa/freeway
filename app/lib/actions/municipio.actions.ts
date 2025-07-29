@@ -1,6 +1,8 @@
 "use server";
 
 import { z } from "zod";
+import fs from "fs";
+import path from "path";
 import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -25,6 +27,37 @@ export async function createMunicipio(formData: FormData) {
     provincia: formData.get("provincia"),
   });
 
+  const logo = formData.get("logo") as File | null;
+  const firma = formData.get("firma") as File | null;
+
+  if (logo && logo.size > 5_000_000) throw new Error("Logo demasiado grande");
+  if (firma && firma.size > 5_000_000)
+    throw new Error("Firma demasiado grande");
+
+  const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  let logoUrl = "";
+  let firmaUrl = "";
+
+  if (logo && logo.size > 0) {
+    const logoPath = path.join(uploadDir, logo.name);
+    const buffer = Buffer.from(await logo.arrayBuffer());
+    fs.writeFileSync(logoPath, buffer);
+    logoUrl = `/uploads/${folderName}/${logo.name}`;
+  }
+
+  if (firma && firma.size > 0) {
+    const firmaPath = path.join(uploadDir, firma.name);
+    const buffer = Buffer.from(await firma.arrayBuffer());
+    fs.writeFileSync(firmaPath, buffer);
+    firmaUrl = `/uploads/${folderName}/${firma.name}`;
+  }
+
   try {
     await prisma.municipio.create({
       data: {
@@ -32,6 +65,8 @@ export async function createMunicipio(formData: FormData) {
         provincia: provincia,
         ciudad: ciudad,
         direccion: direccion,
+        logoUrl,
+        firmaUrl,
       },
     });
   } catch (error) {
@@ -53,6 +88,45 @@ export async function updateMunicipio(id: number, formData: FormData) {
     provincia: formData.get("provincia"),
   });
 
+  const municipioActual = await prisma.municipio.findUnique({ where: { id } });
+  if (!municipioActual) {
+    throw new Error("Municipio no encontrado");
+  }
+  const logo = formData.get("logo") as File | null;
+  const firma = formData.get("firma") as File | null;
+
+  // Validación básica de archivos
+  if (logo && logo.size > 5_000_000)
+    throw new Error("El logo es demasiado grande");
+  if (firma && firma.size > 5_000_000)
+    throw new Error("La firma es demasiado grande");
+
+  // Carpeta según nombre del municipio actualizado
+  const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  // 4️⃣ Guardar imágenes si se subieron nuevas
+  let logoUrl = municipioActual.logoUrl || "";
+  let firmaUrl = municipioActual.firmaUrl || "";
+
+  if (logo && logo.size > 0) {
+    const logoPath = path.join(uploadDir, logo.name);
+    const buffer = Buffer.from(await logo.arrayBuffer());
+    fs.writeFileSync(logoPath, buffer);
+    logoUrl = `/uploads/${folderName}/${logo.name}`;
+  }
+
+  if (firma && firma.size > 0) {
+    const firmaPath = path.join(uploadDir, firma.name);
+    const buffer = Buffer.from(await firma.arrayBuffer());
+    fs.writeFileSync(firmaPath, buffer);
+    firmaUrl = `/uploads/${folderName}/${firma.name}`;
+  }
+
   try {
     await prisma.municipio.update({
       where: { id },
@@ -61,6 +135,8 @@ export async function updateMunicipio(id: number, formData: FormData) {
         provincia: provincia,
         ciudad: ciudad,
         direccion: direccion,
+        logoUrl,
+        firmaUrl,
       },
     });
   } catch (error) {

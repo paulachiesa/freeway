@@ -9,16 +9,6 @@ export default function CardWrapper() {
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // const [selectedId, setSelectedId] = useState<string | null>(() => {
-  //   if (typeof window !== "undefined") {
-  //     const stored = sessionStorage.getItem("municipio");
-  //     if (stored) {
-  //       const saved: Municipio = JSON.parse(stored);
-  //       return String(saved.id);
-  //     }
-  //   }
-  //   return null;
-  // });
   const { selected, saveMunicipio } = useMunicipio();
 
   useEffect(() => {
@@ -32,9 +22,6 @@ export default function CardWrapper() {
   }, []);
 
   const handleSelect = (mun: Municipio) => {
-    // debugger;
-    // setSelectedId(String(mun.id));
-    // sessionStorage.setItem("municipio", JSON.stringify(mun));
     saveMunicipio(mun);
   };
 
@@ -50,7 +37,7 @@ export default function CardWrapper() {
     return <p>No hay municipios cargados.</p>;
 
   return (
-    <>
+    <div className="flex flex-wrap gap-4">
       {municipios.map((mun) => (
         <div
           key={mun.id}
@@ -62,7 +49,7 @@ export default function CardWrapper() {
           <Card title={mun.ciudad} value={mun.nombre} />
         </div>
       ))}
-    </>
+    </div>
   );
 }
 

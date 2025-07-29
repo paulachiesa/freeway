@@ -11,6 +11,7 @@ export default function Page() {
   const handleVolverClick = () => {
     router.push("/dashboard/infracciones");
   };
+
   return (
     <div className="w-full">
       <button
