@@ -3,8 +3,6 @@ import {
   UpdateMunicipio,
   DeleteMunicipio,
 } from "@/app/ui/gestion/municipios/buttons";
-import InvoiceStatus from "@/app/ui/gestion/status";
-import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
 import { fetchFilteredMunicipios } from "@/app/lib/data/municipio.data";
 
 export default async function MunicipiosTable({
@@ -64,6 +62,12 @@ export default async function MunicipiosTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Provincia
                 </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Logo
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Firma
+                </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
                 </th>
@@ -88,6 +92,32 @@ export default async function MunicipiosTable({
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {municipio.provincia}
+                  </td>
+                  <td className="px-4 py-3">
+                    {municipio.logoUrl ? (
+                      <Image
+                        src={municipio.logoUrl}
+                        alt={`Logo de ${municipio.nombre}`}
+                        width={40}
+                        height={40}
+                        className="rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400 italic">-</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3">
+                    {municipio.firmaUrl ? (
+                      <Image
+                        src={municipio.firmaUrl}
+                        alt={`Firma de ${municipio.nombre}`}
+                        width={60}
+                        height={30}
+                        className="rounded"
+                      />
+                    ) : (
+                      <span className="text-gray-400 italic">-</span>
+                    )}
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">

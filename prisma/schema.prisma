@@ -108,20 +108,20 @@ model entidadopera {
 }
 
 model infraccion {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   fecha            DateTime? @db.Date
-  hora             String? @db.VarChar(8)
   radar_id         Int
   lote_id          Int
   vehiculo_id      Int?
-  dominio          String? @db.VarChar(50)
-  nombre_archivo   String?  @db.VarChar(255)
+  nombre_archivo   String?   @db.VarChar(255)
   velocidad_maxima Int?
   velocidad_medida Int?
   imagen_url       String?
+  dominio          String?   @db.VarChar(50)
+  hora             String?   @db.VarChar(8)
   acta             acta[]
-  lote             lote     @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  radar            radar    @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  lote             lote      @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar            radar     @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   vehiculo         vehiculo? @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -154,6 +154,8 @@ model municipio {
   provincia      String?          @db.VarChar(100)
   ciudad         String?          @db.VarChar(100)
   direccion      String?
+  firmaUrl       String?          @db.VarChar(255)
+  logoUrl        String?          @db.VarChar(255)
   lote           lote[]
   radarmunicipio radarmunicipio[]
 }

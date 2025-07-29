@@ -1,7 +1,8 @@
 // app/lib/data/municipio.data.ts
 
 import { prisma } from "../prisma";
-import type { Municipio } from "./types";
+// import type { Municipio } from "./types";
+import { municipio as Municipio } from "generated/prisma";
 
 const ITEMS_PER_PAGE = 5;
 
