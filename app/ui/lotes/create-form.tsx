@@ -198,7 +198,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
       );
 
       const estadoCalculado = infraccionesCompletas
-        ? "Proceso de carga completo."
+        ? "Proceso de carga completo"
         : "Proceso de carga incompleto";
 
       const formData = {
