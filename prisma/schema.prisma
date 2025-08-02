@@ -179,7 +179,7 @@ model persona {
   nacionalidad        String?             @db.VarChar(50)
   fecha_nacimiento    DateTime?           @db.Date
   fecha_fallecimiento DateTime?           @db.Date
-  cuil_cuit           BigInt?
+  cuil_cuit           BigInt?             @unique
   email               String?             @db.VarChar(100)
   email1              String?             @db.VarChar(100)
   email2              String?             @db.VarChar(100)
