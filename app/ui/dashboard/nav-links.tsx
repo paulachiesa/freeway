@@ -13,6 +13,7 @@ import {
   MapPinIcon,
   QueueListIcon,
   RssIcon,
+  ArrowUpTrayIcon,
 } from "@heroicons/react/24/outline";
 import Toast from "@/app/ui/components/Toast/toast";
 import Link from "next/link";
@@ -34,6 +35,22 @@ const links = [
       {
         name: "Ver Todas",
         href: "/dashboard/infracciones",
+        icon: QueueListIcon,
+      },
+    ],
+  },
+  {
+    name: "Infractores",
+    icon: DocumentArrowUpIcon,
+    children: [
+      {
+        name: "Subir Excel",
+        href: "/dashboard/infractores/subirExcel",
+        icon: ArrowUpTrayIcon,
+      },
+      {
+        name: "Ver Todas",
+        href: "/dashboard/infractores",
         icon: QueueListIcon,
       },
     ],

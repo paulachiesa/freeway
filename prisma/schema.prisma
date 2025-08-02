@@ -179,7 +179,7 @@ model persona {
   nacionalidad        String?             @db.VarChar(50)
   fecha_nacimiento    DateTime?           @db.Date
   fecha_fallecimiento DateTime?           @db.Date
-  cuil_cuit           BigInt?
+  cuil_cuit           BigInt?             @unique
   email               String?             @db.VarChar(100)
   email1              String?             @db.VarChar(100)
   email2              String?             @db.VarChar(100)
@@ -189,7 +189,6 @@ model persona {
   domicilio           domicilio[]
   intimacion          intimacion[]
   telefonopersona     telefonopersona[]
-  ultimovehiculo      ultimovehiculo?
   vehiculo            vehiculo[]
 }
 
@@ -222,30 +221,18 @@ model telefonopersona {
   persona     persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model ultimovehiculo {
-  id                     Int       @id @default(autoincrement())
-  persona_id             Int?      @unique
-  vehiculo_id            Int?
-  dominio                String?   @db.VarChar(20)
-  porcentaje_titularidad Decimal?  @db.Decimal
-  procedencia            String?   @db.VarChar(50)
-  fecha_tramite          DateTime? @db.Date
-  fecha_compra           DateTime? @db.Date
-  marca                  String?   @db.VarChar(50)
-  modelo                 String?   @db.VarChar(50)
-  tipo                   String?   @db.VarChar(50)
-  persona                persona?  @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  vehiculo               vehiculo? @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model vehiculo {
-  id             Int              @id @default(autoincrement())
-  dominio        String           @unique @db.VarChar(20)
-  marca          String?          @db.VarChar(50)
-  modelo         String?          @db.VarChar(50)
-  anio           Int?
-  persona_id     Int?
-  infraccion     infraccion[]
-  ultimovehiculo ultimovehiculo[]
-  persona        persona?         @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                     Int          @id @default(autoincrement())
+  dominio                String       @unique @db.VarChar(20)
+  marca                  String?      @db.VarChar(50)
+  modelo                 String?      @db.VarChar(50)
+  anio                   Int?
+  persona_id             Int?
+  fecha_compra           DateTime?    @db.Date
+  fecha_tramite          DateTime?    @db.Date
+  porcentaje_titularidad Decimal?     @db.Decimal
+  procedencia            String?      @db.VarChar(50)
+  tipo                   String?      @db.VarChar(50)
+  infraccion             infraccion[]
+  persona                persona?     @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
