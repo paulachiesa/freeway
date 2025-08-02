@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { mapeoColumnasExcel } from "@/app/lib/mapeoColumnasExcel";
+import { prisma } from "@/app/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -142,6 +143,41 @@ export async function POST(req: Request) {
       }
     }
 
+    // Paso 1: Buscar lotes en estado "Proceso de carga incompleto"
+    const lotesIncompletos = await prisma.lote.findMany({
+      where: { estado: "Proceso de carga incompleto" },
+      include: { infraccion: true },
+    });
+
+    // Paso 2: Iterar lotes e infracciones
+    for (const lote of lotesIncompletos) {
+      let todasCompletadas = true;
+
+      for (const infraccion of lote.infraccion) {
+        if (!infraccion.vehiculo_id && infraccion.dominio) {
+          const vehiculo = await prisma.vehiculo.findUnique({
+            where: { dominio: infraccion.dominio.toUpperCase() },
+          });
+
+          if (vehiculo) {
+            await prisma.infraccion.update({
+              where: { id: infraccion.id },
+              data: { vehiculo_id: vehiculo.id },
+            });
+          } else {
+            todasCompletadas = false;
+          }
+        }
+      }
+
+      // Paso 3: Si todas las infracciones tienen vehiculo_id, cambiar el estado
+      if (todasCompletadas) {
+        await prisma.lote.update({
+          where: { id: lote.id },
+          data: { estado: "Proceso de carga completo" },
+        });
+      }
+    }
     return NextResponse.json({ success: true, procesadas, errores });
   } catch (error) {
     console.error(error);
