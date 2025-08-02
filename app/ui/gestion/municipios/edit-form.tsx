@@ -1,13 +1,6 @@
 "use client";
 
-// import { CustomerField, InvoiceForm } from "@/app/lib/definitions";
 import { municipio as MunicipioType } from "@/generated/prisma";
-import {
-  CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  UserCircleIcon,
-} from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import { updateMunicipio } from "@/app/lib/actions";

@@ -1,3 +1,10 @@
+export const formatCurrency = (amount: number) => {
+  return (amount / 100).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+};
+
 export function formatDateToLocal(date: string | Date): string {
   // Si es "dd/mm/yyyy", devolverlo como está
   if (typeof date === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
