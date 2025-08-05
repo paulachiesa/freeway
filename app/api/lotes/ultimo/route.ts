@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
   try {
     const ultimoLote = await prisma.lote.findFirst({
       where: { municipio_id: municipioId },
-      orderBy: { id: "desc" },
+      orderBy: { numero: "desc" },
     });
 
-    const proximoNumero = (ultimoLote?.id ?? 0) + 1;
+    const proximoNumero = (ultimoLote?.numero ?? 0) + 1;
 
     return NextResponse.json({ success: true, proximoNumero });
   } catch (error) {

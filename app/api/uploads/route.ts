@@ -1,6 +1,5 @@
 // app/api/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
 import path from "path";
 import fs from "fs";
 
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
   const municipioFolder = municipio.replace(/[^a-z0-9]/gi, "_").toLowerCase();
   const uploadDir = path.join(
     process.cwd(),
-    "public/uploads",
+    "uploads",
     municipioFolder,
     nroLote
   );
@@ -33,6 +32,6 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     filename: file.name,
-    url: `/uploads/${municipioFolder}/${nroLote}/${file.name}`,
+    url: `/api/uploads/${municipioFolder}/${nroLote}/${file.name}`,
   });
 }
