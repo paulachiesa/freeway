@@ -84,7 +84,6 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         directorio: "",
         infracciones: initialLote.infraccion.map((i: any) => ({
           nombre_archivo: i.nombre_archivo,
-          // fecha: typeof i.fecha === "string" ? i.fecha : i.fecha.toISOString(),
           fecha: formatDateInput(i.fecha),
           hora: i.hora,
           velocidad_maxima: i.velocidad_maxima,
@@ -115,7 +114,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     formData.append("municipio", municipio);
     formData.append("nroLote", nroLote.toString());
 
-    const res = await fetch("/api/upload", {
+    const res = await fetch("/api/uploads", {
       method: "POST",
       body: formData,
     });

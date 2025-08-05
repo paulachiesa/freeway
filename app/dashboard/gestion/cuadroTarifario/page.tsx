@@ -24,7 +24,11 @@ export default async function Page(props: {
         <h1 className={`${lusitana.className} text-2xl`}>Cuadro Tarifario</h1>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Buscar cuadro tarifario..." />
+        <Search
+          placeholder="Buscar cuadro tarifario..."
+          initialQuery={searchParams?.query ?? ""}
+          basePath="/dashboard/gestion/cuadroTarifario"
+        />
         <CreateCuadroTarifario />
       </div>
       <Suspense
@@ -34,7 +38,12 @@ export default async function Page(props: {
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={totalPages} />
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          query={query}
+          basePath="/dashboard/gestion/cuadroTarifario"
+        />
       </div>
     </div>
   );

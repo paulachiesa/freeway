@@ -1,8 +1,15 @@
+// app/dashboard/layout.tsx
+"use client";
+
+// import { useSearchParams } from "next/navigation";
+import { MunicipioProvider } from "@/app/providers/MunicipioProvider";
 import SideNav from "@/app/ui/dashboard/sidenav";
 import Header from "@/app/ui/dashboard/header";
-import { MunicipioProvider } from "@/app/providers/MunicipioProvider";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  // const searchParams = useSearchParams();
+  // const initialMunicipioId = searchParams.get("municipio") ?? undefined;
+
   return (
     <MunicipioProvider>
       <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">

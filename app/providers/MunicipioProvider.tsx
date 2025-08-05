@@ -8,7 +8,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { useSearchParams } from "next/navigation";
 import { Municipio } from "../lib/data/types";
 
 interface MunicipioContextValue {
@@ -23,57 +22,61 @@ const MunicipioContext = createContext<MunicipioContextValue | undefined>(
   undefined
 );
 
+export function useMunicipio() {
+  const ctx = useContext(MunicipioContext);
+  if (!ctx)
+    throw new Error("useMunicipio debe usarse dentro de MunicipioProvider");
+  return ctx;
+}
+
 export function MunicipioProvider({ children }: { children: ReactNode }) {
-  const searchParams = useSearchParams();
-  const param = searchParams.get("municipio");
-  const [selected, setSelected] = useState<Municipio | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Municipio | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = sessionStorage.getItem("municipio");
+      return raw ? (JSON.parse(raw) as Municipio) : null;
+    } catch {
+      sessionStorage.removeItem("municipio");
+      return null;
+    }
+  });
+
+  // const loadMunicipio = async (id: number) => {
+  //   try {
+  //     const res = await fetch(`/api/municipios/${id}`);
+  //     if (!res.ok) throw new Error("Error al cargar municipio");
+  //     const data: Municipio = await res.json();
+  //     saveMunicipio(data);
+  //   } catch {
+  //     clearMunicipio();
+  //   }
+  // };
 
   useEffect(() => {
-    const loadMunicipio = async (id: number) => {
-      try {
-        const res = await fetch(`/api/municipios/${id}`);
-        if (!res.ok) throw new Error("Error al cargar municipio");
-        const data = await res.json();
-        saveMunicipio(data);
-      } catch (e) {
-        console.error("No se pudo cargar el municipio");
-        clearMunicipio();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const local = sessionStorage.getItem("municipio");
-
-    if (param) {
-      loadMunicipio(Number(param));
-    } else if (local) {
-      try {
-        const parsed = JSON.parse(local);
-        setSelected(parsed);
-      } catch {
-        sessionStorage.removeItem("municipio");
-        setSelected(null);
-      } finally {
-        setLoading(false);
-      }
+    if (selected) {
+      sessionStorage.setItem("municipio", JSON.stringify(selected));
+      document.cookie = `municipio_id=${selected.id};path=/`;
     } else {
-      setLoading(false);
+      sessionStorage.removeItem("municipio");
+      document.cookie = "municipio_id=;path=/;max-age=0";
     }
-  }, [param]);
+  }, [selected]);
 
-  const saveMunicipio = (mun: Municipio) => {
-    setSelected(mun);
-    sessionStorage.setItem("municipio", JSON.stringify(mun));
-    document.cookie = `municipio_id=${mun.id}; path=/`; // opcional: para uso SSR
-  };
+  const saveMunicipio = (mun: Municipio) => setSelected(mun);
+  const clearMunicipio = () => setSelected(null);
 
-  const clearMunicipio = () => {
-    setSelected(null);
-    sessionStorage.removeItem("municipio");
-    document.cookie = `municipio_id=; path=/; max-age=0`;
-  };
+  // const saveMunicipio = (mun: Municipio) => {
+  //   setSelected(mun);
+  //   sessionStorage.setItem("municipio", JSON.stringify(mun));
+  //   document.cookie = `municipio_id=${mun.id}; path=/`;
+  // };
+
+  // const clearMunicipio = () => {
+  //   setSelected(null);
+  //   sessionStorage.removeItem("municipio");
+  //   document.cookie = `municipio_id=; path=/; max-age=0`;
+  // };
 
   return (
     <MunicipioContext.Provider
@@ -82,11 +85,4 @@ export function MunicipioProvider({ children }: { children: ReactNode }) {
       {children}
     </MunicipioContext.Provider>
   );
-}
-
-export function useMunicipio() {
-  const ctx = useContext(MunicipioContext);
-  if (!ctx)
-    throw new Error("useMunicipio debe usarse dentro de MunicipioProvider");
-  return ctx;
 }
