@@ -1,7 +1,5 @@
 import { prisma } from "../prisma";
 
-// Funciones de lectura para la tabla radar
-
 export async function getRadares() {
   return await prisma.radar.findMany();
 }

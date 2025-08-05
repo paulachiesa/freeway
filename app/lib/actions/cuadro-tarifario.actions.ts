@@ -5,8 +5,6 @@ import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-// este archivo contiene funciones de escritura (mutaciones de la bd)
-
 const CuadroTarifarioFormSchema = z.object({
   id: z.coerce.number().optional(),
   velocidad_desde: z.coerce

@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const range = XLSX.utils.decode_range(sheet["!ref"]!);
 
-    // Leer encabezados desde fila 2 (índice r = 1)
     const headers: Record<number, string> = {};
     for (let col = range.s.c; col <= range.e.c; col++) {
       const cellAddress = XLSX.utils.encode_cell({ r: 1, c: col });
@@ -31,7 +30,6 @@ export async function POST(req: Request) {
       if (cell) headers[col] = cell.v.toString().trim().toUpperCase();
     }
 
-    // Mapeo de encabezados a nombres de propiedad esperados por mapeoColumnasExcel
     const encabezadoToPropiedad: Record<string, string> = {
       DOMINIO: "dominio",
       "CUIL/CUIT": "cuil",
@@ -74,7 +72,6 @@ export async function POST(req: Request) {
     let procesadas = 0;
     const errores: any[] = [];
 
-    // Leer desde fila 3 en adelante (r = 2)
     for (let rowNum = 2; rowNum <= range.e.r; rowNum++) {
       try {
         const row: Record<string, any> = {};
@@ -98,7 +95,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Paso final: revisar lotes en estado "Proceso de carga incompleto"
     const lotesIncompletos = await prisma.lote.findMany({
       where: { estado: "Proceso de carga incompleto" },
       include: { infraccion: true },

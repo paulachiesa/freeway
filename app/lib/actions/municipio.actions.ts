@@ -7,8 +7,6 @@ import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-// este archivo contiene funciones de escritura (mutaciones de la bd)
-
 const MunicipioFormSchema = z.object({
   id: z.coerce.number().optional(),
   nombre: z.string().min(3, "El nombre es obligatorio"),
@@ -95,13 +93,11 @@ export async function updateMunicipio(id: number, formData: FormData) {
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
 
-  // Validación básica de archivos
   if (logo && logo.size > 5_000_000)
     throw new Error("El logo es demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("La firma es demasiado grande");
 
-  // Carpeta según nombre del municipio actualizado
   const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
   const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
 
@@ -109,7 +105,6 @@ export async function updateMunicipio(id: number, formData: FormData) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  // 4️⃣ Guardar imágenes si se subieron nuevas
   let logoUrl = municipioActual.logoUrl || "";
   let firmaUrl = municipioActual.firmaUrl || "";
 

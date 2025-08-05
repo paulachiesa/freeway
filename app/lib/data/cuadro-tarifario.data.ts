@@ -1,7 +1,5 @@
 import { prisma } from "../prisma";
 
-// Funciones de lectura para la tabla cuadro tarifario
-
 export async function getCuadrosTarifarios() {
   return await prisma.cuadrotarifario.findMany();
 }

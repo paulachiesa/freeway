@@ -1,8 +1,6 @@
 import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-//botones lote
-
 export function CreateLote() {
   return (
     <Link
@@ -27,7 +25,6 @@ export function UpdateLote({ id }: { id: number }) {
 }
 
 export function DeleteLote({ id }: { id: number }) {
-  //   const deleteCuadroTarifarioWithID = deleteCuadroTarifario.bind(null, id);
   return (
     <form>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
@@ -37,5 +34,3 @@ export function DeleteLote({ id }: { id: number }) {
     </form>
   );
 }
-
-//botones infracciones

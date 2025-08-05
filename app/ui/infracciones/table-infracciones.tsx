@@ -1,4 +1,3 @@
-//esta tabla va dentro del formulario de alta/edicion de lotes.
 "use client";
 
 import { useEffect, useState } from "react";

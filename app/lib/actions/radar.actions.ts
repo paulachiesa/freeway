@@ -5,8 +5,6 @@ import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-// este archivo contiene funciones de escritura (mutaciones de la bd)
-
 const RadarFormSchema = z.object({
   id: z.coerce.number().optional(),
   marca: z.string().max(100, "Máximo 100 caracteres").optional().nullable(),

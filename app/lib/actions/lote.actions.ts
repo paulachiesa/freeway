@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { crearLoteConInfracciones } from "@/app/lib/data/lote.data";
 
-// Esquema de validación para Lote
 const LoteFormSchema = z.object({
   id: z.coerce.number().optional(),
   municipio_id: z.coerce.number(),

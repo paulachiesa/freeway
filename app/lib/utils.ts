@@ -6,7 +6,6 @@ export const formatCurrency = (amount: number) => {
 };
 
 export function formatDateToLocal(date: string | Date): string {
-  // Si es "dd/mm/yyyy", devolverlo como está
   if (typeof date === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
     return date;
   }

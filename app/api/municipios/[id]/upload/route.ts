@@ -15,7 +15,6 @@ export async function POST(
 ) {
   const municipioId = Number(params.id);
 
-  // Buscar municipio
   const municipio = await prisma.municipio.findUnique({
     where: { id: municipioId },
   });
@@ -26,7 +25,6 @@ export async function POST(
     );
   }
 
-  // Carpeta: public/uploads/nombreMunicipio
   const folderMunicipio = municipio.nombre
     .replace(/[^a-z0-9]/gi, "_")
     .toLowerCase();
@@ -36,7 +34,6 @@ export async function POST(
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  // Parsear archivos
   const form = formidable({
     uploadDir,
     keepExtensions: true,

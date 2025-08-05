@@ -6,7 +6,6 @@ function parseFecha(valor: any): Date | null {
   return isNaN(fecha.getTime()) ? null : fecha;
 }
 
-// Trunca valores solo si es necesario (ejemplo: columnas @db.VarChar(255))
 function truncar(valor: string | null | undefined, max = 255): string | null {
   if (!valor) return null;
   return valor.length > max ? valor.slice(0, max) : valor;
@@ -14,9 +13,6 @@ function truncar(valor: string | null | undefined, max = 255): string | null {
 
 export async function mapeoColumnasExcel(row: Record<string, any>) {
   await prisma.$transaction(async (tx) => {
-    // ============================
-    // PERSONA
-    // ============================
     if (!row.cuil) throw new Error("Fila sin CUIL");
 
     const persona = await tx.persona.upsert({
@@ -40,9 +36,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       },
     });
 
-    // ============================
-    // DOMICILIO
-    // ============================
     if (row.direccion) {
       const existeDomicilio = await tx.domicilio.findFirst({
         where: {
@@ -67,9 +60,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       }
     }
 
-    // ============================
-    // TELEFONOS (1 a 5)
-    // ============================
     for (let i = 1; i <= 5; i++) {
       const numero = row[`celular${i}`];
       if (numero) {
@@ -95,9 +85,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       }
     }
 
-    // ============================
-    // VEHICULO
-    // ============================
     if (row.dominio) {
       await tx.vehiculo.upsert({
         where: { dominio: row.dominio },
@@ -127,9 +114,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       });
     }
 
-    // ============================
-    // ADICIONALES PERSONA
-    // ============================
     if (row.nroItem) {
       await tx.adicionalespersona.upsert({
         where: { persona_id: persona.id },
@@ -138,9 +122,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       });
     }
 
-    // ============================
-    // BCRAPERSONA
-    // ============================
     const bcra = await tx.bcrapersona.upsert({
       where: { persona_id: persona.id },
       update: {
@@ -166,9 +147,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       },
     });
 
-    // ============================
-    // BCRARIESGO (4 tipos)
-    // ============================
     const riesgos = [
       { tipo: "bajo", cant: row.cantBajo, deuda: row.deudaBajo },
       { tipo: "medio", cant: row.cantMedio, deuda: row.deudaMedio },
@@ -202,9 +180,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       }
     }
 
-    // ============================
-    // DISTRIBUCION COMPORTAMIENTO
-    // ============================
     const existeDistribucion = await tx.distribucioncomportamiento.findFirst({
       where: { bcra_persona_id: bcra.id },
     });
@@ -222,9 +197,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       });
     }
 
-    // ============================
-    // ENTIDAD OPERA (hasta 4)
-    // ============================
     for (let i = 1; i <= 4; i++) {
       const cod = row[`entidadCod${i}`];
       if (cod) {
@@ -250,9 +222,6 @@ export async function mapeoColumnasExcel(row: Record<string, any>) {
       }
     }
 
-    // ============================
-    // CHEQUES RECHAZADOS
-    // ============================
     const periodos = [
       { meses: 12, sufijo: "" },
       { meses: 24, sufijo: "2" },

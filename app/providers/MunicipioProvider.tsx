@@ -42,17 +42,6 @@ export function MunicipioProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // const loadMunicipio = async (id: number) => {
-  //   try {
-  //     const res = await fetch(`/api/municipios/${id}`);
-  //     if (!res.ok) throw new Error("Error al cargar municipio");
-  //     const data: Municipio = await res.json();
-  //     saveMunicipio(data);
-  //   } catch {
-  //     clearMunicipio();
-  //   }
-  // };
-
   useEffect(() => {
     if (selected) {
       sessionStorage.setItem("municipio", JSON.stringify(selected));
@@ -65,18 +54,6 @@ export function MunicipioProvider({ children }: { children: ReactNode }) {
 
   const saveMunicipio = (mun: Municipio) => setSelected(mun);
   const clearMunicipio = () => setSelected(null);
-
-  // const saveMunicipio = (mun: Municipio) => {
-  //   setSelected(mun);
-  //   sessionStorage.setItem("municipio", JSON.stringify(mun));
-  //   document.cookie = `municipio_id=${mun.id}; path=/`;
-  // };
-
-  // const clearMunicipio = () => {
-  //   setSelected(null);
-  //   sessionStorage.removeItem("municipio");
-  //   document.cookie = `municipio_id=; path=/; max-age=0`;
-  // };
 
   return (
     <MunicipioContext.Provider
