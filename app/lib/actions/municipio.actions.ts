@@ -33,7 +33,7 @@ export async function createMunicipio(formData: FormData) {
     throw new Error("Firma demasiado grande");
 
   const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
+  const uploadDir = path.join(process.cwd(), "uploads", folderName);
 
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });

@@ -4,7 +4,10 @@ import { z } from "zod";
 import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { crearLoteConInfracciones } from "@/app/lib/data/lote.data";
+import {
+  crearLoteConInfracciones,
+  actualizarLoteConInfracciones,
+} from "@/app/lib/data/lote.data";
 
 const LoteFormSchema = z.object({
   id: z.coerce.number().optional(),
@@ -100,8 +103,13 @@ export async function deleteLote(id: number) {
 
 export async function guardarLoteCompleto(formData: any) {
   try {
-    const lote = await crearLoteConInfracciones(formData);
-    return { success: true, lote };
+    if (formData.id) {
+      const lote = await actualizarLoteConInfracciones(formData);
+      return { success: true, lote };
+    } else {
+      const lote = await crearLoteConInfracciones(formData);
+      return { success: true, lote };
+    }
   } catch (error) {
     console.error("Error en guardarLoteCompleto:", error);
     return { success: false, message: "No se pudo guardar el lote." };

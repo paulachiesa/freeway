@@ -8,10 +8,31 @@ export async function getLotes() {
       radar: true,
     },
     orderBy: {
-      fecha_desde: "desc",
+      numero: "desc",
     },
   });
 }
+
+// export async function fetchLoteById(id: number) {
+//   try {
+//     const lote = await prisma.lote.findUnique({
+//       where: { id },
+//       include: {
+//         municipio: true,
+//         radar: true,
+//         infraccion: {
+//           include: {
+//             vehiculo: true,
+//           },
+//         },
+//       },
+//     });
+//     return lote;
+//   } catch (error) {
+//     console.error("Database Error:", error);
+//     throw new Error("Failed to fetch lote.");
+//   }
+// }
 
 export async function fetchLoteById(id: number) {
   try {
@@ -20,14 +41,19 @@ export async function fetchLoteById(id: number) {
       include: {
         municipio: true,
         radar: true,
-        infraccion: {
-          include: {
-            vehiculo: true,
-          },
-        },
+        infraccion: true, // sigue siendo singular porque así se llama en Prisma
       },
     });
-    return lote;
+
+    // Renombrar infraccion → infracciones
+    const loteNormalizado = {
+      ...lote,
+      infracciones: lote?.infraccion ?? [],
+    };
+
+    delete loteNormalizado.infraccion;
+
+    return loteNormalizado;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch lote.");
@@ -57,7 +83,7 @@ export async function fetchFilteredLotes(
         radar: true,
       },
       orderBy: {
-        fecha_desde: "desc",
+        numero: "desc",
       },
       skip: offset,
       take: ITEMS_PER_PAGE,
@@ -106,7 +132,7 @@ export async function crearLoteConInfracciones(data: any) {
       orderBy: { numero: "desc" },
     });
 
-    const numero = (ultimoLote?.id ?? 0) + 1;
+    const numero = (ultimoLote?.numero ?? 0) + 1;
 
     const lote = await tx.lote.create({
       data: {
@@ -134,6 +160,62 @@ export async function crearLoteConInfracciones(data: any) {
           fecha: parsedFecha,
           hora: inf.hora,
           lote_id: lote.id,
+          nombre_archivo: inf.nombre_archivo,
+          velocidad_maxima: inf.velocidad_maxima,
+          velocidad_medida: inf.velocidad_medida,
+          imagen_url: inf.imagen_url,
+          radar_id,
+          dominio: inf.dominio.toUpperCase(),
+          vehiculo_id: vehiculo?.id ?? null,
+        },
+      });
+    }
+
+    return lote;
+  });
+}
+
+export async function actualizarLoteConInfracciones(data: any) {
+  const {
+    id,
+    municipio_id,
+    fecha_desde,
+    fecha_hasta,
+    estado,
+    radar_id,
+    directorio,
+    infracciones,
+  } = data;
+
+  return await prisma.$transaction(async (tx) => {
+    const lote = await tx.lote.update({
+      where: { id },
+      data: {
+        fecha_desde: new Date(fecha_desde),
+        fecha_hasta: new Date(fecha_hasta),
+        estado,
+        radar_id,
+        directorio,
+      },
+    });
+
+    await tx.infraccion.deleteMany({
+      where: { lote_id: id },
+    });
+
+    for (const inf of infracciones) {
+      const vehiculo = await tx.vehiculo.findUnique({
+        where: { dominio: inf.dominio.toUpperCase() },
+      });
+
+      const [day, month, year] = inf.fecha.split("/");
+      const parsedFecha = new Date(`${year}-${month}-${day}`);
+
+      await tx.infraccion.create({
+        data: {
+          fecha: parsedFecha,
+          hora: inf.hora,
+          lote_id: id,
           nombre_archivo: inf.nombre_archivo,
           velocidad_maxima: inf.velocidad_maxima,
           velocidad_medida: inf.velocidad_medida,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TrashIcon } from "@heroicons/react/24/outline";
 import { formatDateToLocal } from "@/app/lib/utils";
 import Toast from "../components/Toast/toast";
@@ -23,18 +23,28 @@ export default function InfraccionesTable({
   datos,
   onSelectImage,
   selectedRow,
+  onChange,
 }: {
   datos: Infraccion[];
   onSelectImage?: (url: string, nombreArchivo: string) => void;
   selectedRow?: string | null;
+  onChange?: (infracciones: Infraccion[]) => void;
 }) {
   const [infracciones, setInfracciones] = useState<Infraccion[]>(datos);
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   useEffect(() => {
     setInfracciones(datos);
   }, [datos]);
+
+  console.log(datos);
+
+  useEffect(() => {
+    if (onChange) onChange(infracciones);
+  }, [infracciones]);
 
   const handleChange = (
     index: number,
@@ -96,6 +106,10 @@ export default function InfraccionesTable({
       }
     } else {
       buscarVehiculo(index, valor);
+      const nextInput = inputRefs.current[index + 1];
+      if (nextInput) {
+        nextInput.focus();
+      }
     }
   };
 
@@ -218,6 +232,9 @@ export default function InfraccionesTable({
                           onChange={(e) =>
                             handleChange(index, "dominio", e.target.value)
                           }
+                          ref={(e) => {
+                            inputRefs.current[index] = e;
+                          }}
                           onKeyDown={(e) => handleKeyDown(e, index)}
                           onFocus={() =>
                             onSelectImage?.(inf.imagen_url, inf.nombre_archivo)
