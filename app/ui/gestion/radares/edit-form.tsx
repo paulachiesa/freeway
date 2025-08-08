@@ -11,44 +11,63 @@ export default function EditRadarForm({ radar }: { radar: radar }) {
   return (
     <form action={updateRadarWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        <div className="mb-4">
-          <label htmlFor="marca" className="mb-2 block text-sm font-medium">
-            Marca
-          </label>
-          <input
-            id="marca"
-            name="marca"
-            type="text"
-            defaultValue={radar.marca || ""}
-            required
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
-        </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="mb-4">
+            <label htmlFor="marca" className="mb-2 block text-sm font-medium">
+              Marca
+            </label>
+            <input
+              id="marca"
+              name="marca"
+              type="text"
+              defaultValue={radar.marca || ""}
+              required
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="modelo" className="mb-2 block text-sm font-medium">
-            Modelo
-          </label>
-          <input
-            id="modelo"
-            name="modelo"
-            type="text"
-            defaultValue={radar.modelo || ""}
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
+          <div className="mb-4">
+            <label htmlFor="modelo" className="mb-2 block text-sm font-medium">
+              Modelo
+            </label>
+            <input
+              id="modelo"
+              name="modelo"
+              type="text"
+              defaultValue={radar.modelo || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
         </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="mb-4">
+            <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
+              Número de Serie
+            </label>
+            <input
+              id="nro_serie"
+              name="nro_serie"
+              type="text"
+              defaultValue={radar.nro_serie || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
-            Número de Serie
-          </label>
-          <input
-            id="nro_serie"
-            name="nro_serie"
-            type="text"
-            defaultValue={radar.nro_serie || ""}
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
+          <div className="mb-4">
+            <label
+              htmlFor="disp_autorizante"
+              className="mb-2 block text-sm font-medium"
+            >
+              Disposición Autorizante
+            </label>
+            <input
+              id="disp_autorizante"
+              name="disp_autorizante"
+              type="text"
+              defaultValue={radar.disp_autorizante || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
         </div>
       </div>
       <div className="mt-6 flex justify-end gap-4">

@@ -13,27 +13,6 @@ export async function getLotes() {
   });
 }
 
-// export async function fetchLoteById(id: number) {
-//   try {
-//     const lote = await prisma.lote.findUnique({
-//       where: { id },
-//       include: {
-//         municipio: true,
-//         radar: true,
-//         infraccion: {
-//           include: {
-//             vehiculo: true,
-//           },
-//         },
-//       },
-//     });
-//     return lote;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch lote.");
-//   }
-// }
-
 export async function fetchLoteById(id: number) {
   try {
     const lote = await prisma.lote.findUnique({
@@ -41,11 +20,14 @@ export async function fetchLoteById(id: number) {
       include: {
         municipio: true,
         radar: true,
-        infraccion: true, // sigue siendo singular porque así se llama en Prisma
+        infraccion: {
+          include: {
+            vehiculo: true,
+          },
+        },
       },
     });
 
-    // Renombrar infraccion → infracciones
     const loteNormalizado = {
       ...lote,
       infracciones: lote?.infraccion ?? [],

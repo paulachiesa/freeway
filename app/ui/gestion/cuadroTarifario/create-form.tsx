@@ -64,20 +64,6 @@ export default function Form() {
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div>
             <label
-              htmlFor="primer_vencimiento"
-              className="mb-2 block text-sm font-medium"
-            >
-              Primer Vencimiento
-            </label>
-            <input
-              id="primer_vencimiento"
-              name="primer_vencimiento"
-              type="date"
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-          <div>
-            <label
               htmlFor="valor_1er_vencimiento"
               className="mb-2 block text-sm font-medium"
             >
@@ -89,24 +75,6 @@ export default function Form() {
               type="number"
               step="0.01"
               placeholder="Ej: 133200.00"
-              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
-            />
-          </div>
-        </div>
-
-        {/* Segundo Vencimiento */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label
-              htmlFor="segundo_vencimiento"
-              className="mb-2 block text-sm font-medium"
-            >
-              Segundo vencimiento
-            </label>
-            <input
-              id="segundo_vencimiento"
-              name="segundo_vencimiento"
-              type="date"
               className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
             />
           </div>

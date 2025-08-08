@@ -26,6 +26,9 @@ export default async function RadaresTable({
                       <p>{radar.marca}</p>
                     </div>
                     <p className="text-sm text-gray-500">{radar.modelo}</p>
+                    <p className="text-sm text-gray-500">
+                      {radar.disp_autorizante}
+                    </p>
                   </div>
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
@@ -52,6 +55,9 @@ export default async function RadaresTable({
                 <th scope="col" className="px-3 py-5 font-medium">
                   Número de Serie
                 </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Disposición Autorizante
+                </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Edit</span>
                 </th>
@@ -74,7 +80,10 @@ export default async function RadaresTable({
                   <td className="whitespace-nowrap px-3 py-3">
                     {radar.nro_serie}
                   </td>
-                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
+                  <td className="whitespace-nowrap py-3">
+                    {radar.disp_autorizante}
+                  </td>
+                  <td className="whitespace-nowrap py-3  pr-3">
                     <div className="flex justify-end gap-3">
                       <UpdateRadar id={radar.id} />
                       <DeleteRadar id={radar.id} />

@@ -14,9 +14,7 @@ const CuadroTarifarioFormSchema = z.object({
     .number()
     .min(0, "Debe ingresar una velocidad válida"),
   gasto_administrativo: z.coerce.number().nonnegative().optional().nullable(),
-  primer_vencimiento: z.coerce.date().optional().nullable(),
   valor_1er_vencimiento: z.coerce.number().nonnegative().optional().nullable(),
-  segundo_vencimiento: z.coerce.date().optional().nullable(),
   valor_2do_vencimiento: z.coerce.number().nonnegative().optional().nullable(),
 });
 
@@ -27,17 +25,13 @@ export async function createCuadroTarifario(formData: FormData) {
     velocidad_desde,
     velocidad_hasta,
     gasto_administrativo,
-    primer_vencimiento,
     valor_1er_vencimiento,
-    segundo_vencimiento,
     valor_2do_vencimiento,
   } = CreateCuadroTarifario.parse({
     velocidad_desde: formData.get("velocidad_desde"),
     velocidad_hasta: formData.get("velocidad_hasta"),
     gasto_administrativo: formData.get("gasto_administrativo"),
-    primer_vencimiento: formData.get("primer_vencimiento"),
     valor_1er_vencimiento: formData.get("valor_1er_vencimiento"),
-    segundo_vencimiento: formData.get("segundo_vencimiento"),
     valor_2do_vencimiento: formData.get("valor_2do_vencimiento"),
   });
 
@@ -47,9 +41,7 @@ export async function createCuadroTarifario(formData: FormData) {
         velocidad_desde: velocidad_desde,
         velocidad_hasta: velocidad_hasta,
         gasto_administrativo: gasto_administrativo,
-        primer_vencimiento: primer_vencimiento,
         valor_1er_vencimiento: valor_1er_vencimiento,
-        segundo_vencimiento: segundo_vencimiento,
         valor_2do_vencimiento: valor_2do_vencimiento,
       },
     });
@@ -69,17 +61,13 @@ export async function updateCuadroTarifario(id: number, formData: FormData) {
     velocidad_desde,
     velocidad_hasta,
     gasto_administrativo,
-    primer_vencimiento,
     valor_1er_vencimiento,
-    segundo_vencimiento,
     valor_2do_vencimiento,
   } = UpdateCuadroTarifario.parse({
     velocidad_desde: formData.get("velocidad_desde"),
     velocidad_hasta: formData.get("velocidad_hasta"),
     gasto_administrativo: formData.get("gasto_administrativo"),
-    primer_vencimiento: formData.get("primer_vencimiento"),
     valor_1er_vencimiento: formData.get("valor_1er_vencimiento"),
-    segundo_vencimiento: formData.get("segundo_vencimiento"),
     valor_2do_vencimiento: formData.get("valor_2do_vencimiento"),
   });
 
@@ -90,9 +78,7 @@ export async function updateCuadroTarifario(id: number, formData: FormData) {
         velocidad_desde: velocidad_desde,
         velocidad_hasta: velocidad_hasta,
         gasto_administrativo: gasto_administrativo,
-        primer_vencimiento: primer_vencimiento,
         valor_1er_vencimiento: valor_1er_vencimiento,
-        segundo_vencimiento: segundo_vencimiento,
         valor_2do_vencimiento: valor_2do_vencimiento,
       },
     });

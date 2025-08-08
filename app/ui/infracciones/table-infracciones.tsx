@@ -40,8 +40,6 @@ export default function InfraccionesTable({
     setInfracciones(datos);
   }, [datos]);
 
-  console.log(datos);
-
   useEffect(() => {
     if (onChange) onChange(infracciones);
   }, [infracciones]);

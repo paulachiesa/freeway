@@ -92,7 +92,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
           hora: i.hora,
           velocidad_maxima: i.velocidad_maxima,
           velocidad_medida: i.velocidad_medida,
-          dominio: i.vehiculo?.dominio || "",
+          dominio: i.dominio || "",
           marca: i.vehiculo?.marca || "-",
           modelo: i.vehiculo?.modelo || "-",
           imagen_url: i.imagen_url || "",
@@ -211,7 +211,6 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         radar_id: parseInt(loteData.radar_id),
       };
 
-      console.log(loteData);
       const result = await guardarLoteCompleto(formData);
 
       if (result.success) {
@@ -246,7 +245,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     setSelectedImageUrl(null);
   };
 
-  useInactivityTimer(handleGuardarClick, 2 * 60 * 1000);
+  useInactivityTimer(handleGuardarClick, 15 * 60 * 1000);
 
   return (
     <>

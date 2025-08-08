@@ -45,26 +45,10 @@ export default async function CuadroTarifarioTable({
                     )}
                   </p>
                   <p>
-                    1er venc:{" "}
-                    {cuadro.primer_vencimiento
-                      ? formatDateToLocal(
-                          cuadro.primer_vencimiento.toISOString()
-                        )
-                      : "-"}
-                  </p>
-                  <p>
                     Valor 1er venc:{" "}
                     {formatCurrency(
                       cuadro.valor_1er_vencimiento?.toNumber() ?? 0
                     )}
-                  </p>
-                  <p>
-                    2do venc:{" "}
-                    {cuadro.segundo_vencimiento
-                      ? formatDateToLocal(
-                          cuadro.segundo_vencimiento.toISOString()
-                        )
-                      : "-"}
                   </p>
                   <p>
                     Valor 2do venc:{" "}
@@ -86,9 +70,7 @@ export default async function CuadroTarifarioTable({
                 </th>
                 <th className="px-3 py-5 font-medium">Velocidad hasta</th>
                 <th className="px-3 py-5 font-medium">Gasto adm.</th>
-                <th className="px-3 py-5 font-medium">1er vencimiento</th>
                 <th className="px-3 py-5 font-medium">Valor 1er venc.</th>
-                <th className="px-3 py-5 font-medium">2do vencimiento</th>
                 <th className="px-3 py-5 font-medium">Valor 2do venc.</th>
                 <th className="relative py-3 pl-6 pr-3">
                   <span className="sr-only">Acciones</span>
@@ -113,23 +95,9 @@ export default async function CuadroTarifarioTable({
                     )}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {cuadro.primer_vencimiento
-                      ? formatDateToLocal(
-                          cuadro.primer_vencimiento.toISOString()
-                        )
-                      : "-"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
                     {formatCurrency(
                       cuadro.valor_1er_vencimiento?.toNumber() ?? 0
                     )}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {cuadro.segundo_vencimiento
-                      ? formatDateToLocal(
-                          cuadro.segundo_vencimiento.toISOString()
-                        )
-                      : "-"}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatCurrency(
