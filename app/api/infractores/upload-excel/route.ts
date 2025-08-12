@@ -100,8 +100,18 @@ export async function POST(req: Request) {
       include: { infraccion: true },
     });
 
+    const resultadoPorLote: Array<{
+      loteId: number;
+      total: number;
+      completadas: number;
+      faltantes: number;
+      faltantesIds: number[];
+    }> = [];
+
     for (const lote of lotesIncompletos) {
-      let todasCompletadas = true;
+      const total = lote.infraccion.length;
+      let completadas = 0;
+      const faltantesIds: number[] = [];
 
       for (const infraccion of lote.infraccion) {
         if (!infraccion.vehiculo_id && infraccion.dominio) {
@@ -115,20 +125,36 @@ export async function POST(req: Request) {
               data: { vehiculo_id: vehiculo.id },
             });
           } else {
-            todasCompletadas = false;
+            faltantesIds.push(infraccion.id);
           }
         }
       }
 
-      if (todasCompletadas) {
+      if (completadas === total) {
         await prisma.lote.update({
           where: { id: lote.id },
           data: { estado: "Proceso de carga completo" },
         });
       }
+
+      resultadoPorLote.push({
+        loteId: lote.id,
+        total,
+        completadas,
+        faltantes: total - completadas,
+        faltantesIds,
+      });
     }
 
-    return NextResponse.json({ success: true, procesadas, errores });
+    return NextResponse.json({
+      success: true,
+      procesadas: lotesIncompletos.reduce(
+        (sum, l) => sum + l.infraccion.length,
+        0
+      ),
+      errores: [],
+      faltantesPorLote: resultadoPorLote,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

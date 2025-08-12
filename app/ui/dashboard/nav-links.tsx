@@ -134,6 +134,7 @@ export default function NavLinks() {
                     const rutasProtegidas = [
                       "/dashboard/infracciones",
                       "/dashboard/actas",
+                      "/dashboard/infractores/subirExcel",
                     ];
                     const requiresMunicipio = (href: string) =>
                       rutasProtegidas.some((ruta) => href.startsWith(ruta));
