@@ -16,7 +16,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // fallback para errores desconocidos
     return NextResponse.json(
       { success: false, message: "Error desconocido al guardar el lote." },
       { status: 500 }

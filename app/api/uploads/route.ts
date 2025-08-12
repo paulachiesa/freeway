@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
-  // Guardar archivo
   const buffer = Buffer.from(await file.arrayBuffer());
   const filePath = path.join(uploadDir, file.name);
   fs.writeFileSync(filePath, buffer);

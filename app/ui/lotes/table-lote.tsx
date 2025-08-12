@@ -34,6 +34,7 @@ export default function LoteTable({
           `/api/lotes/listado?query=${query}&page=${currentPage}&municipioId=${municipioId}`
         );
         const data = await res.json();
+
         if (data.success) {
           setLotes(data.lotes);
         } else {

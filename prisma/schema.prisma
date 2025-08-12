@@ -61,14 +61,12 @@ model chequesrechazados {
 }
 
 model cuadrotarifario {
-  id                    Int       @id @default(autoincrement())
+  id                    Int      @id @default(autoincrement())
   velocidad_desde       Int
   velocidad_hasta       Int
-  gasto_administrativo  Decimal?  @db.Decimal(10, 2)
-  primer_vencimiento    DateTime? @db.Date
-  valor_1er_vencimiento Decimal?  @db.Decimal(10, 2)
-  segundo_vencimiento   DateTime? @db.Date
-  valor_2do_vencimiento Decimal?  @db.Decimal(10, 2)
+  gasto_administrativo  Decimal? @db.Decimal(10, 2)
+  valor_1er_vencimiento Decimal? @db.Decimal(10, 2)
+  valor_2do_vencimiento Decimal? @db.Decimal(10, 2)
   acta                  acta[]
 }
 
@@ -193,13 +191,14 @@ model persona {
 }
 
 model radar {
-  id             Int              @id @default(autoincrement())
-  marca          String?          @db.VarChar(100)
-  modelo         String?          @db.VarChar(100)
-  nro_serie      String?          @db.VarChar(100)
-  infraccion     infraccion[]
-  lote           lote[]
-  radarmunicipio radarmunicipio[]
+  id               Int              @id @default(autoincrement())
+  marca            String?
+  modelo           String?
+  nro_serie        String?
+  disp_autorizante String?
+  infraccion       infraccion[]
+  lote             lote[]
+  radarmunicipio   radarmunicipio[]
 }
 
 model radarmunicipio {

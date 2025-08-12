@@ -7,11 +7,13 @@ import Pagination from "@/app/ui/components/Pagination/pagination";
 import { CreateLote } from "@/app/ui/lotes/buttons";
 import { lusitana } from "@/app/ui/fonts";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { query?: string; page?: string };
+export default async function Page(props: {
+  searchParams: Promise<{ query?: string; page?: string }>;
 }) {
+  const { searchParams } = props;
+  const { query = "", page: pageStr = "1" } = await searchParams;
+  const currentPage = Number(pageStr) || 1;
+
   const cookieStore = await cookies();
   const ck = cookieStore.get("municipio_id")?.value;
 
@@ -19,9 +21,6 @@ export default async function Page({
     return redirect("/dashboard");
   }
   const municipioId = Number(ck);
-
-  const query = searchParams.query ?? "";
-  const currentPage = Number(searchParams.page) || 1;
 
   const params = new URLSearchParams({
     query,

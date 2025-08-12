@@ -1,9 +1,9 @@
 "use client";
 
 interface SpinnerProps {
-  size?: number; // px
-  color?: string; // tailwind color (ej: 'blue-500')
-  className?: string; // opcional para custom wrapper
+  size?: number;
+  color?: string;
+  className?: string;
 }
 
 export default function Spinner({

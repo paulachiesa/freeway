@@ -40,6 +40,8 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   const [radares, setRadares] = useState<{ id: number; nombre: string }[]>([]);
 
   const [loteData, setLoteData] = useState({
+    id: undefined,
+    numero: undefined,
     fecha_desde: "",
     fecha_hasta: "",
     radar_id: "",
@@ -78,17 +80,19 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   useEffect(() => {
     if (initialLote) {
       setLoteData({
+        id: initialLote.id,
+        numero: initialLote.numero,
         fecha_desde: formatDateInput(initialLote.fecha_desde),
         fecha_hasta: formatDateInput(initialLote.fecha_hasta),
         radar_id: String(initialLote.radar_id ?? ""),
         directorio: "",
-        infracciones: initialLote.infraccion.map((i: any) => ({
+        infracciones: initialLote.infracciones.map((i: any) => ({
           nombre_archivo: i.nombre_archivo,
           fecha: formatDateInput(i.fecha),
           hora: i.hora,
           velocidad_maxima: i.velocidad_maxima,
           velocidad_medida: i.velocidad_medida,
-          dominio: i.vehiculo?.dominio || "",
+          dominio: i.dominio || "",
           marca: i.vehiculo?.marca || "-",
           modelo: i.vehiculo?.modelo || "-",
           imagen_url: i.imagen_url || "",
@@ -225,6 +229,8 @@ export default function Form({ initialLote }: { initialLote?: any }) {
 
   const handleCancelarClick = () => {
     setLoteData({
+      id: undefined,
+      numero: undefined,
       fecha_desde: "",
       fecha_hasta: "",
       radar_id: "",
@@ -239,7 +245,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     setSelectedImageUrl(null);
   };
 
-  useInactivityTimer(handleGuardarClick, 2 * 60 * 1000);
+  useInactivityTimer(handleGuardarClick, 15 * 60 * 1000);
 
   return (
     <>
@@ -368,6 +374,12 @@ export default function Form({ initialLote }: { initialLote?: any }) {
             <div className="w-full md:w-[65%]">
               <InfraccionesTable
                 datos={loteData.infracciones}
+                onChange={(nuevasInfracciones) =>
+                  setLoteData((prev) => ({
+                    ...prev,
+                    infracciones: nuevasInfracciones,
+                  }))
+                }
                 onSelectImage={(url, nombreArchivo) => {
                   setSelectedImageUrl(url);
                   setSelectedRow(nombreArchivo);

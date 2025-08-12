@@ -3,7 +3,7 @@
 type Props = {
   id: string;
   label: string;
-  defaultValue?: string | null; // formato "YYYY-MM-DDTHH:MM"
+  defaultValue?: string | null;
 };
 
 export default function DateTimeField({ id, label, defaultValue }: Props) {

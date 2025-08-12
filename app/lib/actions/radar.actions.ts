@@ -5,22 +5,26 @@ import { prisma } from "../prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-// este archivo contiene funciones de escritura (mutaciones de la bd)
-
 const RadarFormSchema = z.object({
   id: z.coerce.number().optional(),
   marca: z.string().max(100, "Máximo 100 caracteres").optional().nullable(),
   modelo: z.string().max(100, "Máximo 100 caracteres").optional().nullable(),
   nro_serie: z.string().max(100, "Máximo 100 caracteres").optional().nullable(),
+  disp_autorizante: z
+    .string()
+    .max(100, "Máximo 100 caracteres")
+    .optional()
+    .nullable(),
 });
 
 const CreateRadar = RadarFormSchema.omit({ id: true });
 
 export async function createRadar(formData: FormData) {
-  const { marca, modelo, nro_serie } = CreateRadar.parse({
+  const { marca, modelo, nro_serie, disp_autorizante } = CreateRadar.parse({
     marca: formData.get("marca"),
     modelo: formData.get("modelo"),
     nro_serie: formData.get("nro_serie"),
+    disp_autorizante: formData.get("disp_autorizante"),
   });
 
   try {
@@ -29,6 +33,7 @@ export async function createRadar(formData: FormData) {
         marca: marca,
         modelo: modelo,
         nro_serie: nro_serie,
+        disp_autorizante: disp_autorizante,
       },
     });
   } catch (error) {
@@ -43,10 +48,11 @@ export async function createRadar(formData: FormData) {
 const UpdateRadar = RadarFormSchema.omit({ id: true });
 
 export async function updateRadar(id: number, formData: FormData) {
-  const { marca, modelo, nro_serie } = UpdateRadar.parse({
+  const { marca, modelo, nro_serie, disp_autorizante } = UpdateRadar.parse({
     marca: formData.get("marca"),
     modelo: formData.get("modelo"),
     nro_serie: formData.get("nro_serie"),
+    disp_autorizante: formData.get("disp_autorizante"),
   });
 
   try {
@@ -56,6 +62,7 @@ export async function updateRadar(id: number, formData: FormData) {
         marca: marca,
         modelo: modelo,
         nro_serie: nro_serie,
+        disp_autorizante: disp_autorizante,
       },
     });
   } catch (error) {

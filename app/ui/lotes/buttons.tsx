@@ -25,7 +25,6 @@ export function UpdateLote({ id }: { id: number }) {
 }
 
 export function DeleteLote({ id }: { id: number }) {
-  //   const deleteCuadroTarifarioWithID = deleteCuadroTarifario.bind(null, id);
   return (
     <form>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">

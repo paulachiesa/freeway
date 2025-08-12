@@ -1,21 +1,14 @@
 // app/lib/data/municipio.data.ts
 
 import { prisma } from "../prisma";
-// import type { Municipio } from "./types";
 import { municipio as Municipio } from "generated/prisma";
 
 const ITEMS_PER_PAGE = 5;
 
-/**
- * Devuelve todos los municipios
- */
 export async function getMunicipios(): Promise<Municipio[]> {
   return prisma.municipio.findMany();
 }
 
-/**
- * Devuelve un municipio por su ID
- */
 export async function getMunicipioById(id: number): Promise<Municipio | null> {
   try {
     return await prisma.municipio.findUnique({
@@ -27,9 +20,6 @@ export async function getMunicipioById(id: number): Promise<Municipio | null> {
   }
 }
 
-/**
- * Devuelve los municipios filtrados + paginados
- */
 export async function fetchFilteredMunicipios(
   query: string,
   currentPage: number
@@ -56,9 +46,6 @@ export async function fetchFilteredMunicipios(
   }
 }
 
-/**
- * Devuelve la cantidad total de páginas según el filtro
- */
 export async function fetchMunicipiosPages(query: string): Promise<number> {
   try {
     const totalCount = await prisma.municipio.count({

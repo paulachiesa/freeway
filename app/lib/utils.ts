@@ -1,12 +1,12 @@
-export const formatCurrency = (amount: number) => {
-  return (amount / 100).toLocaleString("en-US", {
+export function formatCurrency(value: number) {
+  return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "USD",
-  });
-};
+    currency: "ARS",
+    minimumFractionDigits: 2,
+  }).format(value);
+}
 
 export function formatDateToLocal(date: string | Date): string {
-  // Si es "dd/mm/yyyy", devolverlo como está
   if (typeof date === "string" && /^\d{2}\/\d{2}\/\d{4}$/.test(date)) {
     return date;
   }
