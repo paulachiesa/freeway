@@ -182,9 +182,7 @@ export default function Page() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        {/* Combo + Input en la misma fila */}
         <div className="flex items-end gap-4 mb-4 flex-wrap">
-          {/* Combo */}
           <div>
             <label className="block mb-1 text-sm">Lote del municipio</label>
             <select
@@ -204,11 +202,9 @@ export default function Page() {
             </select>
           </div>
 
-          {/* Input de archivo con nombre aparte */}
           <div className="flex-1 min-w-[260px]">
             <label className="block mb-1 text-sm">Archivo Excel</label>
             <div className="flex items-center gap-3">
-              {/* Input real oculto */}
               <input
                 id="fileInput"
                 type="file"
@@ -216,14 +212,12 @@ export default function Page() {
                 className="hidden"
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
               />
-              {/* Botón que dispara el input */}
               <label
                 htmlFor="fileInput"
                 className="inline-flex items-center h-[38px] px-3 py-2 border rounded bg-white hover:bg-gray-50 cursor-pointer"
               >
                 Seleccionar archivo
               </label>
-              {/* Nombre del archivo (completo) */}
               <span
                 className="text-sm break-all whitespace-normal"
                 aria-live="polite"
@@ -234,7 +228,6 @@ export default function Page() {
           </div>
         </div>
 
-        {/* Botón debajo */}
         <div className="mt-4 flex justify-start gap-2">
           <button
             type="submit"

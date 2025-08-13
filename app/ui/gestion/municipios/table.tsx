@@ -4,6 +4,7 @@ import {
   DeleteMunicipio,
 } from "@/app/ui/gestion/municipios/buttons";
 import { fetchFilteredMunicipios } from "@/app/lib/data/municipio.data";
+import { toImageApiUrl } from "@/app/lib/uploadsMun";
 
 export default async function MunicipiosTable({
   query,
@@ -96,7 +97,7 @@ export default async function MunicipiosTable({
                   <td className="px-4 py-3">
                     {municipio.logoUrl ? (
                       <Image
-                        src={municipio.logoUrl}
+                        src={toImageApiUrl(municipio.logoUrl)}
                         alt={`Logo de ${municipio.nombre}`}
                         width={40}
                         height={40}
@@ -109,7 +110,7 @@ export default async function MunicipiosTable({
                   <td className="px-4 py-3">
                     {municipio.firmaUrl ? (
                       <Image
-                        src={municipio.firmaUrl}
+                        src={toImageApiUrl(municipio.firmaUrl)}
                         alt={`Firma de ${municipio.nombre}`}
                         width={60}
                         height={30}
