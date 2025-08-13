@@ -15,6 +15,14 @@ const MunicipioFormSchema = z.object({
   direccion: z.string().optional().nullable(),
 });
 
+const sanitize = (s: string) =>
+  s
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "") // quita acentos
+    .replace(/[^a-zA-Z0-9._-]+/g, "_") // espacios/paréntesis -> _
+    .replace(/_+/g, "_")
+    .toLowerCase();
+
 const CreateMunicipio = MunicipioFormSchema.omit({ id: true });
 
 export async function createMunicipio(formData: FormData) {
@@ -32,8 +40,12 @@ export async function createMunicipio(formData: FormData) {
   if (firma && firma.size > 5_000_000)
     throw new Error("Firma demasiado grande");
 
-  const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  // const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
+  // const uploadDir = path.join(process.cwd(), "uploads", folderName);
+
+  const folderName = sanitize(String(formData.get("nombre") ?? "municipio"));
   const uploadDir = path.join(process.cwd(), "uploads", folderName);
+  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -42,18 +54,35 @@ export async function createMunicipio(formData: FormData) {
   let logoUrl = "";
   let firmaUrl = "";
 
+  // if (logo && logo.size > 0) {
+  //   const logoPath = path.join(uploadDir, logo.name);
+  //   const buffer = Buffer.from(await logo.arrayBuffer());
+  //   fs.writeFileSync(logoPath, buffer);
+  //   logoUrl = `/uploads/${folderName}/${logo.name}`;
+  // }
+
+  // if (firma && firma.size > 0) {
+  //   const firmaPath = path.join(uploadDir, firma.name);
+  //   const buffer = Buffer.from(await firma.arrayBuffer());
+  //   fs.writeFileSync(firmaPath, buffer);
+  //   firmaUrl = `/uploads/${folderName}/${firma.name}`;
+  // }
+
   if (logo && logo.size > 0) {
-    const logoPath = path.join(uploadDir, logo.name);
+    const fileName = sanitize(logo.name);
+    const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
-    fs.writeFileSync(logoPath, buffer);
-    logoUrl = `/uploads/${folderName}/${logo.name}`;
+    fs.writeFileSync(filePath, buffer);
+    // guardamos ESTO en BD:
+    logoUrl = `/uploads/${folderName}/${fileName}`;
   }
 
   if (firma && firma.size > 0) {
-    const firmaPath = path.join(uploadDir, firma.name);
+    const fileName = sanitize(firma.name);
+    const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
-    fs.writeFileSync(firmaPath, buffer);
-    firmaUrl = `/uploads/${folderName}/${firma.name}`;
+    fs.writeFileSync(filePath, buffer);
+    firmaUrl = `/uploads/${folderName}/${fileName}`;
   }
 
   try {

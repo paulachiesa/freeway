@@ -6,7 +6,6 @@ export default function Form() {
   return (
     <form action={createCuadroTarifario}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Velocidad Desde */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <div>
             <label
@@ -60,7 +59,6 @@ export default function Form() {
           </div>
         </div>
 
-        {/* Primer Vencimiento */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <div>
             <label
