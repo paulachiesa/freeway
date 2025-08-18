@@ -2,8 +2,10 @@
 
 import { municipio as MunicipioType } from "@/generated/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/app/ui/button";
 import { updateMunicipio } from "@/app/lib/actions";
+import { toImageApiUrl } from "@/app/lib/uploadsMun";
 
 export default function EditMunicipioForm({
   municipio,
@@ -13,7 +15,7 @@ export default function EditMunicipioForm({
   const updateMunicipioWithId = updateMunicipio.bind(null, municipio.id);
 
   return (
-    <form action={updateMunicipioWithId} encType="multipart/form-data">
+    <form action={updateMunicipioWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Nombre */}
         <div className="mb-4">
@@ -76,11 +78,15 @@ export default function EditMunicipioForm({
         <div className="mb-4">
           <label className="mb-2 block text-sm font-medium">Logo</label>
           {municipio.logoUrl && (
-            <img
-              src={municipio.logoUrl}
-              alt="Logo actual"
-              className="h-16 mb-2"
-            />
+            <div className="mb-2">
+              <Image
+                src={toImageApiUrl(municipio.logoUrl)}
+                alt={`Logo actual de ${municipio.nombre}`}
+                width={120}
+                height={120}
+                className="h-16 w-auto"
+              />
+            </div>
           )}
           <input name="logo" type="file" accept="image/*" />
         </div>
@@ -89,11 +95,15 @@ export default function EditMunicipioForm({
         <div className="mb-4">
           <label className="mb-2 block text-sm font-medium">Firma</label>
           {municipio.firmaUrl && (
-            <img
-              src={municipio.firmaUrl}
-              alt="Firma actual"
-              className="h-16 mb-2"
-            />
+            <div className="mb-2">
+              <Image
+                src={toImageApiUrl(municipio.firmaUrl)}
+                alt={`Firma actual de ${municipio.nombre}`}
+                width={120}
+                height={120}
+                className="h-16 w-auto"
+              />
+            </div>
           )}
           <input name="firma" type="file" accept="image/*" />
         </div>
