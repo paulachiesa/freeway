@@ -5,7 +5,6 @@ import NavLinks from "@/app/ui/dashboard/nav-links";
 import FreewayLogo from "@/public/freeway-logo.jpeg";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
-// import { signOut } from "@/auth";
 import { signOut } from "next-auth/react";
 
 export default function SideNav() {
@@ -20,19 +19,12 @@ export default function SideNav() {
             src={FreewayLogo}
             alt="Logo Freeway"
             className="object-contain cursor-pointer"
-            // onClick={() => router.push("/dashboard")}
           />
         </div>
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2 overflow-y-auto">
         <NavLinks />
         <div className="hidden h-auto w-full grow rounded-md bg-gray-50 md:block"></div>
-        {/* <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        > */}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex h-[48px] w-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3"
@@ -40,7 +32,6 @@ export default function SideNav() {
           <PowerIcon className="w-6" />
           <div className="hidden md:block">Cerrar Sesión</div>
         </button>
-        {/* </form> */}
       </div>
     </div>
   );
