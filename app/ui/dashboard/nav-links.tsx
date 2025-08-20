@@ -18,14 +18,27 @@ import {
 import Toast from "@/app/ui/components/Toast/toast";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import clsx from "clsx";
 import { useState } from "react";
+import Spinner from "../components/Spinner/spinner";
 
-const links = [
+type Role = "admin" | "procesador" | "usuario";
+type Child = { name: string; href: string; icon?: any };
+type LinkItem = {
+  name: string;
+  href?: string;
+  icon?: any;
+  roles?: Role[];
+  children?: Child[];
+};
+
+const links: LinkItem[] = [
   { name: "Home", href: "/dashboard", icon: HomeIcon },
   {
     name: "Infracciones",
     icon: DocumentArrowUpIcon,
+    roles: ["admin", "procesador"],
     children: [
       {
         name: "Nueva Carga",
@@ -42,6 +55,7 @@ const links = [
   {
     name: "Infractores",
     icon: DocumentArrowUpIcon,
+    roles: ["admin"],
     children: [
       {
         name: "Subir Excel",
@@ -59,10 +73,12 @@ const links = [
     name: "Actas",
     href: "/dashboard/actas",
     icon: DocumentCheckIcon,
+    roles: ["admin"],
   },
   {
     name: "Administración",
     icon: Cog6ToothIcon,
+    roles: ["admin"],
     children: [
       {
         name: "Municipios",
@@ -81,7 +97,12 @@ const links = [
       },
     ],
   },
-  { name: "Usuarios", href: "/dashboard/usuarios", icon: UserGroupIcon },
+  {
+    name: "Usuarios",
+    href: "/dashboard/usuarios",
+    icon: UserGroupIcon,
+    roles: ["admin"],
+  },
 ];
 
 export default function NavLinks() {
@@ -89,8 +110,43 @@ export default function NavLinks() {
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
+  const { data: session, status } = useSession();
+  if (status === "loading") {
+    return (
+      <>
+        <Spinner />
+      </>
+    );
+  }
+  const userRoles = ((session?.user as any)?.roles ?? []).map((r: string) =>
+    String(r).toLowerCase()
+  );
+
+  console.log(userRoles);
+
+  const canSee = (item: LinkItem) =>
+    !item.roles || item.roles.some((r) => userRoles.includes(r));
+
   const toggleMenu = (name: string) => {
     setOpenMenus((prev) => ({ ...prev, [name]: !prev[name] }));
+  };
+
+  const rutasProtegidas = [
+    "/dashboard/infracciones",
+    "/dashboard/actas",
+    "/dashboard/infractores/subirExcel",
+  ];
+  const requiresMunicipio = (href: string) =>
+    rutasProtegidas.some((ruta) => href.startsWith(ruta));
+
+  const handleClick = (e: React.MouseEvent, href: string) => {
+    if (requiresMunicipio(href)) {
+      const stored = sessionStorage.getItem("municipio");
+      if (!stored) {
+        e.preventDefault();
+        setToastMsg("Debe seleccionar un municipio primero.");
+      }
+    }
   };
 
   return (
@@ -99,7 +155,11 @@ export default function NavLinks() {
         const LinkIcon = link.icon;
 
         if (link.children) {
+          if (!canSee(link)) return null;
           const isOpen = openMenus[link.name];
+          const isAnyChildActive = link.children.some(
+            (c) => pathname === c.href
+          );
 
           return (
             <div key={link.name} className="w-full">
@@ -107,16 +167,11 @@ export default function NavLinks() {
                 onClick={() => toggleMenu(link.name)}
                 className={clsx(
                   "flex w-full items-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600",
-                  {
-                    "bg-sky-100 text-blue-600": link.children.some(
-                      (child) => pathname === child.href
-                    ),
-                  }
+                  { "bg-sky-100 text-blue-600": isAnyChildActive }
                 )}
               >
                 {LinkIcon && <LinkIcon className="w-6" />}
                 <span className="hidden md:block">{link.name}</span>
-
                 <span className="ml-auto">
                   {isOpen ? (
                     <ChevronUpIcon className="w-4 h-4" />
@@ -130,25 +185,6 @@ export default function NavLinks() {
                 <div className="ml-6 mt-1 flex flex-col gap-1">
                   {link.children.map((child) => {
                     const ChildIcon = child.icon;
-
-                    const rutasProtegidas = [
-                      "/dashboard/infracciones",
-                      "/dashboard/actas",
-                      "/dashboard/infractores/subirExcel",
-                    ];
-                    const requiresMunicipio = (href: string) =>
-                      rutasProtegidas.some((ruta) => href.startsWith(ruta));
-
-                    const handleClick = (e: React.MouseEvent, href: string) => {
-                      if (requiresMunicipio(href)) {
-                        const stored = sessionStorage.getItem("municipio");
-                        if (!stored) {
-                          e.preventDefault();
-                          setToastMsg("Debe seleccionar un municipio primero.");
-                        }
-                      }
-                    };
-
                     return (
                       <Link
                         key={child.name}
@@ -172,15 +208,16 @@ export default function NavLinks() {
           );
         }
 
+        if (!canSee(link)) return null;
+
         return (
           <Link
             key={link.name}
-            href={link.href}
+            href={link.href!}
+            onClick={(e) => handleClick(e, link.href!)}
             className={clsx(
               "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
-              {
-                "bg-sky-100 text-blue-600": pathname === link.href,
-              }
+              { "bg-sky-100 text-blue-600": pathname === link.href }
             )}
           >
             {LinkIcon && <LinkIcon className="w-6" />}

@@ -2,10 +2,13 @@
 "use client";
 
 import { MunicipioProvider } from "@/app/providers/MunicipioProvider";
+import { useIdleLogout } from "@/hooks/useIdleLogout";
 import SideNav from "@/app/ui/dashboard/sidenav";
 import Header from "@/app/ui/dashboard/header";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  useIdleLogout(45 * 60 * 1000);
+
   return (
     <MunicipioProvider>
       <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
