@@ -47,15 +47,6 @@ type PersonaDetalle = {
   vehiculo: Veh[];
 };
 
-function fmtDate(iso: string | null) {
-  if (!iso) return null;
-  const d = new Date(iso);
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const yyyy = d.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
-
 function ReadOnly({ label, value }: { label: string; value?: string | null }) {
   return (
     <div className="flex flex-col gap-1">
@@ -125,14 +116,8 @@ export default function PersonaDetalle({
             <ReadOnly label="Tipo DNI" value={data.tipo_dni} />
             <ReadOnly label="Género" value={data.genero} />
             <ReadOnly label="Nacionalidad" value={data.nacionalidad} />
-            <ReadOnly
-              label="Fec. Nac."
-              value={fmtDate(data.fecha_nacimiento)}
-            />
-            <ReadOnly
-              label="Fec. Fallec."
-              value={fmtDate(data.fecha_fallecimiento)}
-            />
+            <ReadOnly label="Fec. Nac." value={data.fecha_nacimiento} />
+            <ReadOnly label="Fec. Fallec." value={data.fecha_fallecimiento} />
             <ReadOnly
               label="Nro Item"
               value={data.adicionalespersona?.nroitem ?? null}
@@ -190,14 +175,8 @@ export default function PersonaDetalle({
                     value={v.porcentaje_titularidad?.toString() ?? null}
                   />
                   <ReadOnly label="Procedencia" value={v.procedencia} />
-                  <ReadOnly
-                    label="Fecha de Trámite"
-                    value={fmtDate(v.fecha_tramite)}
-                  />
-                  <ReadOnly
-                    label="Fecha de Compra"
-                    value={fmtDate(v.fecha_compra)}
-                  />
+                  <ReadOnly label="Fecha de Trámite" value={v.fecha_tramite} />
+                  <ReadOnly label="Fecha de Compra" value={v.fecha_compra} />
                   <ReadOnly label="Marca" value={v.marca} />
                   <ReadOnly label="Modelo" value={v.modelo} />
                   <ReadOnly label="Tipo" value={v.tipo} />

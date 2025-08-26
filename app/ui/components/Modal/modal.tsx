@@ -1,58 +1,34 @@
 "use client";
 
-import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useEffect } from "react";
-import clsx from "clsx";
+import { ReactNode } from "react";
 
 export default function Modal({
   isOpen,
-  title,
   onClose,
+  title,
   children,
-  width = "max-w-4xl",
 }: {
   isOpen: boolean;
-  title?: string;
   onClose: () => void;
-  children: React.ReactNode;
-  width?: string; // tailwind max-w-*
+  title: string;
+  children: ReactNode;
 }) {
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    if (isOpen) window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isOpen, onClose]);
-
   if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      aria-modal="true"
-      role="dialog"
-    >
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div
-        className={clsx(
-          "relative w-full rounded-2xl bg-white shadow-xl",
-          "max-h-[85vh] overflow-auto",
-          width
-        )}
-      >
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <h3 className="text-lg font-semibold">{title}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded shadow-lg flex flex-col overflow-hidden">
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-white px-6 py-4 border-b">
+          <h2 className="text-lg font-semibold text-gray-800">{title}</h2>
           <button
-            type="button"
             onClick={onClose}
-            className="rounded p-1 hover:bg-gray-100"
-            aria-label="Cerrar"
+            className="text-gray-500 hover:text-gray-700 text-xl"
           >
-            <XMarkIcon className="h-5 w-5" />
+            &times;
           </button>
         </div>
-        <div className="p-5">{children}</div>
+
+        <div className="overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );

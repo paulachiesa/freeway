@@ -175,8 +175,8 @@ model persona {
   tipo_dni            String?             @db.VarChar(20)
   genero              String?             @db.VarChar(20)
   nacionalidad        String?             @db.VarChar(50)
-  fecha_nacimiento    DateTime?           @db.Date
-  fecha_fallecimiento DateTime?           @db.Date
+  fecha_nacimiento    String?   @db.VarChar(30)
+  fecha_fallecimiento String?   @db.VarChar(30)
   cuil_cuit           BigInt?             @unique
   email               String?             @db.VarChar(100)
   email1              String?             @db.VarChar(100)
@@ -227,8 +227,8 @@ model vehiculo {
   modelo                 String?      @db.VarChar(50)
   anio                   Int?
   persona_id             Int?
-  fecha_compra           DateTime?    @db.Date
-  fecha_tramite          DateTime?    @db.Date
+  fecha_compra           String?   @db.VarChar(30)
+  fecha_tramite          String?   @db.VarChar(30)
   porcentaje_titularidad Decimal?     @db.Decimal
   procedencia            String?      @db.VarChar(50)
   tipo                   String?      @db.VarChar(50)

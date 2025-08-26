@@ -9,7 +9,7 @@ export default function ButtonDetalle({ personaId }: { personaId: number }) {
 
   return (
     <>
-      <td className="whitespace-nowrap py-3 pl-6 pr-3">
+      <div className="whitespace-nowrap pl-6 pr-3">
         <div className="flex justify-end gap-3">
           <button
             type="button"
@@ -21,7 +21,7 @@ export default function ButtonDetalle({ personaId }: { personaId: number }) {
             <EllipsisHorizontalCircleIcon className="h-6 w-6" />
           </button>
         </div>
-      </td>
+      </div>
 
       <PersonaDetalle
         personaId={personaId}
