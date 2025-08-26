@@ -66,7 +66,6 @@ async function main() {
     },
   });
 
-  console.log({ admin, adminRole, userRole, procesadorRole, procesador1, procesador2 });
 }
 
 main()

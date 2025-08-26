@@ -1,43 +1,35 @@
-import { UpdateRadar, DeleteRadar } from "@/app/ui/gestion/radares/buttons";
-import { fetchFilteredRadares } from "@/app/lib/data/radar.data";
+import { fetchFilteredPersonas } from "@/app/lib/data/infractores.data";
+import { EllipsisHorizontalCircleIcon } from "@heroicons/react/24/outline";
+import ButtonDetalle from "./button-detalle";
 
-export default async function RadaresTable({
+export default async function PersonasTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const radares = await fetchFilteredRadares(query, currentPage);
+  const personas = await fetchFilteredPersonas(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {radares?.map((radar) => (
+            {personas?.map((persona) => (
               <div
-                key={radar.id}
+                key={persona.dni}
                 className="mb-2 w-full rounded-md bg-white p-4"
               >
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p>{radar.marca}</p>
+                      <p>{persona.nroActa}</p>
                     </div>
-                    <p className="text-sm text-gray-500">{radar.modelo}</p>
-                    <p className="text-sm text-gray-500">
-                      {radar.disp_autorizante}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex w-full items-center justify-between pt-4">
-                  <div>
-                    <p className="text-xl font-medium">{radar.nro_serie}</p>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <UpdateRadar id={radar.id} />
-                    <DeleteRadar id={radar.id} />
+                    <p className="text-sm text-gray-500">{persona.dominio}</p>
+                    <p className="text-sm text-gray-500">{persona.nombre}</p>
+                    <p className="text-sm text-gray-500">{persona.dni}</p>
+                    <p className="text-sm text-gray-500">{persona.cuit}</p>
                   </div>
                 </div>
               </div>
@@ -47,51 +39,56 @@ export default async function RadaresTable({
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
                 <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                  Marca
+                  Nro. Acta
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Modelo
+                  Dominio
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Número de Serie
+                  Nombre
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
-                  Disposición Autorizante
+                  Dni
+                </th>
+                <th scope="col" className="px-3 py-5 font-medium">
+                  Cuit
                 </th>
                 <th scope="col" className="relative py-3 pl-6 pr-3">
-                  <span className="sr-only">Edit</span>
+                  <span className="sr-only">Ver</span>
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white">
-              {radares?.map((radar) => (
+              {personas?.map((persona) => (
                 <tr
-                  key={radar.id}
+                  key={persona.dni}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex items-center gap-3">
-                      <p>{radar.marca}</p>
+                      <p>{persona.nroActa ?? "-"}</p>
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {radar.modelo}
+                    {persona.dominio ?? "-"}
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">
-                    {radar.nro_serie}
+                    {persona.nombre ?? "-"}
                   </td>
-                  <td className="whitespace-nowrap py-3">
-                    {radar.disp_autorizante}
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {persona.dni ?? "-"}
                   </td>
-                  <td className="whitespace-nowrap py-3  pr-3">
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {persona.cuit ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <UpdateRadar id={radar.id} />
-                      <DeleteRadar id={radar.id} />
+                      <ButtonDetalle personaId={persona.personaId} />
                     </div>
                   </td>
                 </tr>
               ))}
-              {radares.length === 0 && (
+              {personas.length === 0 && (
                 <tr>
                   <td
                     className="px-3 py-6 text-center text-gray-500"
