@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       EMAIL: "email",
       "EMAIL 2": "email2",
       "EMAIL 3": "email3",
-      "PORCENTAJE DE ITULARIDAD": "porcentajeTitularidad",
+      "PORCENTAJE DE TIULARIDAD": "porcentajeTitularidad",
       PROCEDENCIA: "procedencia",
       "FECHA DE TRAMITE": "fechaTramite",
       "FECHA DE COMPRA": "fechaCompra",

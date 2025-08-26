@@ -122,8 +122,6 @@ export default function NavLinks() {
     String(r).toLowerCase()
   );
 
-  console.log(userRoles);
-
   const canSee = (item: LinkItem) =>
     !item.roles || item.roles.some((r) => userRoles.includes(r));
 

@@ -112,6 +112,16 @@ export default async function CuadroTarifarioTable({
                   </td>
                 </tr>
               ))}
+              {cuadros.length === 0 && (
+                <tr>
+                  <td
+                    className="px-3 py-6 text-center text-gray-500"
+                    colSpan={5}
+                  >
+                    Sin resultados
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

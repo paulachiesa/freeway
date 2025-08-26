@@ -64,7 +64,7 @@ export const {
           if (!user || !user.password) return null;
 
           const valid = await bcrypt.compare(password, user.password);
-          // if (valid) return user;
+
           if (!valid) return null;
           return {
             id: String(user.id),
