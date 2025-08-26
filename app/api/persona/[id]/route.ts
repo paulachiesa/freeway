@@ -79,12 +79,12 @@ export async function GET(
     const safe = {
       ...persona,
       cuil_cuit: persona.cuil_cuit != null ? String(persona.cuil_cuit) : null,
-      fecha_nacimiento: persona.fecha_nacimiento?.toISOString() ?? null,
-      fecha_fallecimiento: persona.fecha_fallecimiento?.toISOString() ?? null,
+      fecha_nacimiento: persona.fecha_nacimiento ?? null,
+      fecha_fallecimiento: persona.fecha_fallecimiento ?? null,
       vehiculo: persona.vehiculo.map((v) => ({
         ...v,
-        fecha_tramite: v.fecha_tramite?.toISOString() ?? null,
-        fecha_compra: v.fecha_compra?.toISOString() ?? null,
+        fecha_tramite: v.fecha_tramite ?? null,
+        fecha_compra: v.fecha_compra ?? null,
       })),
     };
 

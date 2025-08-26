@@ -107,6 +107,8 @@ export default function Page() {
           } no tiene infracciones incompletas.`
         );
       }
+      setSelectedLoteId("");
+      setFile(null);
     } catch (err: any) {
       console.error(err);
       setToastType("error");
@@ -153,14 +155,6 @@ export default function Page() {
   if (loading) {
     return (
       <>
-        {toastMsg && (
-          <Toast
-            message={toastMsg}
-            type={toastType}
-            position="top-right"
-            onClose={() => setToastMsg(null)}
-          />
-        )}
         <Spinner />
       </>
     );
