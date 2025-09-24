@@ -52,6 +52,51 @@ export default function LoteTable({
     }
   }, [query, currentPage, municipioId]);
 
+  const handleGenerarPDFs = async (loteId: number) => {
+    // try {
+    //   const res = await fetch(`/api/lotes/${loteId}/pdfs`);
+
+    //   if (!res.ok) {
+    //     console.error("Error al traer datos del lote");
+    //     return;
+    //   }
+
+    //   const data = await res.json();
+
+    //   // 👉 ver todo el objeto
+    //   console.log("✅ Datos del lote:", data);
+
+    //   // 👉 ejemplo: recorrer las infracciones
+    //   data.infracciones.forEach((inf: any, idx: number) => {
+    //     console.log(
+    //       `#${idx + 1} Infracción ${inf.id} - Dominio: ${inf.dominio}, Fecha: ${
+    //         inf.fecha
+    //       }`
+    //     );
+    //   });
+    // } catch (err) {
+    //   console.error("Error en handleGenerarPDFs:", err);
+    // }
+    try {
+      const res = await fetch(`/api/lotes/${loteId}/pdfs`);
+      if (!res.ok) {
+        console.error("Error generando PDFs");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `lote-${loteId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Error en handleDescargarPDFs:", err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
@@ -127,9 +172,20 @@ export default function LoteTable({
                   <td className="whitespace-nowrap px-3 py-3">{lote.estado}</td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/infracciones/${lote.id}/editar`}>
+                      <Link
+                        href={`/dashboard/infracciones/${lote.id}/editar`}
+                        className="flex items-center"
+                      >
                         <PencilIcon className="h-5 w-5 text-blue-500 hover:text-blue-700" />
                       </Link>
+                      {lote.estado === "Proceso de carga completo" && (
+                        <button
+                          className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white"
+                          onClick={() => handleGenerarPDFs(lote.id)}
+                        >
+                          Generar PDFs
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -49,3 +49,7 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     totalPages,
   ];
 };
+
+export function padActa(n: number, width = 8) {
+  return String(n).padStart(width, "0");
+}

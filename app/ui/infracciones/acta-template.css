@@ -1,0 +1,45 @@
+body {
+  width: 210mm;
+  margin: 0 auto;
+}
+
+.titulo-cuadro {
+  font-family: monospace;
+  font-size: 8px;
+  font-weight: 800;
+  color: white;
+  background-color: black;
+}
+
+.titulos-columna {
+  font-size: 8px;
+  font-family: monospace;
+}
+
+.titulo-blanco {
+  font-family: monospace;
+  font-size: 9px;
+  font-weight: 900;
+  color: black;
+  background-color: white;
+}
+
+.items-titulo {
+  border-left-width: 1px;
+  /* border-right-width: 1px; */
+  border-style: solid;
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+  height: 18px;
+}
+
+.items-valor {
+  /* border-width: 1px; */
+  border-left-width: 1px;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+  font-weight: 800;
+  height: 18px;
+}

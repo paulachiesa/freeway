@@ -27,9 +27,16 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.jpg",
+    "**/*.jpeg",
+    "**/*.png",
+    "**/*.JPG",
+    "**/*.JPEG",
+    "**/*.PNG",
     ".next/types/**/*.ts",
     "app/lib/placeholder-data.ts",
-    "scripts/seed.js"
-, "prisma/seed.js"  ],
+    "scripts/seed.js",
+    "prisma/seed.js"
+  ],
   "exclude": ["node_modules"]
 }

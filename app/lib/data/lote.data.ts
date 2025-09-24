@@ -212,3 +212,70 @@ export async function actualizarLoteConInfracciones(data: any) {
     return lote;
   });
 }
+
+export async function getLoteConInfracciones(loteId: number) {
+  const lote = await prisma.lote.findUnique({
+    where: { id: loteId },
+    include: {
+      municipio: true,
+      radar: true,
+      infraccion: {
+        include: {
+          vehiculo: {
+            include: {
+              persona: true,
+            },
+          },
+          radar: true,
+        },
+      },
+    },
+  });
+
+  if (!lote) return null;
+
+  return {
+    id: lote.id,
+    numero: lote.numero,
+    descripcion: lote.descripcion,
+    fecha_desde: lote.fecha_desde,
+    fecha_hasta: lote.fecha_hasta,
+    municipio: lote.municipio,
+    radar: lote.radar,
+    infracciones: lote.infraccion.map((inf) => ({
+      id: inf.id,
+      fecha: inf.fecha,
+      velocidad_medida: inf.velocidad_medida,
+      velocidad_maxima: inf.velocidad_maxima,
+      nombre_archivo: inf.nombre_archivo,
+      imagen_url: inf.imagen_url,
+      dominio: inf.dominio,
+      hora: inf.hora,
+      radar: inf.radar
+        ? {
+            id: inf.radar.id,
+            marca: inf.radar.marca,
+            modelo: inf.radar.modelo,
+            nro_serie: inf.radar.nro_serie,
+          }
+        : null,
+      vehiculo: inf.vehiculo
+        ? {
+            id: inf.vehiculo.id,
+            dominio: inf.vehiculo.dominio,
+            marca: inf.vehiculo.marca,
+            modelo: inf.vehiculo.modelo,
+            tipo: inf.vehiculo.tipo,
+            persona: inf.vehiculo.persona
+              ? {
+                  id: inf.vehiculo.persona.id,
+                  nombre: inf.vehiculo.persona.nombre,
+                  apellido: inf.vehiculo.persona.apellido,
+                  dni: inf.vehiculo.persona.dni,
+                }
+              : null,
+          }
+        : null,
+    })),
+  };
+}
