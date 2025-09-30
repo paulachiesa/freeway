@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { formatDateToLocal } from "@/app/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import Spinner from "../components/Spinner/spinner";
 
 interface Lote {
   id: number;
@@ -25,6 +26,7 @@ export default function LoteTable({
 }) {
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generandoId, setGenerandoId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLotes = async () => {
@@ -53,47 +55,33 @@ export default function LoteTable({
   }, [query, currentPage, municipioId]);
 
   const handleGenerarPDFs = async (loteId: number) => {
-    // try {
-    //   const res = await fetch(`/api/lotes/${loteId}/pdfs`);
-
-    //   if (!res.ok) {
-    //     console.error("Error al traer datos del lote");
-    //     return;
-    //   }
-
-    //   const data = await res.json();
-
-    //   // 👉 ver todo el objeto
-    //   console.log("✅ Datos del lote:", data);
-
-    //   // 👉 ejemplo: recorrer las infracciones
-    //   data.infracciones.forEach((inf: any, idx: number) => {
-    //     console.log(
-    //       `#${idx + 1} Infracción ${inf.id} - Dominio: ${inf.dominio}, Fecha: ${
-    //         inf.fecha
-    //       }`
-    //     );
-    //   });
-    // } catch (err) {
-    //   console.error("Error en handleGenerarPDFs:", err);
-    // }
     try {
-      const res = await fetch(`/api/lotes/${loteId}/pdfs`);
-      if (!res.ok) {
-        console.error("Error generando PDFs");
-        return;
+      setGenerandoId(loteId);
+
+      const response = await fetch(`/api/lotes/${loteId}/generar-pdf`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Error generando PDFs");
       }
 
-      const blob = await res.blob();
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `lote-${loteId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error("Error en handleDescargarPDFs:", err);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lote-${loteId}-pdfs.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al generar PDFs:", error);
+      alert("Hubo un error al generar los PDFs");
+    } finally {
+      setGenerandoId(null);
     }
   };
 
@@ -180,10 +168,15 @@ export default function LoteTable({
                       </Link>
                       {lote.estado === "Proceso de carga completo" && (
                         <button
-                          className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white"
+                          disabled={generandoId === lote.id}
+                          className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white h-12"
                           onClick={() => handleGenerarPDFs(lote.id)}
                         >
-                          Generar PDFs
+                          {generandoId === lote.id ? (
+                            <Spinner color="white" size={30} className="h-15" />
+                          ) : (
+                            "Generar PDFs"
+                          )}
                         </button>
                       )}
                     </div>

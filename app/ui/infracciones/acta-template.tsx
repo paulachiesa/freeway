@@ -1,23 +1,23 @@
 // app/ui/infracciones/ActaTemplate.tsx
 
+import { formatDateTimeToLocal, formatDateToLocal } from "@/app/lib/utils";
 import React from "react";
 
 type ActaTemplateProps = {
   infraccion: any;
   municipio: any;
   radar: any;
+  numero_acta: number;
+  vehiculo: any;
 };
 
 export default function ActaTemplate({
   infraccion,
   municipio,
   radar,
+  numero_acta,
+  vehiculo,
 }: ActaTemplateProps) {
-  console.log("🔎 Props ActaTemplate:", {
-    infraccion,
-    municipio,
-    radar,
-  });
   return (
     <div className="w-[210mm] bg-white text-sm text-black px-6 py-1 shadow m-1">
       <style>{`
@@ -26,7 +26,7 @@ export default function ActaTemplate({
         }
       `}</style>
       <h1 className="text-[10px] font-bold text-start px-3 border-2 border-gray-500 bg-gray-300">
-        NOTIFICACIÓN DE INFRACCIÓN DE TRÁNSITO / ACTA N° 00036860
+        NOTIFICACIÓN DE INFRACCIÓN DE TRÁNSITO / ACTA N° {numero_acta}
       </h1>
 
       <div className="grid grid-cols-[15%_50%_30%] items-start gap-2 my-4">
@@ -36,15 +36,16 @@ export default function ActaTemplate({
             src="/api/uploads/urundel/urundel1.jpeg"
           />
         </div>
-        <div className="font-bold leading-tight ml-4 text-[10px]">
-          <p>MUNICIPALIDAD DE APOLINARIO SARAVIA</p>
-          <p className="mt-1">SALTA</p>
+        <div className="font-bold leading-tight uppercase ml-4 text-[10px]">
+          <p>MUNICIPALIDAD DE {municipio?.nombre}</p>
+          <p className="mt-1 uppercase">{municipio?.ciudad}</p>
         </div>
         <aside className="leading-tight" style={{ fontSize: "6px" }}>
           <strong>AVISO</strong>
           <br />
-          La presente infracción ha sido constatada mediante 'nombre del radar'
-          homodolago mediante Res. 'dispoiscion autorizante', con verificación
+          La presente infracción ha sido constatada mediante Cinemómetro{" "}
+          {radar?.marca}
+          homodolago mediante Res. {radar?.disp_autorizante}, con verificación
           primitiva y periódica vigente, según constancias emitidas por el INTI.
         </aside>
       </div>
@@ -64,7 +65,7 @@ export default function ActaTemplate({
           >
             ACTA DE INFRACCIÓN DE TRÁNSITO
           </div>
-          <div className="grid grid-cols-[25px_25px_25px_32px_25px_82px_67px_18px] text-center text-[7px]">
+          <div className="grid grid-cols-[0.6fr_0.6fr_0.6fr_0.6fr_0.5fr_1.5fr_1.3fr_0.4fr] text-center text-[7px]">
             {/* columnas  */}
             <div
               style={{
@@ -75,7 +76,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              DIA
+              DÍA
             </div>
             <div
               style={{
@@ -158,7 +159,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              15
+              {infraccion?.fecha.getUTCDate()}
             </div>
             <div
               style={{
@@ -171,7 +172,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              11
+              {infraccion?.fecha.getUTCMonth() + 1}
             </div>
             <div
               style={{
@@ -184,7 +185,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              2024
+              {infraccion?.fecha.getUTCFullYear()}
             </div>
             <div
               style={{
@@ -197,7 +198,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              14
+              {infraccion?.fecha.getUTCHours()}
             </div>
             <div
               style={{
@@ -210,7 +211,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              17
+              {infraccion?.fecha.getUTCMinutes()}
             </div>
             <div
               style={{
@@ -223,7 +224,7 @@ export default function ActaTemplate({
                 height: "18px",
               }}
             >
-              00036860
+              {numero_acta}
             </div>
             <div
               style={{
@@ -254,7 +255,7 @@ export default function ActaTemplate({
             </div>
           </div>
           <div className="w-full border-b border-black px-1 text-center bg-gray-300">
-            DOMINIO <b>'PATENTE'</b>
+            DOMINIO <b>{vehiculo?.dominio}</b>
           </div>
 
           <div className="border-black p-1 text-[7px] leading-tight h-6">
@@ -271,18 +272,22 @@ export default function ActaTemplate({
             </div>
             <div className="p-1">
               <div className="font-medium">Localidad</div>
-              <div className="font-extrabold uppercase">APOLINARIO SARAVIA</div>
+              <div className="font-extrabold uppercase">
+                {municipio?.nombre}
+              </div>
             </div>
             <div className="p-1">
               <div className="font-medium">Provincia</div>
-              <div className="font-extrabold uppercase">SALTA</div>
+              <div className="font-extrabold uppercase">
+                {municipio?.provincia}
+              </div>
             </div>
           </div>
 
           <div className=" border-black p-1 text-[7px] leading-tight ">
             <div className="font-medium">Marca Vehículo</div>
             <div className="font-extrabold uppercase">
-              CHEVROLET S10 2.8TD 4X2 LS
+              {vehiculo?.marca} {vehiculo?.modelo}
             </div>
           </div>
 
@@ -291,7 +296,9 @@ export default function ActaTemplate({
               <div className="font-medium">
                 Presunto Infractor: Nombre y Apellido
               </div>
-              <div className="font-extrabold uppercase">PONS BARTOLOME</div>
+              <div className="font-extrabold uppercase">
+                {vehiculo?.persona?.nombre_completo}
+              </div>
             </div>
             <div className="p-1">
               <div className="font-medium">Tipo Doc.</div>
@@ -299,7 +306,9 @@ export default function ActaTemplate({
             </div>
             <div className="p-1">
               <div className="font-medium">N° Doc.</div>
-              <div className="font-extrabold uppercase">14601069</div>
+              <div className="font-extrabold uppercase">
+                {vehiculo?.persona?.dni}
+              </div>
             </div>
           </div>
 
@@ -309,19 +318,23 @@ export default function ActaTemplate({
                 Domicilio del Presunto Infractor: Calle Nro./Ruta Km.
               </div>
               <div className="font-extrabold uppercase">
-                B° SANIDAD - 1 DE MAYO 950 S/N
+                {vehiculo?.persona?.domicilio?.direccion}
               </div>
             </div>
             <div className="p-1">
               <div className="font-medium">Localidad</div>
-              <div className="font-extrabold uppercase">SALTA</div>
+              <div className="font-extrabold uppercase">
+                {vehiculo?.persona?.domicilio?.localidad}
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-[1.5fr_1fr_1fr] border-black divide-x divide-black text-[7px] leading-tight">
             <div className="p-1">
               <div className="font-medium">Provincia</div>
-              <div className="font-extrabold uppercase">SALTA</div>
+              <div className="font-extrabold uppercase">
+                {vehiculo?.persona?.domicilio?.provincia}
+              </div>
             </div>
             <div className="p-1">
               <div className="font-medium">Lic. de Conducir N°</div>
@@ -396,7 +409,7 @@ export default function ActaTemplate({
             <div className="p-1">
               <div className="font-medium">Autoridad de Constatación</div>
               <div className="font-extrabold uppercase">
-                DIRECCIÓN DE TRÁNSITO DE APOLINARIO SARAVIA
+                DIRECCIÓN DE TRÁNSITO DE {municipio?.nombre}
               </div>
             </div>
             <div className="p-1">
@@ -412,6 +425,7 @@ export default function ActaTemplate({
               </div>
               <div className="font-extrabold uppercase">
                 MIRTHA ELIZABETH QUILPILDOR
+                {/* {{municipio?.autoridades[0]?.nombre_completo}} */}
               </div>
             </div>
             <div className="p-1">
@@ -455,19 +469,29 @@ export default function ActaTemplate({
           ></div>
           <div className="grid grid-cols-2 justify-between px-2">
             <div className="text-[8px]">Señor/a</div>
-            <div className="text-[8px] text-end">03/02/2025</div>
+            <div className="text-[8px] text-end">
+              {new Date().toLocaleDateString("es-AR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+              })}
+            </div>
           </div>
           <div className="grid px-2">
             <div className="text-[10px] font-extrabold uppercase">
-              PONS BARTOLOME
+              {vehiculo?.persona?.nombre_completo}
             </div>
             <div className="text-[10px] font-extrabold uppercase">
-              B° SANIDAD - 1 DE MAYO 950 S/N
+              {vehiculo?.persona?.domicilio?.direccion}
             </div>
-            <div className="text-[10px] font-extrabold uppercase">SALTA</div>
-            <div className="text-[10px] font-extrabold uppercase">SALTA</div>
+            <div className="text-[10px] font-extrabold uppercase">
+              {vehiculo?.persona?.domicilio?.localidad}
+            </div>
+            <div className="text-[10px] font-extrabold uppercase">
+              {vehiculo?.persona?.domicilio?.provincia}
+            </div>
             <div className="text-[10px] font-extrabold uppercase text-end">
-              DNI 14601069
+              DNI {vehiculo?.persona?.dni}
             </div>
           </div>
           <div
@@ -480,21 +504,24 @@ export default function ActaTemplate({
               backgroundColor: "black",
             }}
           >
-            OBJETO: NOTIFICACIÓN DEL ACTA DE INFRACCIÓN N° 00036861
+            OBJETO: NOTIFICACIÓN DEL ACTA DE INFRACCIÓN N° {numero_acta}
           </div>
           <div className="grid p-1 leading-normal">
             <div className="text-[8px]">
-              Cuya copia obra adjunta, de fecha: 15/11/2024, hora: 14:17:26, en
-              RUTA PROVINCIAL 5 KM 140. <br />
-              Velocidad Permitida: 60 km/h; Velocidad Registrada: 65 km/h.{" "}
-              <br />
-              Conduciendo el vehículo dominio: AA575JV. <br />
-              Marca: CHEVROLET. <br />
-              Modelo: S10 2.8STD 4x2 LS.
+              Cuya copia obra adjunta, de fecha:{" "}
+              {formatDateToLocal(infraccion?.fecha)}, hora:{" "}
+              {formatDateTimeToLocal(infraccion?.fecha)}, en RUTA PROVINCIAL 5
+              KM 140. <br />
+              Velocidad Permitida: {infraccion?.velocidad_maxima} km/h;
+              Velocidad Registrada: {infraccion?.velocidad_medida} km/h. <br />
+              Conduciendo el vehículo dominio: {infraccion?.dominio}. <br />
+              Marca: {vehiculo?.marca}. <br />
+              Modelo: {vehiculo?.modelo}.
             </div>
             <div className="text-[8px] mt-3">
               Autoridad Constatación: <br />
-              DIRECCIÓN DE TRÁNSITO DE APOLINARIO SARAVIA
+              DIRECCIÓN DE TRÁNSITO DE{" "}
+              <span className="uppercase">{municipio?.nombre}</span>
             </div>
           </div>
           <div
@@ -508,6 +535,24 @@ export default function ActaTemplate({
             }}
           >
             ESPECIFICACIONES DEL EQUIPO
+          </div>
+          <div className="grid grid-cols-4 border-black divide-x border-t divide-black text-[7px] leading-tight">
+            <div className="p-1">
+              <div className="font-medium">Equipo/Marca</div>
+              <div className="uppercase mt-1">{radar?.marca}</div>
+            </div>
+            <div className="p-1">
+              <div className="font-medium">N° Serie</div>
+              <div className="uppercase mt-1">{radar?.nro_serie}</div>
+            </div>
+            <div className="p-1">
+              <div className="font-medium">Modelo</div>
+              <div className="uppercase mt-1">{radar?.modelo}</div>
+            </div>
+            <div className="p-1">
+              <div className="font-medium">Disp. Autorizante</div>
+              <div className="uppercase mt-1">{radar?.disp_autorizante}</div>
+            </div>
           </div>
           <div
             className="w-full h-5 border-black px-1 text-center"
@@ -563,10 +608,13 @@ export default function ActaTemplate({
             <b>SE NOTIFICA A UD. </b> Que en el caso de no optar por el pago
             voluntario, el presunto infractor deberá, dentro de los 5 (cinco)
             días hábiles siguientes, comparecer ante la oficina administrativa
-            de faltas de la Municipalidad de APOLINARIO SARAVIA, ubicada en
-            PASAJE PEYROTTI N°50, provincia de SALTA. <br /> En el caso de
-            error, diferencias con los datos del titular o descargos por favor
-            dirigirlos a APOLINARIOSARAVIA@INFO-INFRACCIONES.COM.
+            de faltas de la Municipalidad de{" "}
+            <span className="uppercase">{municipio?.nombre}</span>, ubicada en{" "}
+            <span className="uppercase">{municipio?.direccion}</span>, provincia
+            de <span className="uppercase">{municipio?.provincia}</span>. <br />{" "}
+            En el caso de error, diferencias con los datos del titular o
+            descargos por favor dirigirlos a{" "}
+            <span className="uppercase">{municipio?.email}</span>.
             <br />
             <br />
             Queda usted debidamente notificado.

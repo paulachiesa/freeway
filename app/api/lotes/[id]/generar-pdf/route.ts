@@ -1,79 +1,103 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import puppeteer from "puppeteer";
-import fs from "fs";
-import path from "path";
-import archiver from "archiver";
-import { renderToString } from "react-dom/server";
-import ActaTemplate from "@/app/ui/infracciones/acta-template";
-import { getLoteConInfracciones } from "@/app/lib/data/lote.data";
-import React from "react";
+import JSZip from "jszip";
+import { prisma } from "@/app/lib/prisma";
+import { Readable } from "stream";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { loteId: string } }
+const INICIALES: Record<string, number> = {
+  Calilegua: 52000,
+  Urundel: 8000,
+  "Apolinario Saravia": 40000,
+};
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const loteId = Number(params.loteId);
+  const { id } = await params;
+  const loteId = Number(id);
 
-  // 1. Buscar infracciones del lote en tu DB
-  const lote = await getLoteConInfracciones(loteId);
-  if (!lote) {
-    return NextResponse.json({ error: "Lote no encontrado" }, { status: 404 });
-  }
-
-  // 2. Crear carpeta temporal
-  const tmpDir = path.join(process.cwd(), "tmp", `lote-${loteId}`);
-  fs.mkdirSync(tmpDir, { recursive: true });
-
-  // 3. Inicializar Puppeteer
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-
-  const page = await browser.newPage();
-
-  // 4. Generar un PDF por infracción
-  for (const infraccion of lote.infracciones) {
-    const html = renderToString(
-      React.createElement(ActaTemplate, {
-        infraccion,
-        municipio: lote.municipio,
-        radar: lote.radar,
-      })
-    );
-
-    await page.setContent(html, { waitUntil: "networkidle0" });
-
-    const filePath = path.join(tmpDir, `infraccion-${infraccion.id}.pdf`);
-    await page.pdf({
-      path: filePath,
-      format: "A4",
-      printBackground: true,
-    });
-  }
-
-  await browser.close();
-
-  // 5. Crear ZIP con todos los PDFs
-  const zipPath = path.join(tmpDir, `lote-${loteId}.zip`);
-  const output = fs.createWriteStream(zipPath);
-  const archive = archiver("zip", { zlib: { level: 9 } });
-
-  archive.pipe(output);
-
-  for (const infraccion of lote.infracciones) {
-    const filePath = path.join(tmpDir, `infraccion-${infraccion.id}.pdf`);
-    archive.file(filePath, { name: `infraccion-${infraccion.id}.pdf` });
-  }
-
-  await archive.finalize();
-
-  // 6. Devolver ZIP como respuesta
-  const buffer = fs.readFileSync(zipPath);
-  return new NextResponse(new Uint8Array(buffer), {
-    headers: {
-      "Content-Type": "application/zip",
-      "Content-Disposition": `attachment; filename="lote-${loteId}.zip"`,
+  const lote = await prisma.lote.findUnique({
+    where: { id: loteId },
+    include: {
+      municipio: {
+        include: {
+          autoridades: true,
+        },
+      },
+      radar: true,
+      infraccion: {
+        include: {
+          vehiculo: { include: { persona: { include: { domicilio: true } } } },
+          radar: true,
+          acta: true,
+        },
+      },
     },
   });
+  if (!lote) return new Response("Lote no encontrado", { status: 404 });
+
+  const municipioNombre = lote.municipio.nombre;
+  const inicio = INICIALES[municipioNombre] ?? 1;
+
+  const ultimo = await prisma.acta.findFirst({
+    where: { infraccion: { lote: { municipio_id: lote.municipio_id } } },
+    orderBy: { numero_acta: "desc" },
+  });
+  let siguiente = ultimo ? ultimo.numero_acta + 1 : inicio;
+
+  // Base URL: usar .env para produccion
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+
+  const browser = await puppeteer.launch({ headless: true });
+  const zip = new JSZip();
+
+  try {
+    for (const inf of lote.infraccion) {
+      const acta = await prisma.acta.upsert({
+        where: { infraccion_id: inf.id },
+        update: {}, // si ya existe, lo deja igual
+        create: {
+          numero_acta: siguiente,
+          infraccion_id: inf.id,
+          fecha_emision: new Date(),
+        },
+      });
+      siguiente++;
+
+      const page = await browser.newPage();
+
+      // Abrir la página imprimible que ya renderiza ActaTemplate con datos
+      const url = `${baseUrl}/print/acta/${inf.id}`;
+      await page.goto(url, { waitUntil: "networkidle0", timeout: 120_000 });
+      await page.emulateMediaType("print");
+
+      const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+      zip.file(
+        `ACTA_${acta.numero_acta} ?? ""}.pdf`,
+        new Uint8Array(pdfBuffer)
+      );
+
+      await page.close();
+    }
+
+    // Generar ZIP
+    const content = await zip.generateAsync({ type: "nodebuffer" });
+
+    const stream = Readable.from(content);
+
+    return new Response(stream as any, {
+      headers: {
+        "Content-Type": "application/zip",
+        "Content-Disposition": `attachment; filename=lote-${loteId}-pdfs.zip`,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error generando PDFs:", error);
+    return new Response(JSON.stringify({ error: error?.message ?? "Error" }), {
+      status: 500,
+    });
+  } finally {
+    await browser.close();
+  }
 }
