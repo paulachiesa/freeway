@@ -9,11 +9,12 @@ datasource db {
 
 model acta {
   id                  Int              @id @default(autoincrement())
-  infraccion_id       Int?
+  infraccion_id       Int              @unique
   cuadro_tarifario_id Int?
   fecha_emision       DateTime?        @db.Date
+  numero_acta         Int
   cuadrotarifario     cuadrotarifario? @relation(fields: [cuadro_tarifario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  infraccion          infraccion?      @relation(fields: [infraccion_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  infraccion          infraccion       @relation(fields: [infraccion_id], references: [id])
   pago                pago[]
 }
 
@@ -22,6 +23,14 @@ model adicionalespersona {
   persona_id Int?     @unique
   nroitem    String?  @db.VarChar(50)
   persona    persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model autoridadconstatacion {
+  id              Int       @id @default(autoincrement())
+  municipioId     Int
+  nombre_completo String    @db.VarChar(150)
+  firmaUrl        String?   @db.VarChar(255)
+  municipio       municipio @relation(fields: [municipioId], references: [id], onDelete: Cascade)
 }
 
 model bcrapersona {
@@ -116,7 +125,7 @@ model infraccion {
   imagen_url       String?
   dominio          String?   @db.VarChar(50)
   hora             String?   @db.VarChar(8)
-  acta             acta[]
+  acta             acta?
   lote             lote      @relation(fields: [lote_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   radar            radar     @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   vehiculo         vehiculo? @relation(fields: [vehiculo_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -146,13 +155,15 @@ model lote {
 }
 
 model municipio {
-  id             Int              @id @default(autoincrement())
-  nombre         String           @db.VarChar(100)
-  provincia      String?          @db.VarChar(100)
-  ciudad         String?          @db.VarChar(100)
+  id             Int                     @id @default(autoincrement())
+  nombre         String                  @db.VarChar(100)
+  provincia      String?                 @db.VarChar(100)
+  ciudad         String?                 @db.VarChar(100)
   direccion      String?
-  firmaUrl       String?          @db.VarChar(255)
-  logoUrl        String?          @db.VarChar(255)
+  firmaUrl       String?                 @db.VarChar(255)
+  logoUrl        String?                 @db.VarChar(255)
+  email          String?                 @db.VarChar(100)
+  autoridades    autoridadconstatacion[]
   lote           lote[]
   radarmunicipio radarmunicipio[]
 }
@@ -174,8 +185,8 @@ model persona {
   tipo_dni            String?             @db.VarChar(20)
   genero              String?             @db.VarChar(20)
   nacionalidad        String?             @db.VarChar(50)
-  fecha_nacimiento    String?   @db.VarChar(30)
-  fecha_fallecimiento String?   @db.VarChar(30)
+  fecha_nacimiento    String?             @db.VarChar(30)
+  fecha_fallecimiento String?             @db.VarChar(30)
   cuil_cuit           BigInt?             @unique
   email               String?             @db.VarChar(100)
   email1              String?             @db.VarChar(100)
@@ -226,8 +237,8 @@ model vehiculo {
   modelo                 String?      @db.VarChar(50)
   anio                   Int?
   persona_id             Int?
-  fecha_compra           String?   @db.VarChar(30)
-  fecha_tramite          String?   @db.VarChar(30)
+  fecha_compra           String?      @db.VarChar(30)
+  fecha_tramite          String?      @db.VarChar(30)
   porcentaje_titularidad Decimal?     @db.Decimal
   procedencia            String?      @db.VarChar(50)
   tipo                   String?      @db.VarChar(50)
@@ -236,31 +247,30 @@ model vehiculo {
 }
 
 model User {
-  id              String   @id @default(cuid()) 
-  username        String     @unique
-  email           String? @unique
-  name            String?
-  password        String?
-  emailVerified   DateTime?
-  roles           UserRole[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String     @id @default(cuid())
+  name          String?
+  email         String?    @unique
+  password      String?
+  emailVerified DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  username      String     @unique
+  roles         UserRole[]
 }
 
 model Role {
-  id        String   @id @default(cuid()) 
+  id        String     @id @default(cuid())
   name      String     @unique
-  users     UserRole[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  users     UserRole[]
 }
 
 model UserRole {
   userId String
   roleId String
-
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }

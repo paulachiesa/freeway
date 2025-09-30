@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { formatDateToLocal } from "@/app/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import Spinner from "../components/Spinner/spinner";
 
 interface Lote {
   id: number;
@@ -25,6 +26,7 @@ export default function LoteTable({
 }) {
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [generandoId, setGenerandoId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLotes = async () => {
@@ -51,6 +53,37 @@ export default function LoteTable({
       fetchLotes();
     }
   }, [query, currentPage, municipioId]);
+
+  const handleGenerarPDFs = async (loteId: number) => {
+    try {
+      setGenerandoId(loteId);
+
+      const response = await fetch(`/api/lotes/${loteId}/generar-pdf`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Error generando PDFs");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `lote-${loteId}-pdfs.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al generar PDFs:", error);
+      alert("Hubo un error al generar los PDFs");
+    } finally {
+      setGenerandoId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -127,9 +160,25 @@ export default function LoteTable({
                   <td className="whitespace-nowrap px-3 py-3">{lote.estado}</td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      <Link href={`/dashboard/infracciones/${lote.id}/editar`}>
+                      <Link
+                        href={`/dashboard/infracciones/${lote.id}/editar`}
+                        className="flex items-center"
+                      >
                         <PencilIcon className="h-5 w-5 text-blue-500 hover:text-blue-700" />
                       </Link>
+                      {lote.estado === "Proceso de carga completo" && (
+                        <button
+                          disabled={generandoId === lote.id}
+                          className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white h-12"
+                          onClick={() => handleGenerarPDFs(lote.id)}
+                        >
+                          {generandoId === lote.id ? (
+                            <Spinner color="white" size={30} className="h-15" />
+                          ) : (
+                            "Generar PDFs"
+                          )}
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>

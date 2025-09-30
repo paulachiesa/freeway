@@ -23,7 +23,7 @@ export async function GET(
     const filePath = join(process.cwd(), "uploads", safeRel);
 
     const file = await readFile(filePath);
-    return new Response(file, {
+    return new Response(new Uint8Array(file), {
       headers: {
         "Content-Type": contentType(filePath),
         "Cache-Control": "public, max-age=31536000, immutable",
