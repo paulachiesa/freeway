@@ -14,11 +14,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       acta: true,
       lote: {
         include: {
-          municipio: {
-            include: {
-              autoridades: true,
-            },
-          },
+          municipio: true,
           radar: true,
         },
       },

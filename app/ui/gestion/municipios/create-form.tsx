@@ -6,74 +6,127 @@ export default function Form() {
   return (
     <form action={createMunicipio}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Nombre municipio */}
-        <div className="mb-4">
-          <label htmlFor="nombre" className="mb-2 block text-sm font-medium">
-            Nombre
-          </label>
-          <div className="relative mt-2 rounded-md">
-            <div className="relative">
-              <input
-                id="nombre"
-                name="nombre"
-                type="text"
-                placeholder="Ingrese el nombre"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              />
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Nombre municipio */}
+          <div className="mb-4">
+            <label htmlFor="nombre" className="mb-2 block text-sm font-medium">
+              Nombre
+            </label>
+            <div className="relative mt-2 rounded-md">
+              <div className="relative">
+                <input
+                  id="nombre"
+                  name="nombre"
+                  type="text"
+                  placeholder="Ingrese el nombre"
+                  className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Ciudad */}
+          <div className="mb-4">
+            <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
+              Ciudad
+            </label>
+            <div className="relative mt-2 rounded-md">
+              <div className="relative">
+                <input
+                  id="ciudad"
+                  name="ciudad"
+                  type="text"
+                  placeholder="Ingrese la ciudad"
+                  className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Provincia */}
+          <div className="mb-4">
+            <label
+              htmlFor="provincia"
+              className="mb-2 block text-sm font-medium"
+            >
+              Provincia
+            </label>
+            <div className="relative mt-2 rounded-md">
+              <div className="relative">
+                <input
+                  id="provincia"
+                  name="provincia"
+                  type="text"
+                  placeholder="Ingrese la provincia"
+                  className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Dirección */}
-        <div className="mb-4">
-          <label htmlFor="direccion" className="mb-2 block text-sm font-medium">
-            Dirección
-          </label>
-          <div className="relative mt-2 rounded-md">
-            <div className="relative">
-              <input
-                id="direccion"
-                name="direccion"
-                type="text"
-                placeholder="Ingrese la direccion"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              />
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Dirección */}
+          <div className="mb-4">
+            <label
+              htmlFor="direccion"
+              className="mb-2 block text-sm font-medium"
+            >
+              Dirección
+            </label>
+            <div className="relative mt-2 rounded-md">
+              <div className="relative">
+                <input
+                  id="direccion"
+                  name="direccion"
+                  type="text"
+                  placeholder="Ingrese la direccion"
+                  className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                />
+              </div>
             </div>
+          </div>
+
+          {/* Autoridad de Constatación */}
+          <div className="mb-4">
+            <label
+              htmlFor="autoridad_constatacion"
+              className="mb-2 block text-sm font-medium"
+            >
+              Autoridad Constatación
+            </label>
+            <input
+              id="autoridad_constatacion"
+              name="autoridad_constatacion"
+              type="text"
+              placeholder="Ingrese nombre de la autoridad de constatación"
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Email Municipio */}
+          <div className="mb-4">
+            <label htmlFor="email" className="mb-2 block text-sm font-medium">
+              Email Municipio
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Ingrese el email del municipio"
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
           </div>
         </div>
 
-        {/* Ciudad */}
+        {/* Firma Aut Constatacion */}
         <div className="mb-4">
-          <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
-            Ciudad
+          <label htmlFor="firmaAC" className="mb-2 block text-sm font-medium">
+            Firma Autoridad Constatación
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
-              <input
-                id="ciudad"
-                name="ciudad"
-                type="text"
-                placeholder="Ingrese la ciudad"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Provincia */}
-        <div className="mb-4">
-          <label htmlFor="provincia" className="mb-2 block text-sm font-medium">
-            Provincia
-          </label>
-          <div className="relative mt-2 rounded-md">
-            <div className="relative">
-              <input
-                id="provincia"
-                name="provincia"
-                type="text"
-                placeholder="Ingrese la provincia"
-                className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              />
+              <input name="firmaAC" type="file" accept="image/*" />
             </div>
           </div>
         </div>
@@ -89,7 +142,6 @@ export default function Form() {
             </div>
           </div>
         </div>
-
         {/* Firma */}
         <div className="mb-4">
           <label htmlFor="firma" className="mb-2 block text-sm font-medium">

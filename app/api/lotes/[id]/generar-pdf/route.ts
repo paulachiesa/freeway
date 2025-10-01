@@ -20,11 +20,7 @@ export async function POST(
   const lote = await prisma.lote.findUnique({
     where: { id: loteId },
     include: {
-      municipio: {
-        include: {
-          autoridades: true,
-        },
-      },
+      municipio: true,
       radar: true,
       infraccion: {
         include: {

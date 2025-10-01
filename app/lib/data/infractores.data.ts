@@ -1,6 +1,6 @@
 // app/lib/data/persona.data.ts
 import { prisma } from "../prisma";
-import type { Prisma } from "generated/prisma";
+import type { Prisma } from "@prisma/client";
 
 const ITEMS_PER_PAGE = 5;
 

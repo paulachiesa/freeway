@@ -1,6 +1,6 @@
 "use client";
 
-import { radar } from "@/generated/prisma";
+import { radar } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import { updateRadar } from "@/app/lib/actions";

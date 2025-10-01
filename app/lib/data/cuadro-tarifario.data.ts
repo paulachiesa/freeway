@@ -17,8 +17,6 @@ export async function fetchCuadroTarifarioById(id: number) {
       gasto_administrativo: cuadro.gasto_administrativo?.toNumber() ?? null,
       valor_1er_vencimiento: cuadro.valor_1er_vencimiento?.toNumber() ?? null,
       valor_2do_vencimiento: cuadro.valor_2do_vencimiento?.toNumber() ?? null,
-      primer_vencimiento: cuadro.primer_vencimiento?.toISOString() ?? null,
-      segundo_vencimiento: cuadro.segundo_vencimiento?.toISOString() ?? null,
     };
   } catch (error) {
     console.error("Database Error:", error);

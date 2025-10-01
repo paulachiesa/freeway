@@ -1,6 +1,6 @@
 "use client";
 
-import { municipio as MunicipioType } from "@/generated/prisma";
+import { municipio as MunicipioType } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/app/ui/button";
@@ -17,63 +17,122 @@ export default function EditMunicipioForm({
   return (
     <form action={updateMunicipioWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Nombre */}
-        <div className="mb-4">
-          <label htmlFor="nombre" className="mb-2 block text-sm font-medium">
-            Nombre
-          </label>
-          <input
-            id="nombre"
-            name="nombre"
-            type="text"
-            defaultValue={municipio.nombre}
-            required
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Nombre */}
+          <div className="mb-4">
+            <label htmlFor="nombre" className="mb-2 block text-sm font-medium">
+              Nombre
+            </label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              defaultValue={municipio.nombre}
+              required
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Ciudad */}
+          <div className="mb-4">
+            <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
+              Ciudad
+            </label>
+            <input
+              id="ciudad"
+              name="ciudad"
+              type="text"
+              defaultValue={municipio.ciudad || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Provincia */}
+          <div className="mb-4">
+            <label
+              htmlFor="provincia"
+              className="mb-2 block text-sm font-medium"
+            >
+              Provincia
+            </label>
+            <input
+              id="provincia"
+              name="provincia"
+              type="text"
+              defaultValue={municipio.provincia || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
         </div>
 
-        {/* Provincia */}
-        <div className="mb-4">
-          <label htmlFor="provincia" className="mb-2 block text-sm font-medium">
-            Provincia
-          </label>
-          <input
-            id="provincia"
-            name="provincia"
-            type="text"
-            defaultValue={municipio.provincia || ""}
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {/* Dirección */}
+          <div className="mb-4">
+            <label
+              htmlFor="direccion"
+              className="mb-2 block text-sm font-medium"
+            >
+              Dirección
+            </label>
+            <input
+              id="direccion"
+              name="direccion"
+              type="text"
+              defaultValue={municipio.direccion || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Autoridad de Constatación */}
+          <div className="mb-4">
+            <label
+              htmlFor="autoridad_constatacion"
+              className="mb-2 block text-sm font-medium"
+            >
+              Autoridad Constatación
+            </label>
+            <input
+              id="autoridad_constatacion"
+              name="autoridad_constatacion"
+              type="text"
+              defaultValue={municipio.autoridad_constatacion || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-4">
+            <label htmlFor="email" className="mb-2 block text-sm font-medium">
+              Email Municipio
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={municipio.email || ""}
+              className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
         </div>
 
-        {/* Ciudad */}
+        {/* Firma Aut Constatacion */}
         <div className="mb-4">
-          <label htmlFor="ciudad" className="mb-2 block text-sm font-medium">
-            Ciudad
+          <label className="mb-2 block text-sm font-medium">
+            Firma Autoridad Constatación
           </label>
-          <input
-            id="ciudad"
-            name="ciudad"
-            type="text"
-            defaultValue={municipio.ciudad || ""}
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
+          {municipio.firmaACUrl && (
+            <div className="mb-2">
+              <Image
+                src={toImageApiUrl(municipio.firmaACUrl)}
+                alt={`Firma Autoridad Constatación de ${municipio.nombre}`}
+                width={120}
+                height={120}
+                className="h-16 w-auto"
+              />
+            </div>
+          )}
+          <input name="firmaAC" type="file" accept="image/*" />
         </div>
-
-        {/* Dirección */}
-        <div className="mb-4">
-          <label htmlFor="direccion" className="mb-2 block text-sm font-medium">
-            Dirección
-          </label>
-          <input
-            id="direccion"
-            name="direccion"
-            type="text"
-            defaultValue={municipio.direccion || ""}
-            className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
-          />
-        </div>
-
         {/* Logo */}
         <div className="mb-4">
           <label className="mb-2 block text-sm font-medium">Logo</label>
@@ -108,6 +167,7 @@ export default function EditMunicipioForm({
           <input name="firma" type="file" accept="image/*" />
         </div>
       </div>
+
       <div className="mt-6 flex justify-end gap-4">
         <Link
           href="/dashboard/gestion/municipios"
