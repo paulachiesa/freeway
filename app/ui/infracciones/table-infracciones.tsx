@@ -52,6 +52,7 @@ export default function InfraccionesTable({
     const updated = [...infracciones];
     updated[index][field] = value;
     setInfracciones(updated);
+    onChange?.(updated);
   };
 
   const buscarVehiculo = async (index: number, dominio: string) => {
@@ -142,7 +143,7 @@ export default function InfraccionesTable({
   return (
     <>
       <div className="flow-root">
-        <div className="inline-block min-w-full align-middle">
+        <div className="inline-block w-full align-middle">
           <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
             {/* Vista Mobile */}
             <div className="md:hidden">
@@ -271,12 +272,14 @@ export default function InfraccionesTable({
           </div>
         </div>
         {infracciones.length > 0 && (
-          <button
-            onClick={exportarDominiosNoEncontrados}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Descargar dominios
-          </button>
+          <div className="mt-2">
+            <button
+              onClick={exportarDominiosNoEncontrados}
+              className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Descargar dominios
+            </button>
+          </div>
         )}
       </div>
       {toastMsg && (

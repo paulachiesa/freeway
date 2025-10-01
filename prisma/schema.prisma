@@ -25,13 +25,6 @@ model adicionalespersona {
   persona    persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model autoridadconstatacion {
-  id              Int       @id @default(autoincrement())
-  municipioId     Int
-  nombre_completo String    @db.VarChar(150)
-  firmaUrl        String?   @db.VarChar(255)
-  municipio       municipio @relation(fields: [municipioId], references: [id], onDelete: Cascade)
-}
 
 model bcrapersona {
   id                         Int                          @id @default(autoincrement())
@@ -149,6 +142,7 @@ model lote {
   estado       String?      @db.VarChar(100)
   radar_id     Int?
   directorio   String?
+  lugar_infraccion String?
   infraccion   infraccion[]
   municipio    municipio    @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   radar        radar?       @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -163,7 +157,8 @@ model municipio {
   firmaUrl       String?                 @db.VarChar(255)
   logoUrl        String?                 @db.VarChar(255)
   email          String?                 @db.VarChar(100)
-  autoridades    autoridadconstatacion[]
+  autoridad_constatacion String?    @db.VarChar(150)
+  firmaACUrl        String?   @db.VarChar(255)
   lote           lote[]
   radarmunicipio radarmunicipio[]
 }

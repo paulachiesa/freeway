@@ -13,6 +13,8 @@ const MunicipioFormSchema = z.object({
   provincia: z.string().optional().nullable(),
   ciudad: z.string().optional().nullable(),
   direccion: z.string().optional().nullable(),
+  autoridad_constatacion: z.string().optional().nullable(),
+  email: z.string().optional().nullable(),
 });
 
 const sanitize = (s: string) =>
@@ -26,22 +28,31 @@ const sanitize = (s: string) =>
 const CreateMunicipio = MunicipioFormSchema.omit({ id: true });
 
 export async function createMunicipio(formData: FormData) {
-  const { nombre, direccion, provincia, ciudad } = CreateMunicipio.parse({
+  const {
+    nombre,
+    direccion,
+    provincia,
+    ciudad,
+    autoridad_constatacion,
+    email,
+  } = CreateMunicipio.parse({
     nombre: formData.get("nombre"),
     direccion: formData.get("direccion"),
     ciudad: formData.get("ciudad"),
     provincia: formData.get("provincia"),
+    autoridad_constatacion: formData.get("autoridad_constatacion"),
+    email: formData.get("email"),
   });
 
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
+  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000) throw new Error("Logo demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("Firma demasiado grande");
-
-  // const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
-  // const uploadDir = path.join(process.cwd(), "uploads", folderName);
+  if (firmaAC && firmaAC.size > 5_000_000)
+    throw new Error("Firma AC demasiado grande");
 
   const folderName = sanitize(String(formData.get("nombre") ?? "municipio"));
   const uploadDir = path.join(process.cwd(), "uploads", folderName);
@@ -53,20 +64,7 @@ export async function createMunicipio(formData: FormData) {
 
   let logoUrl = "";
   let firmaUrl = "";
-
-  // if (logo && logo.size > 0) {
-  //   const logoPath = path.join(uploadDir, logo.name);
-  //   const buffer = Buffer.from(await logo.arrayBuffer());
-  //   fs.writeFileSync(logoPath, buffer);
-  //   logoUrl = `/uploads/${folderName}/${logo.name}`;
-  // }
-
-  // if (firma && firma.size > 0) {
-  //   const firmaPath = path.join(uploadDir, firma.name);
-  //   const buffer = Buffer.from(await firma.arrayBuffer());
-  //   fs.writeFileSync(firmaPath, buffer);
-  //   firmaUrl = `/uploads/${folderName}/${firma.name}`;
-  // }
+  let firmaACUrl = "";
 
   if (logo && logo.size > 0) {
     const fileName = sanitize(logo.name);
@@ -85,6 +83,14 @@ export async function createMunicipio(formData: FormData) {
     firmaUrl = `/uploads/${folderName}/${fileName}`;
   }
 
+  if (firmaAC && firmaAC.size > 0) {
+    const fileName = sanitize(firmaAC.name);
+    const filePath = path.join(uploadDir, fileName);
+    const buffer = Buffer.from(await firmaAC.arrayBuffer());
+    fs.writeFileSync(filePath, buffer);
+    firmaACUrl = `/uploads/${folderName}/${fileName}`;
+  }
+
   try {
     await prisma.municipio.create({
       data: {
@@ -92,6 +98,9 @@ export async function createMunicipio(formData: FormData) {
         provincia: provincia,
         ciudad: ciudad,
         direccion: direccion,
+        autoridad_constatacion: autoridad_constatacion,
+        email: email,
+        firmaACUrl,
         logoUrl,
         firmaUrl,
       },
@@ -108,11 +117,20 @@ export async function createMunicipio(formData: FormData) {
 const UpdateMunicipio = MunicipioFormSchema.omit({ id: true });
 
 export async function updateMunicipio(id: number, formData: FormData) {
-  const { nombre, direccion, provincia, ciudad } = UpdateMunicipio.parse({
+  const {
+    nombre,
+    direccion,
+    provincia,
+    ciudad,
+    autoridad_constatacion,
+    email,
+  } = UpdateMunicipio.parse({
     nombre: formData.get("nombre"),
     direccion: formData.get("direccion"),
     ciudad: formData.get("ciudad"),
     provincia: formData.get("provincia"),
+    autoridad_constatacion: formData.get("autoridad_constatacion"),
+    email: formData.get("email"),
   });
 
   const municipioActual = await prisma.municipio.findUnique({ where: { id } });
@@ -121,11 +139,14 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
+  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000)
     throw new Error("El logo es demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("La firma es demasiado grande");
+  if (firmaAC && firmaAC.size > 5_000_000)
+    throw new Error("La firma de la autoridad es demasiado grande");
 
   const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
   const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
@@ -136,19 +157,30 @@ export async function updateMunicipio(id: number, formData: FormData) {
 
   let logoUrl = municipioActual.logoUrl || "";
   let firmaUrl = municipioActual.firmaUrl || "";
+  let firmaACUrl = municipioActual.firmaACUrl || "";
 
   if (logo && logo.size > 0) {
-    const logoPath = path.join(uploadDir, logo.name);
+    const fileName = sanitize(logo.name);
+    const logoPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
     fs.writeFileSync(logoPath, buffer);
     logoUrl = `/uploads/${folderName}/${logo.name}`;
   }
 
   if (firma && firma.size > 0) {
-    const firmaPath = path.join(uploadDir, firma.name);
+    const fileName = sanitize(firma.name);
+    const firmaPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
     fs.writeFileSync(firmaPath, buffer);
     firmaUrl = `/uploads/${folderName}/${firma.name}`;
+  }
+
+  if (firmaAC && firmaAC.size > 0) {
+    const fileName = sanitize(firmaAC.name);
+    const firmaPath = path.join(uploadDir, fileName);
+    const buffer = Buffer.from(await firmaAC.arrayBuffer());
+    fs.writeFileSync(firmaPath, buffer);
+    firmaACUrl = `/uploads/${folderName}/${firmaAC.name}`;
   }
 
   try {
@@ -159,6 +191,9 @@ export async function updateMunicipio(id: number, formData: FormData) {
         provincia: provincia,
         ciudad: ciudad,
         direccion: direccion,
+        autoridad_constatacion: autoridad_constatacion,
+        email: email,
+        firmaACUrl,
         logoUrl,
         firmaUrl,
       },

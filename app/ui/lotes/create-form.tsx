@@ -44,6 +44,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     numero: undefined,
     fecha_desde: "",
     fecha_hasta: "",
+    lugar_infraccion: "",
     radar_id: "",
     directorio: "",
     infracciones: [] as InfraccionData[],
@@ -84,6 +85,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         numero: initialLote.numero,
         fecha_desde: formatDateInput(initialLote.fecha_desde),
         fecha_hasta: formatDateInput(initialLote.fecha_hasta),
+        lugar_infraccion: initialLote.lugar_infraccion ?? "",
         radar_id: String(initialLote.radar_id ?? ""),
         directorio: "",
         infracciones: initialLote.infracciones.map((i: any) => ({
@@ -233,6 +235,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
       numero: undefined,
       fecha_desde: "",
       fecha_hasta: "",
+      lugar_infraccion: "",
       radar_id: "",
       directorio: "",
       infracciones: [],
@@ -265,7 +268,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                   name="nroLote"
                   type="text"
                   value={proximoLote ?? ""}
-                  disabled
+                  readOnly
                   className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm bg-gray-100 text-gray-700"
                 />
               </div>
@@ -300,6 +303,22 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                 value={loteData.fecha_hasta}
                 onChange={handleInputChange}
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="lugar_infraccion"
+                className="mb-2 block text-sm font-medium"
+              >
+                Lugar Infracción
+              </label>
+              <input
+                id="lugar_infraccion"
+                name="lugar_infraccion"
+                type="text"
+                value={loteData.lugar_infraccion}
+                onChange={handleInputChange}
+                className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm outline-2 placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -363,15 +382,15 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                     ? "Proceso de carga completo"
                     : "En proceso de carga incompleto"
                 }
-                disabled
+                readOnly
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm bg-gray-100 text-gray-700"
               />
             </div>
           </div>
 
           <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
-          <div className="flex flex-col md:flex-row gap-4 mt-6">
-            <div className="w-full md:w-[65%]">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-[65%] max-h-[500px] overflow-y-auto">
               <InfraccionesTable
                 datos={loteData.infracciones}
                 onChange={(nuevasInfracciones) =>

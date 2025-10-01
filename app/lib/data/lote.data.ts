@@ -103,6 +103,7 @@ export async function crearLoteConInfracciones(data: any) {
     fecha_desde,
     fecha_hasta,
     estado,
+    lugar_infraccion,
     radar_id,
     directorio,
     infracciones,
@@ -123,6 +124,7 @@ export async function crearLoteConInfracciones(data: any) {
         descripcion: `Lote ${numero}`,
         fecha_desde: new Date(fecha_desde),
         fecha_hasta: new Date(fecha_hasta),
+        lugar_infraccion,
         estado,
         radar_id,
         directorio,
@@ -164,6 +166,7 @@ export async function actualizarLoteConInfracciones(data: any) {
     fecha_desde,
     fecha_hasta,
     estado,
+    lugar_infraccion,
     radar_id,
     directorio,
     infracciones,
@@ -178,11 +181,8 @@ export async function actualizarLoteConInfracciones(data: any) {
         estado,
         radar_id,
         directorio,
+        lugar_infraccion,
       },
-    });
-
-    await tx.infraccion.deleteMany({
-      where: { lote_id: id },
     });
 
     for (const inf of infracciones) {
@@ -193,8 +193,20 @@ export async function actualizarLoteConInfracciones(data: any) {
       const [day, month, year] = inf.fecha.split("/");
       const parsedFecha = new Date(`${year}-${month}-${day}`);
 
-      await tx.infraccion.create({
-        data: {
+      await tx.infraccion.upsert({
+        where: { id: inf?.id ?? 0 },
+        update: {
+          fecha: parsedFecha,
+          hora: inf.hora,
+          nombre_archivo: inf.nombre_archivo,
+          velocidad_maxima: inf.velocidad_maxima,
+          velocidad_medida: inf.velocidad_medida,
+          imagen_url: inf.imagen_url,
+          radar_id,
+          dominio: inf.dominio.toUpperCase(),
+          vehiculo_id: vehiculo?.id ?? null,
+        },
+        create: {
           fecha: parsedFecha,
           hora: inf.hora,
           lote_id: id,

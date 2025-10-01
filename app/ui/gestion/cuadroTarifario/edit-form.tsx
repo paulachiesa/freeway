@@ -1,6 +1,6 @@
 "use client";
 
-import { cuadrotarifario } from "@/generated/prisma";
+import { cuadrotarifario } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "@/app/ui/button";
 import { updateCuadroTarifario } from "@/app/lib/actions";
