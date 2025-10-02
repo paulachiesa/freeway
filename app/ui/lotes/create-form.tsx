@@ -10,6 +10,7 @@ import { useInactivityTimer } from "@/hooks/useInactivityTimer";
 import InfraccionesTable from "../infracciones/table-infracciones";
 import defaultImg from "@/public/default.png";
 import Toast from "../components/Toast/toast";
+import Spinner from "@/app/ui/components/Spinner/spinner";
 
 type InfraccionData = {
   nombre_archivo: string;
@@ -31,6 +32,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   const [selectedRow, setSelectedRow] = useState<string | null>(null);
   const inputFileRef = useRef<HTMLInputElement | null>(null);
   const imageToShow = selectedImageUrl || defaultImg;
+  const [loadingTable, setLoadingTable] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [toastType, setToastType] = useState<
     "success" | "error" | "info" | "warning"
@@ -138,6 +140,8 @@ export default function Form({ initialLote }: { initialLote?: any }) {
   const handleFilesUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    setLoadingTable(true);
+
     const files = Array.from(event.target.files || []);
 
     const txtFiles = files.filter((f) => f.name.toLowerCase().endsWith(".txt"));
@@ -187,6 +191,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     );
 
     setLoteData((prev) => ({ ...prev, infracciones }));
+    setLoadingTable(false);
   };
 
   const handleInputChange = (
@@ -392,20 +397,24 @@ export default function Form({ initialLote }: { initialLote?: any }) {
           <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="w-full md:w-[65%] max-h-[500px]">
-              <InfraccionesTable
-                datos={loteData.infracciones}
-                onChange={(nuevasInfracciones) => {
-                  setLoteData((prev) => ({
-                    ...prev,
-                    infracciones: nuevasInfracciones,
-                  }));
-                }}
-                onSelectImage={(url, nombreArchivo) => {
-                  setSelectedImageUrl(url);
-                  setSelectedRow(nombreArchivo);
-                }}
-                selectedRow={selectedRow}
-              />
+              {loadingTable ? (
+                <Spinner />
+              ) : (
+                <InfraccionesTable
+                  datos={loteData.infracciones}
+                  onChange={(nuevasInfracciones) => {
+                    setLoteData((prev) => ({
+                      ...prev,
+                      infracciones: nuevasInfracciones,
+                    }));
+                  }}
+                  onSelectImage={(url, nombreArchivo) => {
+                    setSelectedImageUrl(url);
+                    setSelectedRow(nombreArchivo);
+                  }}
+                  selectedRow={selectedRow}
+                />
+              )}
             </div>
             <div className="w-full md:w-[35%] bg-gray-100 rounded-md p-4">
               <h2 className="text-sm font-medium text-gray-700 mb-2">
