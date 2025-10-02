@@ -107,91 +107,56 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     }
   }, [initialLote]);
 
-  const uploadImage = async (file: File): Promise<string> => {
-    const municipioData = sessionStorage.getItem("municipio");
-    if (!municipioData) {
-      console.warn("⚠️ No hay municipio seleccionado en sessionStorage");
-      return "";
+  const handleZipUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
+
+    const zipFile = files[0];
+    if (!zipFile.name.toLowerCase().endsWith(".zip")) {
+      setToastType("error");
+      setToastMsg("Debe subir un archivo ZIP");
+      return;
     }
 
+    const municipioData = sessionStorage.getItem("municipio");
+    if (!municipioData) {
+      setToastType("warning");
+      setToastMsg("Debe seleccionar un municipio");
+      return;
+    }
     const municipio = JSON.parse(municipioData).nombre;
-
     const nroLote = proximoLote ?? initialLote?.numero ?? "temp";
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", zipFile);
     formData.append("municipio", municipio);
     formData.append("nroLote", nroLote.toString());
 
-    const res = await fetch("/api/uploads", {
+    setLoadingTable(true);
+    setToastType("info");
+    setToastMsg("Subiendo y procesando ZIP...");
+
+    const res = await fetch("/api/upload-zip", {
       method: "POST",
       body: formData,
     });
 
-    if (!res.ok) {
-      console.warn(`Error al subir imagen ${file.name}`);
-      return "";
-    }
-
-    const data = await res.json();
-    return data.url;
-  };
-
-  const handleFilesUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setLoadingTable(true);
-
-    const files = Array.from(event.target.files || []);
-
-    const txtFiles = files.filter((f) => f.name.toLowerCase().endsWith(".txt"));
-
-    const jpgFiles = files.filter((f) => {
-      const name = f.name.toLowerCase();
-      return name.endsWith(".jpg") || name.endsWith(".jpeg");
-    });
-
-    const infracciones: InfraccionData[] = await Promise.all(
-      txtFiles.map(async (file) => {
-        const text = await file.text();
-        const nombreBase = file.name
-          .substring(0, file.name.lastIndexOf("."))
-          .toLowerCase();
-
-        const fechaMatch = text.match(/Fecha:(\d{2}\/\d{2}\/\d{4})/);
-        const horaMatch = text.match(/(\d{2}h\d{2}min\d{2}s)/);
-        const vMaxMatch = text.match(/V\.Max:(\d+)/);
-        const velMatch = text.match(/Vel:(\d+)/);
-
-        const imagen = jpgFiles.find((img) => {
-          const imgBase = img.name
-            .substring(0, img.name.lastIndexOf("."))
-            .toLowerCase();
-          return imgBase === nombreBase;
-        });
-
-        const imagen_url = imagen ? await uploadImage(imagen) : "";
-
-        if (!imagen) {
-          console.warn(`⚠️ No se encontró imagen para: ${file.name}`);
-        }
-
-        return {
-          nombre_archivo: file.name,
-          fecha: fechaMatch?.[1] ?? "",
-          hora: horaMatch?.[1]?.replace(/h|min|s/g, ":").slice(0, -1) ?? "",
-          velocidad_maxima: Number(vMaxMatch?.[1] ?? 0),
-          velocidad_medida: Number(velMatch?.[1] ?? 0),
-          dominio: "",
-          marca: "",
-          modelo: "",
-          imagen_url,
-        };
-      })
-    );
-
-    setLoteData((prev) => ({ ...prev, infracciones }));
     setLoadingTable(false);
+
+    if (res.ok) {
+      const data = await res.json();
+      setLoteData((prev) => ({
+        ...prev,
+        infracciones: data.infracciones,
+      }));
+      setToastType("success");
+      setToastMsg("ZIP procesado correctamente");
+    } else {
+      setToastType("error");
+      setToastMsg("Error al subir el ZIP");
+    }
   };
 
   const handleInputChange = (
@@ -213,11 +178,15 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         : "Proceso de carga incompleto";
 
       const formData = {
-        municipio_id: JSON.parse(municipio).id,
         ...loteData,
+        municipio_id: JSON.parse(municipio).id,
+        id: loteData.id ?? undefined,
+        numero: loteData.numero ?? proximoLote,
         estado: estadoCalculado,
         radar_id: parseInt(loteData.radar_id),
       };
+
+      if (!loteData.id) delete formData.id;
 
       const result = await guardarLoteCompleto(formData);
 
@@ -260,7 +229,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
     <>
       <form>
         <div className="rounded-md bg-gray-50 p-4 md:p-6">
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-[20%_20%_20%_36%] gap-4 mb-8">
             {!initialLote && (
               <div>
                 <label
@@ -363,10 +332,11 @@ export default function Form({ initialLote }: { initialLote?: any }) {
                 id="directorio"
                 name="directorio"
                 type="file"
-                multiple
+                // multiple
                 ref={inputFileRef}
-                accept=".txt,image/*"
-                onChange={handleFilesUpload}
+                // accept=".txt,image/*"
+                accept=".zip"
+                onChange={handleZipUpload}
                 className="block w-full rounded-md border border-gray-200 py-2 px-3 text-sm"
               />
             </div>

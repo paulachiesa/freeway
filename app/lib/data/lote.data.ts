@@ -97,6 +97,172 @@ export async function fetchLotesPages(query: string, municipioId: number) {
   }
 }
 
+// export async function crearLoteConInfracciones(data: any) {
+//   const {
+//     municipio_id,
+//     fecha_desde,
+//     fecha_hasta,
+//     estado,
+//     lugar_infraccion,
+//     radar_id,
+//     directorio,
+//     infracciones,
+//   } = data;
+
+//   return await prisma.$transaction(async (tx) => {
+//     const ultimoLote = await tx.lote.findFirst({
+//       where: { municipio_id: parseInt(municipio_id) },
+//       orderBy: { numero: "desc" },
+//     });
+
+//     const numero = (ultimoLote?.numero ?? 0) + 1;
+
+//     const lote = await tx.lote.create({
+//       data: {
+//         municipio_id: parseInt(municipio_id),
+//         numero,
+//         descripcion: `Lote ${numero}`,
+//         fecha_desde: new Date(fecha_desde),
+//         fecha_hasta: new Date(fecha_hasta),
+//         lugar_infraccion,
+//         estado,
+//         radar_id,
+//         directorio,
+//       },
+//     });
+
+//     for (const inf of infracciones) {
+//       const vehiculo = await tx.vehiculo.findUnique({
+//         where: { dominio: inf.dominio.toUpperCase() },
+//       });
+
+//       let parsedFecha: Date | null = null;
+//       if (inf.fecha) {
+//         // 👉 Si viene en formato DD/MM/YYYY (desde TXT), convertir a ISO
+//         if (inf.fecha.includes("/")) {
+//           const [day, month, year] = inf.fecha.split("/");
+//           parsedFecha = new Date(`${year}-${month}-${day}`);
+//         } else {
+//           parsedFecha = new Date(inf.fecha); // ya viene ISO
+//         }
+//       }
+
+//       await tx.infraccion.create({
+//         data: {
+//           fecha: parsedFecha,
+//           hora: inf.hora,
+//           lote_id: lote.id,
+//           nombre_archivo: inf.nombre_archivo,
+//           velocidad_maxima: inf.velocidad_maxima,
+//           velocidad_medida: inf.velocidad_medida,
+//           imagen_url: inf.imagen_url,
+//           radar_id,
+//           dominio: inf.dominio.toUpperCase(),
+//           vehiculo_id: vehiculo?.id ?? null,
+//         },
+//       });
+//     }
+
+//     return lote;
+//   });
+// }
+
+// export async function actualizarLoteConInfracciones(data: any) {
+//   const {
+//     id,
+//     municipio_id,
+//     fecha_desde,
+//     fecha_hasta,
+//     estado,
+//     lugar_infraccion,
+//     radar_id,
+//     directorio,
+//     infracciones,
+//   } = data;
+
+//   return await prisma.$transaction(async (tx) => {
+//     const lote = await tx.lote.update({
+//       where: { id },
+//       data: {
+//         fecha_desde: new Date(fecha_desde),
+//         fecha_hasta: new Date(fecha_hasta),
+//         estado,
+//         radar_id,
+//         directorio,
+//         lugar_infraccion,
+//       },
+//     });
+
+//     const actuales = await tx.infraccion.findMany({ where: { lote_id: id } });
+
+//     const enviadosIds = infracciones
+//       .filter((i: any) => i.id)
+//       .map((i: any) => i.id);
+
+//     const idsAEliminar = actuales
+//       .map((a) => a.id)
+//       .filter((id) => !enviadosIds.includes(id));
+
+//     if (idsAEliminar.length > 0) {
+//       await tx.infraccion.deleteMany({ where: { id: { in: idsAEliminar } } });
+//     }
+
+//     for (const inf of infracciones) {
+//       const vehiculo = inf.dominio
+//         ? await tx.vehiculo.findUnique({
+//             where: { dominio: inf.dominio.toUpperCase() },
+//           })
+//         : null;
+
+//       let parsedFecha: Date | null = null;
+//       if (inf.fecha) {
+//         if (inf.fecha.includes("/")) {
+//           const [day, month, year] = inf.fecha.split("/");
+//           parsedFecha = new Date(`${year}-${month}-${day}`);
+//         } else {
+//           parsedFecha = new Date(inf.fecha);
+//         }
+//       }
+
+//       if (inf.id) {
+//         // actualizar existente
+//         await tx.infraccion.update({
+//           where: { id: inf.id },
+//           data: {
+//             fecha: parsedFecha,
+//             hora: inf.hora,
+//             nombre_archivo: inf.nombre_archivo,
+//             velocidad_maxima: inf.velocidad_maxima,
+//             velocidad_medida: inf.velocidad_medida,
+//             imagen_url: inf.imagen_url,
+//             radar_id,
+//             dominio: inf.dominio.toUpperCase(),
+//             vehiculo_id: vehiculo?.id ?? null,
+//           },
+//         });
+//       } else {
+//         // crear nueva
+//         await tx.infraccion.create({
+//           data: {
+//             fecha: parsedFecha,
+//             hora: inf.hora,
+//             lote_id: id,
+//             nombre_archivo: inf.nombre_archivo,
+//             velocidad_maxima: inf.velocidad_maxima,
+//             velocidad_medida: inf.velocidad_medida,
+//             imagen_url: inf.imagen_url,
+//             radar_id,
+//             dominio: inf.dominio.toUpperCase(),
+//             vehiculo_id: vehiculo?.id ?? null,
+//           },
+//         });
+//       }
+//     }
+
+//     return lote;
+//   });
+// }
+
 export async function crearLoteConInfracciones(data: any) {
   const {
     municipio_id,
@@ -110,6 +276,7 @@ export async function crearLoteConInfracciones(data: any) {
   } = data;
 
   return await prisma.$transaction(async (tx) => {
+    // Buscar último lote del municipio
     const ultimoLote = await tx.lote.findFirst({
       where: { municipio_id: parseInt(municipio_id) },
       orderBy: { numero: "desc" },
@@ -117,13 +284,14 @@ export async function crearLoteConInfracciones(data: any) {
 
     const numero = (ultimoLote?.numero ?? 0) + 1;
 
+    // Crear lote
     const lote = await tx.lote.create({
       data: {
         municipio_id: parseInt(municipio_id),
         numero,
         descripcion: `Lote ${numero}`,
-        fecha_desde: new Date(fecha_desde),
-        fecha_hasta: new Date(fecha_hasta),
+        fecha_desde: fecha_desde ? new Date(fecha_desde) : null,
+        fecha_hasta: fecha_hasta ? new Date(fecha_hasta) : null,
         lugar_infraccion,
         estado,
         radar_id,
@@ -131,16 +299,21 @@ export async function crearLoteConInfracciones(data: any) {
       },
     });
 
-    for (const inf of infracciones) {
-      const vehiculo = await tx.vehiculo.findUnique({
-        where: { dominio: inf.dominio.toUpperCase() },
-      });
+    if (infracciones?.length > 0) {
+      // Preparar las infracciones
+      const dataInfracciones = infracciones.map((inf: any) => {
+        let parsedFecha: Date | null = null;
 
-      const [day, month, year] = inf.fecha.split("/");
-      const parsedFecha = new Date(`${year}-${month}-${day}`);
+        if (inf.fecha) {
+          if (typeof inf.fecha === "string" && inf.fecha.includes("/")) {
+            const [day, month, year] = inf.fecha.split("/");
+            parsedFecha = new Date(`${year}-${month}-${day}`);
+          } else {
+            parsedFecha = new Date(inf.fecha);
+          }
+        }
 
-      await tx.infraccion.create({
-        data: {
+        return {
           fecha: parsedFecha,
           hora: inf.hora,
           lote_id: lote.id,
@@ -149,9 +322,15 @@ export async function crearLoteConInfracciones(data: any) {
           velocidad_medida: inf.velocidad_medida,
           imagen_url: inf.imagen_url,
           radar_id,
-          dominio: inf.dominio.toUpperCase(),
-          vehiculo_id: vehiculo?.id ?? null,
-        },
+          dominio: (inf.dominio || "").toUpperCase(),
+          vehiculo_id: inf.vehiculo_id ?? null, // ✅ opcional
+        };
+      });
+
+      // Insertar todas juntas
+      await tx.infraccion.createMany({
+        data: dataInfracciones,
+        skipDuplicates: true,
       });
     }
 
@@ -162,7 +341,6 @@ export async function crearLoteConInfracciones(data: any) {
 export async function actualizarLoteConInfracciones(data: any) {
   const {
     id,
-    municipio_id,
     fecha_desde,
     fecha_hasta,
     estado,
@@ -173,11 +351,12 @@ export async function actualizarLoteConInfracciones(data: any) {
   } = data;
 
   return await prisma.$transaction(async (tx) => {
+    // Actualizar datos del lote
     const lote = await tx.lote.update({
       where: { id },
       data: {
-        fecha_desde: new Date(fecha_desde),
-        fecha_hasta: new Date(fecha_hasta),
+        fecha_desde: fecha_desde ? new Date(fecha_desde) : null,
+        fecha_hasta: fecha_hasta ? new Date(fecha_hasta) : null,
         estado,
         radar_id,
         directorio,
@@ -185,66 +364,41 @@ export async function actualizarLoteConInfracciones(data: any) {
       },
     });
 
-    const actuales = await tx.infraccion.findMany({ where: { lote_id: id } });
+    // 1) Borrar infracciones anteriores
+    await tx.infraccion.deleteMany({ where: { lote_id: id } });
 
-    const enviadosIds = infracciones
-      .filter((i: any) => i.id)
-      .map((i: any) => i.id);
+    // 2) Insertar todas las infracciones que vienen del front
+    if (infracciones?.length > 0) {
+      const nuevas = infracciones.map((inf: any) => {
+        let parsedFecha: Date | null = null;
 
-    const idsAEliminar = actuales
-      .map((a) => a.id)
-      .filter((id) => !enviadosIds.includes(id));
+        if (inf.fecha) {
+          if (typeof inf.fecha === "string" && inf.fecha.includes("/")) {
+            const [day, month, year] = inf.fecha.split("/");
+            parsedFecha = new Date(`${year}-${month}-${day}`);
+          } else {
+            parsedFecha = new Date(inf.fecha);
+          }
+        }
 
-    if (idsAEliminar.length > 0) {
-      await tx.infraccion.deleteMany({ where: { id: { in: idsAEliminar } } });
-    }
+        return {
+          fecha: parsedFecha,
+          hora: inf.hora,
+          lote_id: id,
+          nombre_archivo: inf.nombre_archivo,
+          velocidad_maxima: inf.velocidad_maxima,
+          velocidad_medida: inf.velocidad_medida,
+          imagen_url: inf.imagen_url,
+          radar_id,
+          dominio: (inf.dominio || "").toUpperCase(),
+          vehiculo_id: inf.vehiculo_id ?? null,
+        };
+      });
 
-    for (const inf of infracciones) {
-      const vehiculo = inf.dominio
-        ? await tx.vehiculo.findUnique({
-            where: { dominio: inf.dominio.toUpperCase() },
-          })
-        : null;
-
-      let parsedFecha: Date | null = null;
-      if (inf.fecha) {
-        const [day, month, year] = inf.fecha.split("/");
-        parsedFecha = new Date(`${year}-${month}-${day}`);
-      }
-
-      if (inf.id) {
-        // actualizar existente
-        await tx.infraccion.update({
-          where: { id: inf.id },
-          data: {
-            fecha: parsedFecha,
-            hora: inf.hora,
-            nombre_archivo: inf.nombre_archivo,
-            velocidad_maxima: inf.velocidad_maxima,
-            velocidad_medida: inf.velocidad_medida,
-            imagen_url: inf.imagen_url,
-            radar_id,
-            dominio: inf.dominio.toUpperCase(),
-            vehiculo_id: vehiculo?.id ?? null,
-          },
-        });
-      } else {
-        // crear nueva
-        await tx.infraccion.create({
-          data: {
-            fecha: parsedFecha,
-            hora: inf.hora,
-            lote_id: id,
-            nombre_archivo: inf.nombre_archivo,
-            velocidad_maxima: inf.velocidad_maxima,
-            velocidad_medida: inf.velocidad_medida,
-            imagen_url: inf.imagen_url,
-            radar_id,
-            dominio: inf.dominio.toUpperCase(),
-            vehiculo_id: vehiculo?.id ?? null,
-          },
-        });
-      }
+      await tx.infraccion.createMany({
+        data: nuevas,
+        skipDuplicates: true,
+      });
     }
 
     return lote;
