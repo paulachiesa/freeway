@@ -89,6 +89,7 @@ export default function Form({ initialLote }: { initialLote?: any }) {
         radar_id: String(initialLote.radar_id ?? ""),
         directorio: "",
         infracciones: initialLote.infracciones.map((i: any) => ({
+          id: i.id,
           nombre_archivo: i.nombre_archivo,
           fecha: formatDateInput(i.fecha),
           hora: i.hora,
@@ -390,15 +391,15 @@ export default function Form({ initialLote }: { initialLote?: any }) {
 
           <h1 className={`${lusitana.className} text-lg`}>Infracciones</h1>
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-[65%] max-h-[500px] overflow-y-auto">
+            <div className="w-full md:w-[65%] max-h-[500px]">
               <InfraccionesTable
                 datos={loteData.infracciones}
-                onChange={(nuevasInfracciones) =>
+                onChange={(nuevasInfracciones) => {
                   setLoteData((prev) => ({
                     ...prev,
                     infracciones: nuevasInfracciones,
-                  }))
-                }
+                  }));
+                }}
                 onSelectImage={(url, nombreArchivo) => {
                   setSelectedImageUrl(url);
                   setSelectedRow(nombreArchivo);

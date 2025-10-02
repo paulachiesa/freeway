@@ -67,7 +67,8 @@ export async function createMunicipio(formData: FormData) {
   let firmaACUrl = "";
 
   if (logo && logo.size > 0) {
-    const fileName = sanitize(logo.name);
+    const ext = path.extname(logo.name).toLowerCase();
+    const fileName = `${folderName}-logo${ext}`;
     const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
@@ -76,7 +77,8 @@ export async function createMunicipio(formData: FormData) {
   }
 
   if (firma && firma.size > 0) {
-    const fileName = sanitize(firma.name);
+    const ext = path.extname(firma.name).toLowerCase();
+    const fileName = `${folderName}-firma${ext}`;
     const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
@@ -84,7 +86,8 @@ export async function createMunicipio(formData: FormData) {
   }
 
   if (firmaAC && firmaAC.size > 0) {
-    const fileName = sanitize(firmaAC.name);
+    const ext = path.extname(firmaAC.name).toLowerCase();
+    const fileName = `${folderName}-firmaac${ext}`;
     const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firmaAC.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
@@ -160,7 +163,8 @@ export async function updateMunicipio(id: number, formData: FormData) {
   let firmaACUrl = municipioActual.firmaACUrl || "";
 
   if (logo && logo.size > 0) {
-    const fileName = sanitize(logo.name);
+    const ext = path.extname(logo.name).toLowerCase();
+    const fileName = `${folderName}-logo${ext}`;
     const logoPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
     fs.writeFileSync(logoPath, buffer);
@@ -168,7 +172,8 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
 
   if (firma && firma.size > 0) {
-    const fileName = sanitize(firma.name);
+    const ext = path.extname(firma.name).toLowerCase();
+    const fileName = `${folderName}-firma${ext}`;
     const firmaPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
     fs.writeFileSync(firmaPath, buffer);
@@ -176,7 +181,8 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
 
   if (firmaAC && firmaAC.size > 0) {
-    const fileName = sanitize(firmaAC.name);
+    const ext = path.extname(firmaAC.name).toLowerCase();
+    const fileName = `${folderName}-firmaac${ext}`;
     const firmaPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firmaAC.arrayBuffer());
     fs.writeFileSync(firmaPath, buffer);
