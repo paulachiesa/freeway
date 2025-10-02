@@ -119,18 +119,6 @@ export default function Form() {
           </div>
         </div>
 
-        {/* Firma Aut Constatacion */}
-        <div className="mb-4">
-          <label htmlFor="firmaAC" className="mb-2 block text-sm font-medium">
-            Firma Autoridad Constatación
-          </label>
-          <div className="relative mt-2 rounded-md">
-            <div className="relative">
-              <input name="firmaAC" type="file" accept="image/*" />
-            </div>
-          </div>
-        </div>
-
         {/* Logo */}
         <div className="mb-4">
           <label htmlFor="logo" className="mb-2 block text-sm font-medium">

@@ -35,4 +35,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# uploads de imágenes e infracciones
+/uploads/
+
 /generated/prisma

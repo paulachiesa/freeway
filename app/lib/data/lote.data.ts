@@ -185,40 +185,66 @@ export async function actualizarLoteConInfracciones(data: any) {
       },
     });
 
+    const actuales = await tx.infraccion.findMany({ where: { lote_id: id } });
+
+    const enviadosIds = infracciones
+      .filter((i: any) => i.id)
+      .map((i: any) => i.id);
+
+    const idsAEliminar = actuales
+      .map((a) => a.id)
+      .filter((id) => !enviadosIds.includes(id));
+
+    if (idsAEliminar.length > 0) {
+      await tx.infraccion.deleteMany({ where: { id: { in: idsAEliminar } } });
+    }
+
     for (const inf of infracciones) {
-      const vehiculo = await tx.vehiculo.findUnique({
-        where: { dominio: inf.dominio.toUpperCase() },
-      });
+      const vehiculo = inf.dominio
+        ? await tx.vehiculo.findUnique({
+            where: { dominio: inf.dominio.toUpperCase() },
+          })
+        : null;
 
-      const [day, month, year] = inf.fecha.split("/");
-      const parsedFecha = new Date(`${year}-${month}-${day}`);
+      let parsedFecha: Date | null = null;
+      if (inf.fecha) {
+        const [day, month, year] = inf.fecha.split("/");
+        parsedFecha = new Date(`${year}-${month}-${day}`);
+      }
 
-      await tx.infraccion.upsert({
-        where: { id: inf?.id ?? 0 },
-        update: {
-          fecha: parsedFecha,
-          hora: inf.hora,
-          nombre_archivo: inf.nombre_archivo,
-          velocidad_maxima: inf.velocidad_maxima,
-          velocidad_medida: inf.velocidad_medida,
-          imagen_url: inf.imagen_url,
-          radar_id,
-          dominio: inf.dominio.toUpperCase(),
-          vehiculo_id: vehiculo?.id ?? null,
-        },
-        create: {
-          fecha: parsedFecha,
-          hora: inf.hora,
-          lote_id: id,
-          nombre_archivo: inf.nombre_archivo,
-          velocidad_maxima: inf.velocidad_maxima,
-          velocidad_medida: inf.velocidad_medida,
-          imagen_url: inf.imagen_url,
-          radar_id,
-          dominio: inf.dominio.toUpperCase(),
-          vehiculo_id: vehiculo?.id ?? null,
-        },
-      });
+      if (inf.id) {
+        // actualizar existente
+        await tx.infraccion.update({
+          where: { id: inf.id },
+          data: {
+            fecha: parsedFecha,
+            hora: inf.hora,
+            nombre_archivo: inf.nombre_archivo,
+            velocidad_maxima: inf.velocidad_maxima,
+            velocidad_medida: inf.velocidad_medida,
+            imagen_url: inf.imagen_url,
+            radar_id,
+            dominio: inf.dominio.toUpperCase(),
+            vehiculo_id: vehiculo?.id ?? null,
+          },
+        });
+      } else {
+        // crear nueva
+        await tx.infraccion.create({
+          data: {
+            fecha: parsedFecha,
+            hora: inf.hora,
+            lote_id: id,
+            nombre_archivo: inf.nombre_archivo,
+            velocidad_maxima: inf.velocidad_maxima,
+            velocidad_medida: inf.velocidad_medida,
+            imagen_url: inf.imagen_url,
+            radar_id,
+            dominio: inf.dominio.toUpperCase(),
+            vehiculo_id: vehiculo?.id ?? null,
+          },
+        });
+      }
     }
 
     return lote;

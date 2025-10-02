@@ -40,9 +40,9 @@ export default function InfraccionesTable({
     setInfracciones(datos);
   }, [datos]);
 
-  useEffect(() => {
-    if (onChange) onChange(infracciones);
-  }, [infracciones]);
+  // useEffect(() => {
+  //   if (onChange) onChange(infracciones);
+  // }, [infracciones]);
 
   const handleChange = (
     index: number,
@@ -78,6 +78,7 @@ export default function InfraccionesTable({
       }
 
       setInfracciones(updated);
+      onChange?.(updated);
     } catch (error) {
       console.error("Error al consultar dominio:", error);
     } finally {
@@ -95,14 +96,7 @@ export default function InfraccionesTable({
     const valor = infracciones[index].dominio.trim().toLowerCase();
 
     if (valor === "x") {
-      const nombreArchivo = infracciones[index].nombre_archivo;
-      const updated = [...infracciones];
-      updated.splice(index, 1);
-      setInfracciones(updated);
-
-      if (selectedRow === nombreArchivo) {
-        onSelectImage?.("", "");
-      }
+      eliminarFila(index);
     } else {
       buscarVehiculo(index, valor);
       const nextInput = inputRefs.current[index + 1];
@@ -110,6 +104,31 @@ export default function InfraccionesTable({
         nextInput.focus();
       }
     }
+  };
+
+  const eliminarFila = (index: number) => {
+    const updated = [...infracciones];
+    updated.splice(index, 1);
+    setInfracciones(updated);
+    onChange?.(updated);
+
+    setTimeout(() => {
+      if (updated[index]) {
+        inputRefs.current[index]?.focus();
+        onSelectImage?.(
+          updated[index].imagen_url,
+          updated[index].nombre_archivo
+        );
+      } else if (updated[index - 1]) {
+        inputRefs.current[index - 1]?.focus();
+        onSelectImage?.(
+          updated[index - 1].imagen_url,
+          updated[index - 1].nombre_archivo
+        );
+      } else {
+        onSelectImage?.("", "");
+      }
+    }, 0);
   };
 
   const exportarDominiosNoEncontrados = (
@@ -144,7 +163,7 @@ export default function InfraccionesTable({
     <>
       <div className="flow-root">
         <div className="inline-block w-full align-middle">
-          <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
+          <div className="rounded-lg bg-gray-50 md:pt-0">
             {/* Vista Mobile */}
             <div className="md:hidden">
               {datos.map((inf, index) => (
@@ -175,19 +194,38 @@ export default function InfraccionesTable({
             </div>
 
             {/* Vista Desktop */}
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto max-h-[500px]">
               <table className="hidden min-w-full text-gray-900 md:table">
                 <thead className="rounded-lg text-left text-sm font-normal">
                   <tr>
-                    <th className="px-4 py-5 font-medium">Archivo</th>
-                    <th className="px-3 py-5 font-medium">Fecha</th>
-                    <th className="px-3 py-5 font-medium">Hora</th>
-                    <th className="px-3 py-5 font-medium">Vel. máx</th>
-                    <th className="px-3 py-5 font-medium">Vel. medida</th>
-                    <th className="px-3 py-5 font-medium">Dominio</th>
-                    <th className="px-3 py-5 font-medium">Marca</th>
-                    <th className="px-3 py-5 font-medium">Modelo</th>
-                    <th className="px-3 py-5 font-medium"></th>
+                    <th className="px-2 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      #
+                    </th>
+                    <th className="px-4 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Archivo
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Fecha
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Hora
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Vel. máx
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Vel. medida
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Dominio
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Marca
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10">
+                      Modelo
+                    </th>
+                    <th className="px-3 py-2 font-medium sticky top-0 bg-gray-100 z-10"></th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
@@ -209,7 +247,11 @@ export default function InfraccionesTable({
                         selectedRow === inf.nombre_archivo ? "bg-sky-100" : ""
                       }`}
                     >
-                      <td className="max-w-[30px] overflow-x-scroll whitespace-nowrap py-3">
+                      <td className="px-2 py-3">{index + 1}</td>
+                      <td
+                        className="max-w-[100px] px-3 py-3 whitespace-nowrap overflow-hidden text-ellipsis truncate"
+                        title={inf.nombre_archivo}
+                      >
                         {inf.nombre_archivo}
                       </td>
                       <td className="whitespace-nowrap px-3 py-3">
@@ -254,9 +296,7 @@ export default function InfraccionesTable({
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            const updated = [...infracciones];
-                            updated.splice(index, 1);
-                            setInfracciones(updated);
+                            eliminarFila(index);
                           }}
                           className="text-red-600 hover:text-red-800"
                           title="Eliminar"

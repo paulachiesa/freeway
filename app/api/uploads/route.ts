@@ -25,12 +25,16 @@ export async function POST(req: NextRequest) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
 
+  const ext = path.extname(file.name).toLowerCase();
+  const baseName = path.basename(file.name, path.extname(file.name));
+  const safeFileName = `${baseName}${ext}`;
+
+  const filePath = path.join(uploadDir, safeFileName);
   const buffer = Buffer.from(await file.arrayBuffer());
-  const filePath = path.join(uploadDir, file.name);
   fs.writeFileSync(filePath, buffer);
 
   return NextResponse.json({
     filename: file.name,
-    url: `/api/uploads/${municipioFolder}/${nroLote}/${file.name}`,
+    url: `/api/uploads/${municipioFolder}/${nroLote}/${safeFileName}`,
   });
 }

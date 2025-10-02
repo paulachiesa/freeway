@@ -46,13 +46,10 @@ export async function createMunicipio(formData: FormData) {
 
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
-  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000) throw new Error("Logo demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("Firma demasiado grande");
-  if (firmaAC && firmaAC.size > 5_000_000)
-    throw new Error("Firma AC demasiado grande");
 
   const folderName = sanitize(String(formData.get("nombre") ?? "municipio"));
   const uploadDir = path.join(process.cwd(), "uploads", folderName);
@@ -64,10 +61,10 @@ export async function createMunicipio(formData: FormData) {
 
   let logoUrl = "";
   let firmaUrl = "";
-  let firmaACUrl = "";
 
   if (logo && logo.size > 0) {
-    const fileName = sanitize(logo.name);
+    const ext = path.extname(logo.name).toLowerCase();
+    const fileName = `${folderName}-logo${ext}`;
     const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
@@ -76,19 +73,12 @@ export async function createMunicipio(formData: FormData) {
   }
 
   if (firma && firma.size > 0) {
-    const fileName = sanitize(firma.name);
+    const ext = path.extname(firma.name).toLowerCase();
+    const fileName = `${folderName}-firma${ext}`;
     const filePath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
     fs.writeFileSync(filePath, buffer);
     firmaUrl = `/uploads/${folderName}/${fileName}`;
-  }
-
-  if (firmaAC && firmaAC.size > 0) {
-    const fileName = sanitize(firmaAC.name);
-    const filePath = path.join(uploadDir, fileName);
-    const buffer = Buffer.from(await firmaAC.arrayBuffer());
-    fs.writeFileSync(filePath, buffer);
-    firmaACUrl = `/uploads/${folderName}/${fileName}`;
   }
 
   try {
@@ -100,7 +90,6 @@ export async function createMunicipio(formData: FormData) {
         direccion: direccion,
         autoridad_constatacion: autoridad_constatacion,
         email: email,
-        firmaACUrl,
         logoUrl,
         firmaUrl,
       },
@@ -139,14 +128,11 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
-  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000)
     throw new Error("El logo es demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("La firma es demasiado grande");
-  if (firmaAC && firmaAC.size > 5_000_000)
-    throw new Error("La firma de la autoridad es demasiado grande");
 
   const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
   const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
@@ -157,10 +143,10 @@ export async function updateMunicipio(id: number, formData: FormData) {
 
   let logoUrl = municipioActual.logoUrl || "";
   let firmaUrl = municipioActual.firmaUrl || "";
-  let firmaACUrl = municipioActual.firmaACUrl || "";
 
   if (logo && logo.size > 0) {
-    const fileName = sanitize(logo.name);
+    const ext = path.extname(logo.name).toLowerCase();
+    const fileName = `${folderName}-logo${ext}`;
     const logoPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await logo.arrayBuffer());
     fs.writeFileSync(logoPath, buffer);
@@ -168,19 +154,12 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
 
   if (firma && firma.size > 0) {
-    const fileName = sanitize(firma.name);
+    const ext = path.extname(firma.name).toLowerCase();
+    const fileName = `${folderName}-firma${ext}`;
     const firmaPath = path.join(uploadDir, fileName);
     const buffer = Buffer.from(await firma.arrayBuffer());
     fs.writeFileSync(firmaPath, buffer);
     firmaUrl = `/uploads/${folderName}/${firma.name}`;
-  }
-
-  if (firmaAC && firmaAC.size > 0) {
-    const fileName = sanitize(firmaAC.name);
-    const firmaPath = path.join(uploadDir, fileName);
-    const buffer = Buffer.from(await firmaAC.arrayBuffer());
-    fs.writeFileSync(firmaPath, buffer);
-    firmaACUrl = `/uploads/${folderName}/${firmaAC.name}`;
   }
 
   try {
@@ -193,7 +172,6 @@ export async function updateMunicipio(id: number, formData: FormData) {
         direccion: direccion,
         autoridad_constatacion: autoridad_constatacion,
         email: email,
-        firmaACUrl,
         logoUrl,
         firmaUrl,
       },
