@@ -119,6 +119,7 @@ export default function Page() {
   };
 
   const handleDialogConfirm = async () => {
+    debugger;
     if (!selectedLoteId) return;
     setDialogOpen(false);
     setLoading(true);

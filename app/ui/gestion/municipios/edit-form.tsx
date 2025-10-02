@@ -115,24 +115,6 @@ export default function EditMunicipioForm({
           </div>
         </div>
 
-        {/* Firma Aut Constatacion */}
-        <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium">
-            Firma Autoridad Constatación
-          </label>
-          {municipio.firmaACUrl && (
-            <div className="mb-2">
-              <Image
-                src={toImageApiUrl(municipio.firmaACUrl)}
-                alt={`Firma Autoridad Constatación de ${municipio.nombre}`}
-                width={120}
-                height={120}
-                className="h-16 w-auto"
-              />
-            </div>
-          )}
-          <input name="firmaAC" type="file" accept="image/*" />
-        </div>
         {/* Logo */}
         <div className="mb-4">
           <label className="mb-2 block text-sm font-medium">Logo</label>

@@ -23,7 +23,7 @@ function mapRow(p: {
   vehiculo: Array<{
     dominio: string | null;
     infraccion: Array<{
-      acta: Array<{ id: number }>;
+      acta: { id: number } | null; // 👈 acta es objeto, no array
     }>;
   }>;
 }): PersonaListadoItem {
@@ -33,7 +33,7 @@ function mapRow(p: {
 
   const firstVeh = p.vehiculo?.[0];
   const dominio = firstVeh?.dominio ?? null;
-  const nroActa = firstVeh?.infraccion?.[0]?.acta?.[0]?.id ?? null;
+  const nroActa = firstVeh?.infraccion?.[0]?.acta?.id ?? null;
 
   return {
     personaId: p.id,
@@ -80,22 +80,22 @@ export async function fetchFilteredPersonas(
       cuil_cuit: true,
       dni: true,
       vehiculo: {
+        orderBy: { id: "desc" },
+        take: 1,
         select: {
           dominio: true,
           infraccion: {
-            select: {
-              acta: {
-                select: { id: true },
-                orderBy: { id: "desc" },
-                take: 1,
-              },
-            },
             orderBy: { id: "desc" },
             take: 1,
+            select: {
+              acta: {
+                // orderBy: { id: "desc" },
+                // take: 1,
+                select: { id: true },
+              },
+            },
           },
         },
-        orderBy: { id: "desc" },
-        take: 1,
       },
     },
   });

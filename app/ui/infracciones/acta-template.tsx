@@ -33,7 +33,7 @@ export default function ActaTemplate({
         <div>
           <img
             className="w-[100px] h-auto object-contain"
-            src="/api/uploads/urundel/urundel1.jpeg"
+            src={municipio?.logoUrl}
           />
         </div>
         <div className="font-bold leading-tight uppercase ml-4 text-[10px]">
@@ -71,7 +71,6 @@ export default function ActaTemplate({
               style={{
                 borderLeftWidth: "1px",
                 borderStyle: "solid",
-                // '--twBorderOpacity': '1' as React.CSSProperties,
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 height: "18px",
               }}
@@ -153,7 +152,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -166,7 +164,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -179,7 +176,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -192,7 +188,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -205,7 +200,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -218,7 +212,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -231,7 +224,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -245,7 +237,6 @@ export default function ActaTemplate({
                 borderLeftWidth: "1px",
                 borderTopWidth: "1px",
                 borderBottomWidth: "1px",
-                // "--tw-border-opacity": "1",
                 borderColor: "rgb(0 0 0 / var(--tw-border-opacity))",
                 fontWeight: "800",
                 height: "18px",
@@ -261,7 +252,7 @@ export default function ActaTemplate({
           <div className="border-black p-1 text-[7px] leading-tight h-6">
             <div className="font-medium">Lugar de la Infracción</div>
             <div className="font-extrabold uppercase">
-              RUTA PROVINCIAL 5 KM 140
+              {infraccion?.lote?.lugar_infraccion}
             </div>
           </div>
 
@@ -399,7 +390,7 @@ export default function ActaTemplate({
             style={{ height: "250px" }}
           >
             <img
-              src="/api/uploads/urundel/1/F20250220080843.jpg"
+              src={infraccion?.imagen_url}
               className="block w-full h-auto align-bottom"
               style={{ display: "block", margin: 0, padding: 0 }}
             />
@@ -424,8 +415,7 @@ export default function ActaTemplate({
                 Nombre y Apellido del Funcionario interviniente en el operativo
               </div>
               <div className="font-extrabold uppercase">
-                MIRTHA ELIZABETH QUILPILDOR
-                {/* {{municipio?.autoridades[0]?.nombre_completo}} */}
+                {municipio?.autoridad_constatacion}
               </div>
             </div>
             <div className="p-1">
@@ -441,10 +431,10 @@ export default function ActaTemplate({
               <div className="font-extrabold uppercase grid grid-cols-[1fr_2fr]">
                 <img
                   className="w-[100px] h-auto object-contain px-3"
-                  src="/api/uploads/urundel/urundel2.jpeg"
+                  src={municipio?.firmaUrl}
                 />
                 <div className="flex items-center justify-center">
-                  MIRTHA ELIZABETH QUILPILDOR
+                  {municipio?.autoridad_constatacion}
                 </div>
               </div>
             </div>
@@ -622,7 +612,7 @@ export default function ActaTemplate({
           <div className="flex items-center justify-end mt-10 mr-3">
             <img
               className="w-[80px] h-auto object-contain"
-              src="/api/uploads/urundel/urundel2.jpeg"
+              src={municipio?.firmaUrl}
             />
           </div>
         </div>
@@ -637,7 +627,7 @@ export default function ActaTemplate({
             <div className="p-1">
               <img
                 className="w-[100px] h-auto object-contain"
-                src="/api/uploads/urundel/urundel1.jpeg"
+                src={municipio?.logoUrl}
               />
             </div>
           </div>

@@ -25,7 +25,6 @@ model adicionalespersona {
   persona    persona? @relation(fields: [persona_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-
 model bcrapersona {
   id                         Int                          @id @default(autoincrement())
   persona_id                 Int?                         @unique
@@ -133,34 +132,33 @@ model intimacion {
 }
 
 model lote {
-  id           Int          @id @default(autoincrement())
-  municipio_id Int
-  descripcion  String?
-  numero       Int?
-  fecha_desde  DateTime?    @db.Date
-  fecha_hasta  DateTime?    @db.Date
-  estado       String?      @db.VarChar(100)
-  radar_id     Int?
-  directorio   String?
+  id               Int          @id @default(autoincrement())
+  municipio_id     Int
+  descripcion      String?
+  numero           Int?
+  fecha_desde      DateTime?    @db.Date
+  fecha_hasta      DateTime?    @db.Date
+  estado           String?      @db.VarChar(100)
+  radar_id         Int?
+  directorio       String?
   lugar_infraccion String?
-  infraccion   infraccion[]
-  municipio    municipio    @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  radar        radar?       @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  infraccion       infraccion[]
+  municipio        municipio    @relation(fields: [municipio_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  radar            radar?       @relation(fields: [radar_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model municipio {
-  id             Int                     @id @default(autoincrement())
-  nombre         String                  @db.VarChar(100)
-  provincia      String?                 @db.VarChar(100)
-  ciudad         String?                 @db.VarChar(100)
-  direccion      String?
-  firmaUrl       String?                 @db.VarChar(255)
-  logoUrl        String?                 @db.VarChar(255)
-  email          String?                 @db.VarChar(100)
-  autoridad_constatacion String?    @db.VarChar(150)
-  firmaACUrl        String?   @db.VarChar(255)
-  lote           lote[]
-  radarmunicipio radarmunicipio[]
+  id                     Int              @id @default(autoincrement())
+  nombre                 String           @db.VarChar(100)
+  provincia              String?          @db.VarChar(100)
+  ciudad                 String?          @db.VarChar(100)
+  direccion              String?
+  firmaUrl               String?          @db.VarChar(255)
+  logoUrl                String?          @db.VarChar(255)
+  email                  String?          @db.VarChar(100)
+  autoridad_constatacion String?          @db.VarChar(150)
+  lote                   lote[]
+  radarmunicipio         radarmunicipio[]
 }
 
 model pago {

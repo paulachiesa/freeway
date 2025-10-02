@@ -69,10 +69,7 @@ export async function POST(
       await page.emulateMediaType("print");
 
       const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
-      zip.file(
-        `ACTA_${acta.numero_acta} ?? ""}.pdf`,
-        new Uint8Array(pdfBuffer)
-      );
+      zip.file(`ACTA_${acta.numero_acta}.pdf`, new Uint8Array(pdfBuffer));
 
       await page.close();
     }

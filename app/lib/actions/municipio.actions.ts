@@ -46,13 +46,10 @@ export async function createMunicipio(formData: FormData) {
 
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
-  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000) throw new Error("Logo demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("Firma demasiado grande");
-  if (firmaAC && firmaAC.size > 5_000_000)
-    throw new Error("Firma AC demasiado grande");
 
   const folderName = sanitize(String(formData.get("nombre") ?? "municipio"));
   const uploadDir = path.join(process.cwd(), "uploads", folderName);
@@ -64,7 +61,6 @@ export async function createMunicipio(formData: FormData) {
 
   let logoUrl = "";
   let firmaUrl = "";
-  let firmaACUrl = "";
 
   if (logo && logo.size > 0) {
     const ext = path.extname(logo.name).toLowerCase();
@@ -85,15 +81,6 @@ export async function createMunicipio(formData: FormData) {
     firmaUrl = `/uploads/${folderName}/${fileName}`;
   }
 
-  if (firmaAC && firmaAC.size > 0) {
-    const ext = path.extname(firmaAC.name).toLowerCase();
-    const fileName = `${folderName}-firmaac${ext}`;
-    const filePath = path.join(uploadDir, fileName);
-    const buffer = Buffer.from(await firmaAC.arrayBuffer());
-    fs.writeFileSync(filePath, buffer);
-    firmaACUrl = `/uploads/${folderName}/${fileName}`;
-  }
-
   try {
     await prisma.municipio.create({
       data: {
@@ -103,7 +90,6 @@ export async function createMunicipio(formData: FormData) {
         direccion: direccion,
         autoridad_constatacion: autoridad_constatacion,
         email: email,
-        firmaACUrl,
         logoUrl,
         firmaUrl,
       },
@@ -142,14 +128,11 @@ export async function updateMunicipio(id: number, formData: FormData) {
   }
   const logo = formData.get("logo") as File | null;
   const firma = formData.get("firma") as File | null;
-  const firmaAC = formData.get("firmaAC") as File | null;
 
   if (logo && logo.size > 5_000_000)
     throw new Error("El logo es demasiado grande");
   if (firma && firma.size > 5_000_000)
     throw new Error("La firma es demasiado grande");
-  if (firmaAC && firmaAC.size > 5_000_000)
-    throw new Error("La firma de la autoridad es demasiado grande");
 
   const folderName = nombre.replace(/[^a-z0-9]/gi, "_").toLowerCase();
   const uploadDir = path.join(process.cwd(), "public/uploads", folderName);
@@ -160,7 +143,6 @@ export async function updateMunicipio(id: number, formData: FormData) {
 
   let logoUrl = municipioActual.logoUrl || "";
   let firmaUrl = municipioActual.firmaUrl || "";
-  let firmaACUrl = municipioActual.firmaACUrl || "";
 
   if (logo && logo.size > 0) {
     const ext = path.extname(logo.name).toLowerCase();
@@ -180,15 +162,6 @@ export async function updateMunicipio(id: number, formData: FormData) {
     firmaUrl = `/uploads/${folderName}/${firma.name}`;
   }
 
-  if (firmaAC && firmaAC.size > 0) {
-    const ext = path.extname(firmaAC.name).toLowerCase();
-    const fileName = `${folderName}-firmaac${ext}`;
-    const firmaPath = path.join(uploadDir, fileName);
-    const buffer = Buffer.from(await firmaAC.arrayBuffer());
-    fs.writeFileSync(firmaPath, buffer);
-    firmaACUrl = `/uploads/${folderName}/${firmaAC.name}`;
-  }
-
   try {
     await prisma.municipio.update({
       where: { id },
@@ -199,7 +172,6 @@ export async function updateMunicipio(id: number, formData: FormData) {
         direccion: direccion,
         autoridad_constatacion: autoridad_constatacion,
         email: email,
-        firmaACUrl,
         logoUrl,
         firmaUrl,
       },
