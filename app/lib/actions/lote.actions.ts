@@ -110,8 +110,16 @@ export async function guardarLoteCompleto(formData: any) {
       const lote = await crearLoteConInfracciones(formData);
       return { success: true, lote };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error en guardarLoteCompleto:", error);
-    return { success: false, message: "No se pudo guardar el lote." };
+    // Mostrar más info
+    if (error.code) console.error("Prisma error code:", error.code);
+    if (error.meta) console.error("Prisma error meta:", error.meta);
+
+    return {
+      success: false,
+      message: error.message,
+      // || "No se pudo guardar el lote.",
+    };
   }
 }
