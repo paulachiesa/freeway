@@ -3,6 +3,7 @@ import puppeteer from "puppeteer";
 import JSZip from "jszip";
 import { prisma } from "@/app/lib/prisma";
 import { Readable } from "stream";
+import { generarDatosPago } from "../../../../lib/epagos";
 
 const INICIALES: Record<string, number> = {
   Calilegua: 52000,
@@ -16,6 +17,8 @@ export async function POST(
 ) {
   const { id } = await params;
   const loteId = Number(id);
+
+  const { fecha_vencimiento_1, fecha_vencimiento_2 } = await request.json();
 
   const lote = await prisma.lote.findUnique({
     where: { id: loteId },
@@ -50,13 +53,45 @@ export async function POST(
 
   try {
     for (const inf of lote.infraccion) {
+      //ePagos
+      const persona = inf.vehiculo?.persona;
+
+      const personaData = {
+        email: persona?.email ?? "",
+        dni: persona?.dni ?? "",
+        cuit: String(persona?.cuil_cuit ?? ""),
+      };
+
+      const { monto1, monto2, pago, gastoAdm, cuadro } = await generarDatosPago(
+        {
+          municipio: municipioNombre,
+          velocidadMedida: Number(inf.velocidad_medida ?? 0),
+          persona: personaData,
+          fecha_vencimiento_1,
+          fecha_vencimiento_2,
+        }
+      );
+
       const acta = await prisma.acta.upsert({
         where: { infraccion_id: inf.id },
-        update: {}, // si ya existe, lo deja igual
+        update: {
+          numero_acta: siguiente,
+          fecha_emision: new Date(),
+          fecha_vencimiento_1: new Date(fecha_vencimiento_1),
+          fecha_vencimiento_2: new Date(fecha_vencimiento_2),
+          qr_imagen_url: pago.qr ?? null,
+          codigo_barras_url: pago.codigoBarras ?? null,
+          cuadro_tarifario_id: cuadro?.id ?? null,
+        },
         create: {
           numero_acta: siguiente,
           infraccion_id: inf.id,
           fecha_emision: new Date(),
+          fecha_vencimiento_1: new Date(fecha_vencimiento_1),
+          fecha_vencimiento_2: new Date(fecha_vencimiento_2),
+          qr_imagen_url: pago.qr ?? null,
+          codigo_barras_url: pago.codigoBarras ?? null,
+          cuadro_tarifario_id: cuadro?.id ?? null,
         },
       });
       siguiente++;

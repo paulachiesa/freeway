@@ -8,6 +8,7 @@ type ActaTemplateProps = {
   municipio: any;
   radar: any;
   numero_acta: number;
+  acta: any;
   vehiculo: any;
 };
 
@@ -16,6 +17,7 @@ export default function ActaTemplate({
   municipio,
   radar,
   numero_acta,
+  acta,
   vehiculo,
 }: ActaTemplateProps) {
   return (
@@ -459,13 +461,7 @@ export default function ActaTemplate({
           ></div>
           <div className="grid grid-cols-2 justify-between px-2">
             <div className="text-[8px]">Señor/a</div>
-            <div className="text-[8px] text-end">
-              {new Date().toLocaleDateString("es-AR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
-            </div>
+            <div className="text-[8px] text-end">{acta.fecha_emision}</div>
           </div>
           <div className="grid px-2">
             <div className="text-[10px] font-extrabold uppercase">
@@ -586,7 +582,7 @@ export default function ActaTemplate({
             </div>
           </div>
           <div className="w-full border-y border-black px-1 text-start text-[8px] font-extrabold bg-gray-300">
-            Fecha de Vto: 05/03/2025
+            Fecha de Vto: {acta.fecha_vencimiento_1}
           </div>
           <div className="text-[6px] leading-normal m-1 w-[85%]">
             <b>PAGO VOLUNTARIO DE LA MULTA: </b> Notificada la falta, el
@@ -648,7 +644,8 @@ export default function ActaTemplate({
             <div className="flex flex-col items-center my-2">
               <img
                 className="w-auto h-auto object-contain"
-                src="/qr-prueba.png"
+                src={acta.qr_imagen_url}
+                alt="QR"
               />
               <br />
               <span>Pagos procesados por epagos</span>
@@ -669,7 +666,7 @@ export default function ActaTemplate({
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Fecha de Emisión:</span>
-                  <span className="font-bold">03/02/2025</span>
+                  <span className="font-bold">{acta.fecha_emision}</span>
                 </div>
               </div>
 
@@ -684,13 +681,13 @@ export default function ActaTemplate({
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Fecha de Vencimiento:</span>
-                  <span className="font-bold">05/03/2025</span>
+                  <span className="font-bold">{acta.fecha_vencimiento_1}</span>
                 </div>
               </div>
 
               <div>
                 <img
-                  src="/codigo-barras.png"
+                  src={acta.codigo_barras_url}
                   alt="Código de barras"
                   className="w-full h-auto object-contain"
                 />

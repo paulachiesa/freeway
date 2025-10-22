@@ -5,6 +5,7 @@ import { formatDateToLocal } from "@/app/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Spinner from "../components/Spinner/spinner";
+import CreateActa from "./create-actas";
 
 interface Lote {
   id: number;
@@ -27,6 +28,9 @@ export default function LoteTable({
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
   const [generandoId, setGenerandoId] = useState<number | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedLoteId, setSelectedLoteId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchLotes = async () => {
@@ -54,12 +58,21 @@ export default function LoteTable({
     }
   }, [query, currentPage, municipioId]);
 
-  const handleGenerarPDFs = async (loteId: number) => {
+  const handleGenerarPDFs = async (
+    loteId: number,
+    fecha1: string,
+    fecha2: string
+  ) => {
     try {
       setGenerandoId(loteId);
 
       const response = await fetch(`/api/lotes/${loteId}/generar-pdf`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha_vencimiento_1: fecha1,
+          fecha_vencimiento_2: fecha2,
+        }),
       });
 
       if (!response.ok) {
@@ -67,6 +80,7 @@ export default function LoteTable({
         throw new Error(error || "Error generando PDFs");
       }
 
+      // creación del zip
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
@@ -170,7 +184,10 @@ export default function LoteTable({
                         <button
                           disabled={generandoId === lote.id}
                           className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white h-12"
-                          onClick={() => handleGenerarPDFs(lote.id)}
+                          onClick={() => {
+                            setSelectedLoteId(lote.id);
+                            setIsModalOpen(true);
+                          }}
                         >
                           {generandoId === lote.id ? (
                             <Spinner color="white" size={30} className="h-15" />
@@ -195,6 +212,17 @@ export default function LoteTable({
               )}
             </tbody>
           </table>
+
+          <CreateActa
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            loteId={selectedLoteId}
+            onConfirm={(fecha1, fecha2) => {
+              if (!selectedLoteId) return;
+              handleGenerarPDFs(selectedLoteId, fecha1, fecha2);
+              setIsModalOpen(false);
+            }}
+          />
         </div>
       </div>
     </div>

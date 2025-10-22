@@ -13,6 +13,10 @@ model acta {
   cuadro_tarifario_id Int?
   fecha_emision       DateTime?        @db.Date
   numero_acta         Int
+  fecha_vencimiento_1 DateTime?        @db.Date
+  fecha_vencimiento_2 DateTime?        @db.Date
+  qr_imagen_url       String?          @db.VarChar(255)
+  codigo_barras_url   String?          @db.VarChar(255)
   cuadrotarifario     cuadrotarifario? @relation(fields: [cuadro_tarifario_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   infraccion          infraccion       @relation(fields: [infraccion_id], references: [id])
   pago                pago[]
