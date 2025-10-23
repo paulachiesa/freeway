@@ -6,6 +6,7 @@ import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Spinner from "../components/Spinner/spinner";
 import CreateActa from "./create-actas";
+import Toast from "../components/Toast/toast";
 
 interface Lote {
   id: number;
@@ -31,6 +32,12 @@ export default function LoteTable({
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedLoteId, setSelectedLoteId] = useState<number | null>(null);
+
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+    duration?: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchLotes = async () => {
@@ -66,6 +73,12 @@ export default function LoteTable({
     try {
       setGenerandoId(loteId);
 
+      setToast({
+        message: "Generando PDFs, por favor espere...",
+        type: "info",
+        duration: 0,
+      });
+
       const response = await fetch(`/api/lotes/${loteId}/generar-pdf`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -91,9 +104,20 @@ export default function LoteTable({
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      setToast({
+        message: "Se generaron los PDF de las actas correctamente",
+        type: "success",
+        duration: 0,
+      });
     } catch (error) {
       console.error("Error al generar PDFs:", error);
-      alert("Hubo un error al generar los PDFs");
+      setToast({
+        message:
+          "Hubo un error al generar los PDFs. Verifique la conexión o consulte el log.",
+        type: "error",
+        duration: 0,
+      });
     } finally {
       setGenerandoId(null);
     }
@@ -223,6 +247,16 @@ export default function LoteTable({
               setIsModalOpen(false);
             }}
           />
+
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              duration={toast.duration}
+              onClose={() => setToast(null)}
+              position="top-right"
+            />
+          )}
         </div>
       </div>
     </div>

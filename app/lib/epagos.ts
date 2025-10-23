@@ -226,6 +226,10 @@ export async function solicitudPago({
       result.fp?.item?.codigo_barras_imagen?._ ??
       result.fp?.item?.codigo_barras_imagen ??
       null,
+    codigoBarrasNumero:
+      result.fp?.item?.codigo_barras_fp?._ ??
+      result.fp?.item?.codigo_barras_fp ??
+      null,
     raw: result,
   };
 }

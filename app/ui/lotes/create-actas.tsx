@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "@/app/ui/components/Modal/modal";
 import Toast from "../components/Toast/toast";
 
@@ -41,6 +41,15 @@ export default function CreateActa({
     onConfirm(fecha1, fecha2);
     onClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      // 🔹 Se limpia al cerrar el modal
+      setFecha1("");
+      setFecha2("");
+      setToastMsg(null);
+    }
+  }, [isOpen]);
 
   if (!loteId) return null;
 

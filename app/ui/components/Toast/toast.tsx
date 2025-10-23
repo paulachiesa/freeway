@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 interface ToastProps {
   message: string;
-  duration?: number;
+  duration?: number; // si no se pasa, no se cierra automáticamente
   position?:
     | "top-right"
     | "top-left"
@@ -18,7 +18,7 @@ interface ToastProps {
 
 export default function Toast({
   message,
-  duration = 3000,
+  duration,
   position = "top-right",
   onClose,
   type = "info",
@@ -26,6 +26,7 @@ export default function Toast({
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    if (!duration) return; // 🔹 si no hay duración, no se autodestruye
     const timer = setTimeout(() => {
       setVisible(false);
       onClose?.();
@@ -53,9 +54,18 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed z-50 rounded px-4 py-2 text-white shadow-lg animate-fadeIn ${colorClasses[type]} ${positionClasses[position]}`}
+      className={`fixed z-50 flex items-center justify-between gap-3 rounded px-4 py-2 text-white shadow-lg animate-fadeIn ${colorClasses[type]} ${positionClasses[position]}`}
     >
-      {message}
+      <span>{message}</span>
+      <button
+        onClick={() => {
+          setVisible(false);
+          onClose?.();
+        }}
+        className="ml-2 text-white font-bold hover:opacity-80"
+      >
+        ✕
+      </button>
     </div>
   );
 }

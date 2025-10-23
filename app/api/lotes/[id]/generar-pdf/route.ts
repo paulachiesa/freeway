@@ -72,35 +72,65 @@ export async function POST(
         }
       );
 
-      const acta = await prisma.acta.upsert({
+      let acta = await prisma.acta.findUnique({
         where: { infraccion_id: inf.id },
-        update: {
-          numero_acta: siguiente,
-          fecha_emision: new Date(),
-          fecha_vencimiento_1: new Date(fecha_vencimiento_1),
-          fecha_vencimiento_2: new Date(fecha_vencimiento_2),
-          qr_imagen_url: pago.qr ?? null,
-          codigo_barras_url: pago.codigoBarras ?? null,
-          cuadro_tarifario_id: cuadro?.id ?? null,
-        },
-        create: {
-          numero_acta: siguiente,
-          infraccion_id: inf.id,
-          fecha_emision: new Date(),
-          fecha_vencimiento_1: new Date(fecha_vencimiento_1),
-          fecha_vencimiento_2: new Date(fecha_vencimiento_2),
-          qr_imagen_url: pago.qr ?? null,
-          codigo_barras_url: pago.codigoBarras ?? null,
-          cuadro_tarifario_id: cuadro?.id ?? null,
-        },
       });
-      siguiente++;
+
+      if (acta) {
+        acta = await prisma.acta.update({
+          where: { infraccion_id: inf.id },
+          data: {
+            fecha_emision: new Date(),
+            fecha_vencimiento_1: new Date(fecha_vencimiento_1),
+            fecha_vencimiento_2: new Date(fecha_vencimiento_2),
+            cuadro_tarifario_id: cuadro?.id ?? null,
+          },
+        });
+      } else {
+        acta = await prisma.acta.create({
+          data: {
+            numero_acta: siguiente,
+            infraccion_id: inf.id,
+            fecha_emision: new Date(),
+            fecha_vencimiento_1: new Date(fecha_vencimiento_1),
+            fecha_vencimiento_2: new Date(fecha_vencimiento_2),
+            cuadro_tarifario_id: cuadro?.id ?? null,
+          },
+        });
+
+        siguiente++;
+      }
 
       const page = await browser.newPage();
 
       // Abrir la página imprimible que ya renderiza ActaTemplate con datos
       const url = `${baseUrl}/print/acta/${inf.id}`;
       await page.goto(url, { waitUntil: "networkidle0", timeout: 120_000 });
+
+      //nuevo
+      await page.evaluate(
+        (qr, barras, codigoNumero) => {
+          const qrImg = document.querySelector(
+            "img[data-type='qr']"
+          ) as HTMLImageElement | null;
+          if (qrImg) qrImg.src = `data:image/png;base64,${qr}`;
+
+          const barrasImg = document.querySelector(
+            "img[data-type='barcode']"
+          ) as HTMLImageElement | null;
+          if (barrasImg) barrasImg.src = `data:image/png;base64,${barras}`;
+
+          // 🔹 Inyectar el número debajo del código de barras
+          const barrasTexto = document.querySelector(
+            "[data-type='barcode-number']"
+          );
+          if (barrasTexto) barrasTexto.textContent = codigoNumero || "";
+        },
+        pago.qr,
+        pago.codigoBarras,
+        pago.codigoBarrasNumero
+      );
+      //
       await page.emulateMediaType("print");
 
       const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
