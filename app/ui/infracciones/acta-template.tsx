@@ -1,6 +1,10 @@
 // app/ui/infracciones/ActaTemplate.tsx
 
-import { formatDateTimeToLocal, formatDateToLocal } from "@/app/lib/utils";
+import {
+  formatCurrency,
+  formatDateTimeToLocal,
+  formatDateToLocal,
+} from "@/app/lib/utils";
 import React from "react";
 
 type ActaTemplateProps = {
@@ -8,6 +12,7 @@ type ActaTemplateProps = {
   municipio: any;
   radar: any;
   numero_acta: number;
+  acta: any;
   vehiculo: any;
 };
 
@@ -16,6 +21,7 @@ export default function ActaTemplate({
   municipio,
   radar,
   numero_acta,
+  acta,
   vehiculo,
 }: ActaTemplateProps) {
   return (
@@ -460,11 +466,7 @@ export default function ActaTemplate({
           <div className="grid grid-cols-2 justify-between px-2">
             <div className="text-[8px]">Señor/a</div>
             <div className="text-[8px] text-end">
-              {new Date().toLocaleDateString("es-AR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-              })}
+              {formatDateToLocal(acta.fecha_emision)}
             </div>
           </div>
           <div className="grid px-2">
@@ -559,34 +561,49 @@ export default function ActaTemplate({
           <div className="px-3 py-1 leading-normal">
             <div className="grid grid-cols-[70%_30%]">
               <div className="text-[8px]">MONTO ORIGINAL DE LA MULTA</div>
-              <div className="text-[8px] text-end">$200.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(acta?.cuadrotarifario?.valor_2do_vencimiento)}
+              </div>
             </div>
             <div className="grid grid-cols-[70%_30%]">
               <div className="text-[8px]">DESCUENTO (PAGO VOLUNTARIO 50%)</div>
-              <div className="text-[8px] text-end">$-80.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(
+                  acta?.cuadrotarifario?.valor_2do_vencimiento -
+                    acta?.cuadrotarifario?.valor_1er_vencimiento
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-[70%_30%]">
               <div className="text-[8px]">TOTAL PAGO VOLUNTARIO 50%</div>
-              <div className="text-[8px] text-end">$120.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(acta?.cuadrotarifario?.valor_1er_vencimiento)}
+              </div>
             </div>
             <div className="grid grid-cols-[70%_30%]">
               <div className="text-[8px]">GASTOS ADMINISTRATIVOS</div>
-              <div className="text-[8px] text-end">$20.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(acta?.cuadrotarifario?.gasto_administrativo)}
+              </div>
             </div>
             <div className="flex justify-end my-0.5">
               <hr className="border-black w-20 font-extrabold" />
             </div>
             <div className="grid grid-cols-[70%_30%] font-extrabold">
               <div className="text-[8px]">TOTAL A PAGAR</div>
-              <div className="text-[8px] text-end">$120.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(acta?.cuadrotarifario?.valor_1er_vencimiento)}
+              </div>
             </div>
             <div className="grid grid-cols-[70%_30%] font-extrabold">
               <div className="text-[8px]">PAGO POSTERIOR AL VENCIMIENTO</div>
-              <div className="text-[8px] text-end">$200.000,00</div>
+              <div className="text-[8px] text-end">
+                {formatCurrency(acta?.cuadrotarifario?.valor_2do_vencimiento)}
+              </div>
             </div>
           </div>
           <div className="w-full border-y border-black px-1 text-start text-[8px] font-extrabold bg-gray-300">
-            Fecha de Vto: 05/03/2025
+            Fecha de Vto: {formatDateToLocal(acta.fecha_vencimiento_1)}
           </div>
           <div className="text-[6px] leading-normal m-1 w-[85%]">
             <b>PAGO VOLUNTARIO DE LA MULTA: </b> Notificada la falta, el
@@ -647,8 +664,10 @@ export default function ActaTemplate({
             </div>
             <div className="flex flex-col items-center my-2">
               <img
+                data-type="qr"
                 className="w-auto h-auto object-contain"
-                src="/qr-prueba.png"
+                src="/placeholder.png"
+                alt="QR"
               />
               <br />
               <span>Pagos procesados por epagos</span>
@@ -669,7 +688,9 @@ export default function ActaTemplate({
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Fecha de Emisión:</span>
-                  <span className="font-bold">03/02/2025</span>
+                  <span className="font-bold">
+                    {formatDateToLocal(acta.fecha_emision)}
+                  </span>
                 </div>
               </div>
 
@@ -684,17 +705,20 @@ export default function ActaTemplate({
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Fecha de Vencimiento:</span>
-                  <span className="font-bold">05/03/2025</span>
+                  <span className="font-bold">
+                    {formatDateToLocal(acta.fecha_vencimiento_1)}
+                  </span>
                 </div>
               </div>
 
               <div>
                 <img
-                  src="/codigo-barras.png"
+                  data-type="barcode"
                   alt="Código de barras"
                   className="w-full h-auto object-contain"
+                  src="/placeholder.png"
                 />
-                <div className="text-[8px] mt-1">
+                <div data-type="barcode-number" className="text-[8px] mt-1">
                   9690000000100000229455699202504070000120000005
                 </div>
               </div>

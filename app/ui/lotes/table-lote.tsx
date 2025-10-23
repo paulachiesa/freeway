@@ -5,6 +5,8 @@ import { formatDateToLocal } from "@/app/lib/utils";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Spinner from "../components/Spinner/spinner";
+import CreateActa from "./create-actas";
+import Toast from "../components/Toast/toast";
 
 interface Lote {
   id: number;
@@ -27,6 +29,15 @@ export default function LoteTable({
   const [lotes, setLotes] = useState<Lote[]>([]);
   const [loading, setLoading] = useState(true);
   const [generandoId, setGenerandoId] = useState<number | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedLoteId, setSelectedLoteId] = useState<number | null>(null);
+
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+    duration?: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchLotes = async () => {
@@ -54,12 +65,27 @@ export default function LoteTable({
     }
   }, [query, currentPage, municipioId]);
 
-  const handleGenerarPDFs = async (loteId: number) => {
+  const handleGenerarPDFs = async (
+    loteId: number,
+    fecha1: string,
+    fecha2: string
+  ) => {
     try {
       setGenerandoId(loteId);
 
+      setToast({
+        message: "Generando PDFs, por favor espere...",
+        type: "info",
+        duration: 0,
+      });
+
       const response = await fetch(`/api/lotes/${loteId}/generar-pdf`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fecha_vencimiento_1: fecha1,
+          fecha_vencimiento_2: fecha2,
+        }),
       });
 
       if (!response.ok) {
@@ -67,6 +93,7 @@ export default function LoteTable({
         throw new Error(error || "Error generando PDFs");
       }
 
+      // creación del zip
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
@@ -77,9 +104,20 @@ export default function LoteTable({
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      setToast({
+        message: "Se generaron los PDF de las actas correctamente",
+        type: "success",
+        duration: 0,
+      });
     } catch (error) {
       console.error("Error al generar PDFs:", error);
-      alert("Hubo un error al generar los PDFs");
+      setToast({
+        message:
+          "Hubo un error al generar los PDFs. Verifique la conexión o consulte el log.",
+        type: "error",
+        duration: 0,
+      });
     } finally {
       setGenerandoId(null);
     }
@@ -170,7 +208,10 @@ export default function LoteTable({
                         <button
                           disabled={generandoId === lote.id}
                           className="rounded-md border p-2 bg-blue-600 hover:bg-blue-500 font-medium text-white h-12"
-                          onClick={() => handleGenerarPDFs(lote.id)}
+                          onClick={() => {
+                            setSelectedLoteId(lote.id);
+                            setIsModalOpen(true);
+                          }}
                         >
                           {generandoId === lote.id ? (
                             <Spinner color="white" size={30} className="h-15" />
@@ -195,6 +236,27 @@ export default function LoteTable({
               )}
             </tbody>
           </table>
+
+          <CreateActa
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            loteId={selectedLoteId}
+            onConfirm={(fecha1, fecha2) => {
+              if (!selectedLoteId) return;
+              handleGenerarPDFs(selectedLoteId, fecha1, fecha2);
+              setIsModalOpen(false);
+            }}
+          />
+
+          {toast && (
+            <Toast
+              message={toast.message}
+              type={toast.type}
+              duration={toast.duration}
+              onClose={() => setToast(null)}
+              position="top-right"
+            />
+          )}
         </div>
       </div>
     </div>

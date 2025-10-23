@@ -11,7 +11,11 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     include: {
       radar: true,
       vehiculo: { include: { persona: { include: { domicilio: true } } } },
-      acta: true,
+      acta: {
+        include: {
+          cuadrotarifario: true,
+        },
+      },
       lote: {
         include: {
           municipio: true,
@@ -41,6 +45,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         municipio={lote.municipio}
         radar={inf.radar ?? lote.radar}
         numero_acta={inf.acta?.numero_acta ?? 0}
+        acta={inf.acta}
         vehiculo={inf.vehiculo}
       />
     </div>

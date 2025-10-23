@@ -1,9 +1,11 @@
-export function formatCurrency(value: number) {
+export function formatCurrency(value: any) {
+  const num = Number(value);
+  if (isNaN(num)) return "";
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     minimumFractionDigits: 2,
-  }).format(value);
+  }).format(num);
 }
 
 export function formatDateToLocal(date: string | Date): string {

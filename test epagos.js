@@ -20,11 +20,21 @@ const monto = 100.00;
   try {
     const client = await soap.createClientAsync(WSDL_URL);
 
+    // 👇 Log XML de request y response
+    client.on("request", (xml) => {
+      console.log("📤 XML ENVIADO A EPAGOS:\n", xml);
+    });
+
+    client.on("response", (xml, response, method) => {
+      console.log("📥 XML RECIBIDO DE EPAGOS:\n", xml);
+    });
+
     // 1️⃣ Obtener token
     const [tokenResult] = await client.obtener_tokenAsync({
       version: "2.0",
       credenciales,
     });
+
     const token = tokenResult.token?.$value;
     if (!token) throw new Error("No se obtuvo token válido");
     console.log("🔹 Token obtenido:", token);
