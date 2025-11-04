@@ -16,6 +16,7 @@
     "axios": "^1.12.2",
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
+    "exceljs": "^4.4.0",
     "formidable": "^3.5.4",
     "jszip": "^3.10.1",
     "next": "latest",

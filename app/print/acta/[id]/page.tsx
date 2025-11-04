@@ -29,15 +29,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const lote = inf.lote;
 
-  console.log(
-    "🟡 Datos de la infracción completa:",
-    JSON.stringify(
-      { inf },
-      (key, value) => (typeof value === "bigint" ? value.toString() : value),
-      2
-    )
-  );
-
   return (
     <div className="bg-white">
       <ActaTemplate

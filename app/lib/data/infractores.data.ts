@@ -2,7 +2,7 @@
 import { prisma } from "../prisma";
 import type { Prisma } from "@prisma/client";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 export type PersonaListadoItem = {
   personaId: number;
