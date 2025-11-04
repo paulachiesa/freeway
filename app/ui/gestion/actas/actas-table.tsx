@@ -1,35 +1,30 @@
-import { fetchFilteredPersonas } from "@/app/lib/data/infractores.data";
-import { EllipsisHorizontalCircleIcon } from "@heroicons/react/24/outline";
-import ButtonDetalle from "./button-detalle";
+import { fetchFilteredActasReportes } from "@/app/lib/data/actas.data";
 
-export default async function PersonasTable({
+export default async function ActasTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const personas = await fetchFilteredPersonas(query, currentPage);
+  const actas = await fetchFilteredActasReportes(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
           <div className="md:hidden">
-            {personas?.map((persona) => (
-              <div
-                key={persona.dni}
-                className="mb-2 w-full rounded-md bg-white p-4"
-              >
+            {actas?.map((acta, index) => (
+              <div key={index} className="mb-2 w-full rounded-md bg-white p-4">
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <p>{persona.nroActa}</p>
+                      <p>{acta.nroActa}</p>
                     </div>
-                    <p className="text-sm text-gray-500">{persona.dominio}</p>
-                    <p className="text-sm text-gray-500">{persona.nombre}</p>
-                    <p className="text-sm text-gray-500">{persona.dni}</p>
-                    <p className="text-sm text-gray-500">{persona.cuit}</p>
+                    <p className="text-sm text-gray-500">{acta.dominio}</p>
+                    <p className="text-sm text-gray-500">{acta.nombre}</p>
+                    <p className="text-sm text-gray-500">{acta.dni}</p>
+                    <p className="text-sm text-gray-500">{acta.cuit}</p>
                   </div>
                 </div>
               </div>
@@ -38,7 +33,7 @@ export default async function PersonasTable({
           <table className="hidden min-w-full text-gray-900 md:table">
             <thead className="rounded-lg text-left text-sm font-normal">
               <tr>
-                <th scope="col" className="px-1 py-5 font-medium sm:pl-6">
+                <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
                   Nro. Acta
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
@@ -59,36 +54,31 @@ export default async function PersonasTable({
               </tr>
             </thead>
             <tbody className="bg-white">
-              {personas?.map((persona) => (
+              {actas?.map((acta, index) => (
                 <tr
-                  key={persona.dni}
+                  key={index}
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
-                  <td className="whitespace-nowrap py-3 pl-6 pr-1">
-                    <div className="flex items-center gap-3">
-                      <p>{persona.nroActa ?? "-"}</p>
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {persona.dominio ?? "-"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {persona.nombre ?? "-"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {persona.dni ?? "-"}
-                  </td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {persona.cuit ?? "-"}
-                  </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex justify-end gap-3">
-                      <ButtonDetalle personaId={persona.personaId} />
+                    <div className="flex items-center gap-3">
+                      <p>{acta.nroActa ?? "-"}</p>
                     </div>
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {acta.dominio ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {acta.nombre ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {acta.dni ?? "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3">
+                    {acta.cuit ?? "-"}
                   </td>
                 </tr>
               ))}
-              {personas.length === 0 && (
+              {actas.length === 0 && (
                 <tr>
                   <td
                     className="px-3 py-6 text-center text-gray-500"

@@ -230,6 +230,12 @@ export async function solicitudPago({
       result.fp?.item?.codigo_barras_fp?._ ??
       result.fp?.item?.codigo_barras_fp ??
       null,
+    codigoPmc:
+      result.fp?.item?.codigo_pmc?._ ?? result.fp?.item?.codigo_pmc?._ ?? null,
+    codigoLink:
+      result.fp?.item?.codigo_link?._ ??
+      result.fp?.item?.codigo_link?._ ??
+      null,
     raw: result,
   };
 }

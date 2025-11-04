@@ -680,11 +680,11 @@ export default function ActaTemplate({
               <div className="space-y-1 text-[8px]">
                 <div className="grid grid-cols-2 gap-1">
                   <span>Acta de Infracción:</span>
-                  <span className="font-bold">00036861</span>
+                  <span className="font-bold">{numero_acta}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Dominio:</span>
-                  <span className="font-bold">AA575JV</span>
+                  <span className="font-bold">{vehiculo?.dominio}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Fecha de Emisión:</span>
@@ -692,19 +692,25 @@ export default function ActaTemplate({
                     {formatDateToLocal(acta.fecha_emision)}
                   </span>
                 </div>
+                <div className="grid grid-cols-2 gap-1">
+                  <span>Fecha de Vto. Pago Total:</span>
+                  <span className="font-bold">
+                    {formatDateToLocal(acta.fecha_vencimiento_2)}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-1 text-[8px]">
                 <div className="grid grid-cols-2 gap-1">
                   <span>Código Pago Mis Cuentas:</span>
-                  <span className="font-bold">309844097300000</span>
+                  <span data-type="pmc-number" className="font-bold"></span>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
                   <span>Código Red Link:</span>
-                  <span className="font-bold">30984409730</span>
+                  <span data-type="link-number" className="font-bold"></span>
                 </div>
                 <div className="grid grid-cols-2 gap-1">
-                  <span>Fecha de Vencimiento:</span>
+                  <span>Fecha de Vto. Pago Voluntario:</span>
                   <span className="font-bold">
                     {formatDateToLocal(acta.fecha_vencimiento_1)}
                   </span>
@@ -718,9 +724,10 @@ export default function ActaTemplate({
                   className="w-full h-auto object-contain"
                   src="/placeholder.png"
                 />
-                <div data-type="barcode-number" className="text-[8px] mt-1">
-                  9690000000100000229455699202504070000120000005
-                </div>
+                <div
+                  data-type="barcode-number"
+                  className="text-[8px] mt-1"
+                ></div>
               </div>
             </div>
 
