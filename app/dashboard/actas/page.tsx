@@ -5,8 +5,7 @@ import { MunicipiosTableSkeleton as PersonasTableSkeleton } from "@/app/ui/skele
 import { Suspense } from "react";
 import Table from "@/app/ui/gestion/actas/actas-table";
 import Pagination from "@/app/ui/components/Pagination/pagination";
-import { Button } from "@/app/ui/button";
-import Spinner from "@/app/ui/components/Spinner/spinner";
+import DescargarExcelButton from "@/app/ui/gestion/actas/button-descargar";
 
 export default async function Page(props: {
   searchParams?: Promise<{
@@ -25,17 +24,7 @@ export default async function Page(props: {
         <h1 className={`${lusitana.className} text-2xl mb-3`}>
           Tabla de Actas - Reportes
         </h1>
-        {/* <button
-          // color="primary"
-          onClick={() =>
-            window.open(
-              `/api/reportes/actas?query=${encodeURIComponent(query)}`,
-              "_blank"
-            )
-          }
-        >
-          Descargar Excel
-        </button> */}
+        <DescargarExcelButton query={query} />
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search
