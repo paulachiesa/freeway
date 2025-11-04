@@ -8,7 +8,6 @@ export async function GET(req: Request) {
   const query = searchParams.get("query") || "";
 
   try {
-    // === 1️⃣ Filtro de búsqueda ===
     const where: Prisma.actaWhereInput =
       query?.trim() !== ""
         ? {
@@ -42,7 +41,6 @@ export async function GET(req: Request) {
           }
         : {};
 
-    // === 2️⃣ Consulta completa ===
     const actas = await prisma.acta.findMany({
       where,
       orderBy: { id: "desc" },
@@ -52,6 +50,12 @@ export async function GET(req: Request) {
         fecha_emision: true,
         fecha_vencimiento_1: true,
         fecha_vencimiento_2: true,
+        cuadrotarifario: {
+          select: {
+            valor_1er_vencimiento: true,
+            valor_2do_vencimiento: true,
+          },
+        },
         infraccion: {
           select: {
             dominio: true,
@@ -141,6 +145,15 @@ export async function GET(req: Request) {
 
     sheet.columns = [
       { header: "Nro Acta", key: "nroActa", width: 12 },
+      { header: "Fecha Emisión", key: "fechaEmision", width: 18 },
+      { header: "Fecha Infracción", key: "fechaInfr", width: 18 },
+      { header: "Hora", key: "hora", width: 10 },
+      { header: "Vel. Medida", key: "velMedida", width: 12 },
+      { header: "Vel. Máxima", key: "velMax", width: 12 },
+      { header: "Vencimiento 1", key: "venc1", width: 18 },
+      { header: "Vencimiento 2", key: "venc2", width: 18 },
+      { header: "Importe 1er Venc.", key: "valor1", width: 16 },
+      { header: "Importe 2do Venc.", key: "valor2", width: 16 },
       { header: "Dominio", key: "dominio", width: 12 },
       { header: "Nombre", key: "nombre", width: 25 },
       { header: "DNI", key: "dni", width: 12 },
@@ -150,10 +163,6 @@ export async function GET(req: Request) {
       { header: "Fecha Nac.", key: "fechaNac", width: 14 },
       { header: "Vehículo", key: "vehiculo", width: 25 },
       { header: "Procedencia", key: "procedencia", width: 18 },
-      { header: "Fecha Infracción", key: "fechaInfr", width: 18 },
-      { header: "Hora", key: "hora", width: 10 },
-      { header: "Vel. Medida", key: "velMedida", width: 12 },
-      { header: "Vel. Máxima", key: "velMax", width: 12 },
       { header: "Dirección", key: "direccion", width: 25 },
       { header: "Localidad", key: "localidad", width: 20 },
       { header: "Provincia", key: "provincia", width: 20 },
@@ -170,6 +179,15 @@ export async function GET(req: Request) {
 
       sheet.addRow({
         nroActa: a.numero_acta,
+        fechaEmision: a.fecha_emision?.toLocaleDateString("es-AR") ?? "-",
+        fechaInfr: a.infraccion?.fecha?.toLocaleDateString("es-AR") ?? "-",
+        hora: a.infraccion?.hora ?? "-",
+        velMedida: a.infraccion?.velocidad_medida ?? "-",
+        velMax: a.infraccion?.velocidad_maxima ?? "-",
+        venc1: a.fecha_vencimiento_1?.toLocaleDateString("es-AR") ?? "-",
+        venc2: a.fecha_vencimiento_2?.toLocaleDateString("es-AR") ?? "-",
+        valor1: a.cuadrotarifario?.valor_1er_vencimiento?.toString() ?? "-",
+        valor2: a.cuadrotarifario?.valor_2do_vencimiento?.toString() ?? "-",
         dominio: a.infraccion?.dominio ?? "-",
         nombre:
           persona?.nombre_completo ??
@@ -183,10 +201,6 @@ export async function GET(req: Request) {
           .filter(Boolean)
           .join(" "),
         procedencia: veh?.procedencia ?? "-",
-        fechaInfr: a.infraccion?.fecha?.toLocaleDateString("es-AR") ?? "-",
-        hora: a.infraccion?.hora ?? "-",
-        velMedida: a.infraccion?.velocidad_medida ?? "-",
-        velMax: a.infraccion?.velocidad_maxima ?? "-",
         direccion: dom?.direccion ?? "-",
         localidad: dom?.localidad ?? "-",
         provincia: dom?.provincia ?? "-",
